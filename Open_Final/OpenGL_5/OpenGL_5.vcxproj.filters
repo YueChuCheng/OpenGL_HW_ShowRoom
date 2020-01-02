@@ -27,28 +27,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Common\CChecker.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
     <ClCompile Include="Common\CLineSegment.cpp">
       <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="Common\common.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="Common\CQuad.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="Common\CSolidCube.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="Common\CSolidSphere.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="Common\CWireCube.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="Common\CWireSphere.cpp">
       <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="Common\Timer.cpp">
@@ -63,36 +45,21 @@
     <ClCompile Include="Common\CCamera.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="Common\CTexturePool.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
     <ClCompile Include="Common\CShape.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="Example2.cpp">
+    <ClCompile Include="Example1.cpp">
       <Filter>原始程式檔</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\CQuad.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\CSmoothQuad.cpp">
+      <Filter>Common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Common\CChecker.h">
-      <Filter>Common</Filter>
-    </ClInclude>
     <ClInclude Include="Common\CLineSegment.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="Common\CQuad.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="Common\CSolidCube.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="Common\CSolidSphere.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="Common\CWireCube.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="Common\CWireSphere.h">
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="Common\Timer.h">
@@ -116,10 +83,13 @@
     <ClInclude Include="Common\CCamera.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="Common\CTexturePool.h">
+    <ClInclude Include="Common\CShape.h">
       <Filter>Common</Filter>
     </ClInclude>
-    <ClInclude Include="Common\CShape.h">
+    <ClInclude Include="Common\CQuad.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\CSmoothQuad.h">
       <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
@@ -146,6 +116,12 @@
       <Filter>原始程式檔</Filter>
     </None>
     <None Include="vsCubeMapping.glsl">
+      <Filter>原始程式檔</Filter>
+    </None>
+    <None Include="fsLighting_GPU.glsl">
+      <Filter>原始程式檔</Filter>
+    </None>
+    <None Include="vsLighting_GPU.glsl">
       <Filter>原始程式檔</Filter>
     </None>
   </ItemGroup>
