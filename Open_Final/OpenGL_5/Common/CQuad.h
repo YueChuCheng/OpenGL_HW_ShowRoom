@@ -23,6 +23,7 @@ public:
 	void renderWithGouraudShading(const LightSource& Lights);
 	void setVtxColors(vec4 vLFColor , vec4 vLRColor, vec4 vTRColor, vec4 vTLColor );
 	void setVtxColors(vec4 vFColor , vec4 vSColor);
+	void setNormal(vec3 vNormal); //更改法向量
 
 	void draw();
 	void drawW();

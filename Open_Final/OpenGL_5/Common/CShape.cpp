@@ -37,7 +37,7 @@ void CShape::createBufferObject()
 	glGenBuffers(1, &_buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, _buffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vec4) * _iNumVtx + sizeof(vec3) * _iNumVtx + sizeof(vec4) * _iNumVtx, NULL, GL_STATIC_DRAW);
-	// sizeof(vec4)*m_iNumVtx + sizeof(vec3)*m_iNumVtx + sizeof(vec4)*m_iNumVtx <- vertices, normal and color
+	//sizeof(vec4)*m_iNumVtx + sizeof(vec3)*m_iNumVtx + sizeof(vec4)*m_iNumVtx <- vertices, normal and color
 
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vec4) * _iNumVtx, _pPoints);  // vertices
 	glBufferSubData(GL_ARRAY_BUFFER, sizeof(vec4) * _iNumVtx, sizeof(vec3) * _iNumVtx, _pNormals); // // vertices' normal

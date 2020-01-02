@@ -15,8 +15,9 @@
 CQuad* CQ_leftWall, * CQ_rightWall;
 CQuad* CQ_frontWall, * CQ_backWall;
 
-CSmoothQuad* cfloor;
 
+CSmoothQuad* CFloor;
+CSmoothQuad* CQ_ceiling;
 
 GLfloat g_fRadius = 10.0;
 GLfloat g_fTheta = 60.0f * DegreesToRadians;
@@ -65,13 +66,22 @@ void init( void )
 	auto camera = CCamera::create();
 	camera->updateViewLookAt(eye, at);
 	camera->updatePerspective(60.0, (GLfloat)SCREEN_SIZE / (GLfloat)SCREEN_SIZE, 1.0, 1000.0);
+	
 
-
-	cfloor = new CSmoothQuad(GRID_SIZE);
-	cfloor->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0, 0.85f, 0, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	cfloor->setKaKdKsShini(0, 0.8f, 0.5f, 1);
-	cfloor->setShadingMode(GOURAUD_SHADING);
-	cfloor->setShader();
+	CFloor = new CSmoothQuad(GRID_SIZE);
+	CFloor->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0, 0.85f, 0, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CFloor->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+	CFloor->setShadingMode(GOURAUD_SHADING);
+	CFloor->setShader();
+	
+	vec3 test=vec3(0.0f, -1.0f, 0.0f);
+	CQ_ceiling = new CSmoothQuad(GRID_SIZE,20.0f);
+	CQ_ceiling->setNormal(test);
+	CQ_ceiling->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0, 0.85f, 0, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CQ_ceiling->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+	CQ_ceiling->setShadingMode(GOURAUD_SHADING);
+	CQ_ceiling->setShader();
+	
 	
 
 
@@ -117,10 +127,6 @@ void init( void )
 	CQ_backWall->setKaKdKsShini(0, 0.8f, 0.5f, 1);
 	
 
-	
-	
-
-
 
 	bool bPDirty;
 	mat4 mpx = camera->getProjectionMatrix(bPDirty);
@@ -129,19 +135,21 @@ void init( void )
 	CQ_rightWall->setProjectionMatrix(mpx);
 	CQ_frontWall->setProjectionMatrix(mpx);
 	CQ_backWall->setProjectionMatrix(mpx);
-	cfloor->setProjectionMatrix(mpx);
-	
+	CFloor->setProjectionMatrix(mpx);
+	CQ_ceiling->setProjectionMatrix(mpx);
 }
 
 //----------------------------------------------------------------------------
 void GL_Display( void )
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the window
-	cfloor->draw();
+	CFloor->draw();
+	CQ_ceiling->draw();
 	CQ_leftWall->draw();
 	CQ_rightWall->draw();
 	CQ_frontWall->draw();
 	CQ_backWall->draw();
+
 	
 	glutSwapBuffers();	// 交換 Frame Buffer
 }
@@ -163,12 +171,12 @@ void onFrameMove(float delta)
 	auto camera = CCamera::getInstance();
 	mvx = camera->getViewMatrix(bVDirty);
 	if (bVDirty) {
-		cfloor->setViewMatrix(mvx);
+		CFloor->setViewMatrix(mvx);
 		CQ_leftWall->setViewMatrix(mvx);
 		CQ_rightWall->setViewMatrix(mvx);
 		CQ_frontWall->setViewMatrix(mvx);
 		CQ_backWall->setViewMatrix(mvx);
-		
+		CQ_ceiling->setViewMatrix(mvx);
 	
 	
 	}
@@ -177,7 +185,8 @@ void onFrameMove(float delta)
 		UpdateLightPosition(delta);
 	}
 	// 如果需要重新計算時，在這邊計算每一個物件的顏色
-	cfloor->update(delta, g_Light1);
+	CFloor->update(delta, g_Light1);
+	CQ_ceiling->update(delta, g_Light1);
 	CQ_leftWall->update(delta, g_Light1);
 	CQ_rightWall->update(delta, g_Light1);
 	CQ_frontWall->update(delta, g_Light1);
@@ -194,6 +203,13 @@ void Win_Keyboard( unsigned char key, int x, int y )
 {
     switch ( key ) {
     case 033:
+		delete CFloor;
+		delete CQ_ceiling;
+		delete CQ_leftWall;
+		delete CQ_rightWall;
+		delete CQ_frontWall;
+		delete CQ_backWall;
+		CCamera::getInstance()->destroyInstance();
         exit( EXIT_SUCCESS );
         break;
     }

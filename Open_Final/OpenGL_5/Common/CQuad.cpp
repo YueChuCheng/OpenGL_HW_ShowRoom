@@ -33,6 +33,17 @@ CQuad::CQuad() {
 
 }
 
+void CQuad::setNormal(vec3 vNormal) {
+	_pNormals[0] = vec3(0, -1.0f, 0);
+	_pNormals[1] = vec3(0, -1.0f, 0);
+	_pNormals[2] = vec3(0, -1.0f, 0);
+	_pNormals[3] = vec3(0, -1.0f, 0);
+	_pNormals[4] = vec3(0, -1.0f, 0);
+	_pNormals[5] = vec3(0, -1.0f, 0);
+	
+}
+
+
 void CQuad::renderWithFlatShading(vec4 vLightPos, color4 vLight) {
 	// 因為每一個平面的頂點的 Normal 都相同，所以此處並沒有計算此三個頂點的平均 Normal
 	vec4 vCentroid;

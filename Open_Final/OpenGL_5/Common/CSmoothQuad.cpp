@@ -15,6 +15,7 @@ CSmoothQuad::CSmoothQuad(int iSize, float fYPos)
 	_fYPos = fYPos;
 
 
+
 }
 
 //設定每一格的渲染方式
@@ -48,20 +49,12 @@ void CSmoothQuad::setShader() {
 			if (i + j == 0) { // 第一個， 需要指定 Shader
 				_pSquares[idx].setShader();
 				_shaderHandle = _pSquares[idx].getShaderHandle();
-				vColor.x = 0.3f; vColor.y = 0.6f; vColor.z = 0.6f; vColor.w = 1.0f;
-				_pSquares[idx].setColor(vColor);
+				
 			}
 			else { // 其他的 
 				
 				_pSquares[idx].setShader(_shaderHandle);
-				/*if ((i + j) % 2) {
-					vColor.x = 0.2f; vColor.y = 0.2f; vColor.z = 0.2f; vColor.w = 1.0f;
-					_pSquares[idx].setColor(vColor);
-				}
-				else {
-					vColor.x = 0.3f; vColor.y = 0.6f; vColor.z = 0.6f; vColor.w = 1.0f;
-					_pSquares[idx].setColor(vColor);
-				}*/
+				
 			}
 			mxT = Translate(_pfSquaresT[idx * 3 + 0], _pfSquaresT[idx * 3 + 1], _pfSquaresT[idx * 3 + 2]);
 			_pSquares[idx].setTRSMatrix(mxT);
@@ -124,5 +117,14 @@ void CSmoothQuad::setMaterials(color4 ambient, color4 diffuse, color4 specular) 
 void CSmoothQuad::setKaKdKsShini(float ka, float kd, float ks, float shininess) {
 	for (int i = 0; i < _iGridSize * _iGridSize; i++) {
 		_pSquares[i].setKaKdKsShini(ka, kd, ks, shininess);
+	}
+}
+
+
+//設定法向量的值
+void CSmoothQuad::setNormal(vec3 vNormal) {
+	for (int i = 0; i < _iGridSize * _iGridSize; i++) {
+		_pSquares[i].setNormal(vNormal);
+		
 	}
 }
