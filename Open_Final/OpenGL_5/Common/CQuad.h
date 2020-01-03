@@ -12,6 +12,7 @@ public:
 	CQuad ();
 	~CQuad() {};
 
+	void update(float dt, const LightSource* lights);
 	void update(float dt, vec4 vLightPos, color4 vLightI);
 	void update(float dt, const LightSource &Lights);
 	void update(float dt);
