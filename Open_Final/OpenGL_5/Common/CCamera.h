@@ -37,6 +37,8 @@ public:
 
 	void destroyInstance();		// 釋放取得資源
 
+	vec4 getViewPosition() { return _viewPosition; }
+
 protected:
 	CCamera();		// 避免被誤用
 	~CCamera();
