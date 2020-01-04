@@ -109,6 +109,14 @@ void CSmoothQuad::update(float dt, const LightSource& Lights) {
 	}
 }
 
+
+void CSmoothQuad::update(float dt, const LightSource* Lights) {
+	for (int i = 0; i < _iGridSize * _iGridSize; i++) {
+		_pSquares[i].update(dt, Lights);
+	}
+
+}
+
 void CSmoothQuad::setMaterials(color4 ambient, color4 diffuse, color4 specular) {
 	for (int i = 0; i < _iGridSize * _iGridSize; i++) {
 		_pSquares[i].setMaterials(ambient, diffuse, specular);

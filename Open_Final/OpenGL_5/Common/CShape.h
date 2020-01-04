@@ -1,6 +1,9 @@
 
 #ifndef CSHAPE_H
 #define CSHAPE_H
+#define LIGHT_NUM 2 //縊獁计秖
+
+
 #include "../Header/Angel.h"
 #include "TypeDefine.h"
 
@@ -34,21 +37,25 @@ protected:
 	GLuint _uiModelView, _uiProjection, _uiColor;
 	GLuint _vbo;
 	GLuint _uiBuffer;
-
-	point4 _vLightInView; //方畒夹竚
-	GLuint _uiLightInView; //方shader竚
-	GLuint _uiAmbient; //light's ambient 籔 object's ambient 籔 ka縩
-	GLuint _uiDiffuse;
-	GLuint _uiSpecular;
+	
 	GLuint _uiShininess;
-	GLuint _uiLighting;
+	
+	GLuint _uiLightInView[LIGHT_NUM]; //方shader竚
+	GLuint _uiAmbient[LIGHT_NUM]; //light's ambient 籔 object's ambient 籔 ka縩
+	GLuint _uiDiffuse[LIGHT_NUM];
+	GLuint _uiSpecular[LIGHT_NUM];
+	GLuint _uiLighting[LIGHT_NUM];
+	float _uicutoff[LIGHT_NUM];
+	GLuint _uiLightNUM; //Τ碭辐縊
 
-	LightSource _light;
+	point4 _vLightInView[LIGHT_NUM]; //方畒夹竚
+	color4 _ambientProduct[LIGHT_NUM];
+	color4 _diffuseProduct[LIGHT_NUM];
+	color4 _specularProduct[LIGHT_NUM];
+	int _iLighting[LIGHT_NUM]; //琌璶ゴ縊
+	float _cutoff[LIGHT_NUM];
 
-	color4 _ambientProduct;
-	color4 _diffuseProduct;
-	color4 _specularProduct;
-	int _iLighting; //琌璶ゴ縊
+	
 	
 	mat4 _mxView, _mxProjection, _mxTRS;
 	mat4 _mxMVFinal;
@@ -70,6 +77,7 @@ public:
 	virtual void drawW() = 0;
 	virtual void update(float dt , point4 vLightPos , color4 vLight) = 0;
 	virtual void update(float dt, const LightSource &lights) = 0;
+	virtual void update(float dt, const LightSource* lights) = 0;
 	virtual void update(float dt) = 0;
 
 	void setShaderName(const char vxShader[],const char fsShader[]);
@@ -86,7 +94,13 @@ public:
 	vec4 phongReflectionModel(vec4 vPoint, vec3 vNormal, vec4 vLightPos, color4 vLight);
 	vec4 phongReflectionModel(vec4 vPoint, vec3 vNormal, const LightSource &Lights);
 
-	void setLightingDisable() { _iLighting = 0; }
+	void setLightingDisable() { 
+		for (int i = 0; i < LIGHT_NUM; i++)
+		{
+			_iLighting[i] = 0;
+		}
+		
+	}
 
 
 };

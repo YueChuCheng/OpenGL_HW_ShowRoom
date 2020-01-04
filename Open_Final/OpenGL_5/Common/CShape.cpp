@@ -1,5 +1,7 @@
 #include "CShape.h"
 
+
+
 CShape::CShape() {
 	// ambient 預設為 0, diffuse, specular 的顏色都是灰色 0.5
 	// Ka = 0 係數 , kd = 0.8 , ks = 0.2
@@ -13,7 +15,13 @@ CShape::CShape() {
 
 	// 預設為 RGBA 為 (0.5,0.5,0.5,1.0) , 由這個灰階顏色來代表的物件顏色
 	_Color[0] = 0.5f; _Color[1] = 0.5f; _Color[2] = 0.5f; _Color[3] = 1.0f;
-	_iLighting = 1; // 預設接受燈光的照明
+	/*for (int i = 0; i < LIGHT_NUM; i++)
+	{
+		_iLighting[i] = 1; // 預設接受燈光的照明
+
+	}*/
+	_iLighting[0] = 1; // 預設接受燈光的照明
+	_iLighting[1] = 1; // 預設接受燈光的照明
 
 }
 
@@ -76,23 +84,50 @@ void CShape::setShader(GLuint shaderHandle) {
 
 
 	//lighting with GPU
-	_uiLightInView = glGetUniformLocation(_vbo, "LightInView");
-	glUniform4fv(_uiLightInView, 1, _vLightInView);
-
-	_uiAmbient = glGetUniformLocation(_vbo, "AmbientProduct");
-	glUniform4fv(_uiAmbient, 1, _ambientProduct);
-
-	_uiDiffuse = glGetUniformLocation(_vbo, "DiffuseProduct");
-	glUniform4fv(_uiDiffuse, 1, _diffuseProduct);
-
-	_uiSpecular = glGetUniformLocation(_vbo, "SpecularProduct");
-	glUniform4fv(_uiSpecular, 1, _specularProduct);
 
 	_uiShininess = glGetUniformLocation(_vbo, "fShininess");
 	glUniform1f(_uiShininess, _material.shininess);
 
-	_uiLighting = glGetUniformLocation(_vbo, "iLighting");
-	glUniform1i(_uiLighting, _iLighting);
+	
+		_uiLightInView[0] = glGetUniformLocation(_vbo, "LightInView[0]");
+		glUniform4fv(_uiLightInView[0], 1, _vLightInView[0]);
+
+		_uiLightInView[1] = glGetUniformLocation(_vbo, "LightInView[1]");
+		glUniform4fv(_uiLightInView[1], 1, _vLightInView[1]);
+
+	
+		_uiAmbient[0] = glGetUniformLocation(_vbo, "AmbientProduct[0]");
+		glUniform4fv(_uiAmbient[0], 1, _ambientProduct[0]);
+
+		_uiAmbient[1] = glGetUniformLocation(_vbo, "AmbientProduct[1]");
+		glUniform4fv(_uiAmbient[1], 1, _ambientProduct[1]);
+
+		_uiDiffuse[0] = glGetUniformLocation(_vbo, "DiffuseProduct[0]");
+		glUniform4fv(_uiDiffuse[0], 1, _diffuseProduct[0]);
+		
+		_uiDiffuse[1] = glGetUniformLocation(_vbo, "DiffuseProduct[1]");
+		glUniform4fv(_uiDiffuse[1], 1, _diffuseProduct[1]);
+
+
+		_uiSpecular[0] = glGetUniformLocation(_vbo, "SpecularProduct[0]");
+		glUniform4fv(_uiSpecular[0], 1, _specularProduct[0]);
+
+		_uiSpecular[1] = glGetUniformLocation(_vbo, "SpecularProduct[1]");
+		glUniform4fv(_uiSpecular[1], 1, _specularProduct[1]);
+
+		_uiLighting[0] = glGetUniformLocation(_vbo, "iLighting[0]");
+		glUniform1i(_uiLighting[0], _iLighting[0]);
+
+		_uiLighting[1] = glGetUniformLocation(_vbo, "iLighting[1]");
+		glUniform1i(_uiLighting[1], _iLighting[1]);
+	
+		_uicutoff[0] = glGetUniformLocation(_vbo, "Cutoff[0]");
+		glUniform1f(_uicutoff[0], _cutoff[0]);
+
+		_uicutoff[1] = glGetUniformLocation(_vbo, "Cutoff[1]");
+		glUniform1f(_uicutoff[1], _cutoff[1]);
+
+		
 
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -113,12 +148,20 @@ void CShape::drawingSetShader() {
 	}
 
 	glUniform4fv(_uiColor, 1, _Color);
-	glUniform4fv(_uiLightInView, 1, _vLightInView);
-	glUniform4fv(_uiAmbient, 1, _ambientProduct);
-	glUniform4fv(_uiDiffuse, 1, _diffuseProduct);
-	glUniform4fv(_uiSpecular, 1, _specularProduct);
+	for (int i = 0; i < LIGHT_NUM; i++)
+	{
+		glUniform4fv(_uiLightInView[i], 1, _vLightInView[i]);
+		glUniform4fv(_uiAmbient[i], 1, _ambientProduct[i]);
+		glUniform4fv(_uiDiffuse[i], 1, _diffuseProduct[i]);
+		glUniform4fv(_uiSpecular[i], 1, _specularProduct[i]);
+		glUniform1i(_uiLighting[i], _iLighting[i]);
+		glUniform1f(_uicutoff[i], _cutoff[i]);
+	}
+	
+	
+	
 	glUniform1f(_uiShininess, _material.shininess);
-	glUniform1i(_uiLighting, _iLighting);
+	
 
 }
 
@@ -134,12 +177,20 @@ void CShape::drawingWithoutSetShader()
 	}
 
 	glUniform4fv(_uiColor, 1, _Color);
-	glUniform4fv(_uiLightInView, 1, _vLightInView);
-	glUniform4fv(_uiAmbient, 1, _ambientProduct);
-	glUniform4fv(_uiDiffuse, 1, _diffuseProduct);
-	glUniform4fv(_uiSpecular, 1, _specularProduct);
+	for (int i = 0; i < LIGHT_NUM; i++)
+	{
+		glUniform4fv(_uiLightInView[i], 1, _vLightInView[i]);
+		glUniform4fv(_uiAmbient[i], 1, _ambientProduct[i]);
+		glUniform4fv(_uiDiffuse[i], 1, _diffuseProduct[i]);
+		glUniform4fv(_uiSpecular[i], 1, _specularProduct[i]);
+		glUniform1i(_uiLighting[i], _iLighting[i]);
+		glUniform1f(_uicutoff[i], _cutoff[i]);
+	}
+	
+	
+	
 	glUniform1f(_uiShininess, _material.shininess);
-	glUniform1i(_uiLighting, _iLighting);
+	
 }
 
 

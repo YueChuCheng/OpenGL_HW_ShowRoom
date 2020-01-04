@@ -34,12 +34,12 @@ CQuad::CQuad() {
 }
 
 void CQuad::setNormal(vec3 vNormal) {
-	_pNormals[0] = vec3(0, -1.0f, 0);
-	_pNormals[1] = vec3(0, -1.0f, 0);
-	_pNormals[2] = vec3(0, -1.0f, 0);
-	_pNormals[3] = vec3(0, -1.0f, 0);
-	_pNormals[4] = vec3(0, -1.0f, 0);
-	_pNormals[5] = vec3(0, -1.0f, 0);
+	_pNormals[0] = vNormal;
+	_pNormals[1] = vNormal;
+	_pNormals[2] = vNormal;
+	_pNormals[3] = vNormal;
+	_pNormals[4] = vNormal;
+	_pNormals[5] = vNormal;
 	
 }
 
@@ -100,7 +100,7 @@ void CQuad::renderWithGouraudShading(const LightSource& Lights)
 void CQuad::update(float dt, vec4 vLightPos, color4 vLightI)
 {
 
-	if (_viewUpdated || _TRSUpdated) {
+	/*if (_viewUpdated || _TRSUpdated) {
 		_mxMVFinal = _mxView * _mxTRS;
 		_viewUpdated = _TRSUpdated = false;
 	}
@@ -108,34 +108,41 @@ void CQuad::update(float dt, vec4 vLightPos, color4 vLightI)
 	// 算出 AmbientProduct DiffuseProduct 與 SpecularProduct 的內容
 	_ambientProduct = _material.ka * _material.ambient * vLightI;
 	_diffuseProduct = _material.kd * _material.diffuse * vLightI;
-	_specularProduct = _material.ks * _material.specular * vLightI;
+	_specularProduct = _material.ks * _material.specular * vLightI;*/
 
 
 }
 
-//void CQuad::update(float dt, const LightSource* Lights)
-//{
-//
-//	if (_viewUpdated || _TRSUpdated) {
-//		_mxMVFinal = _mxView * _mxTRS;
-//		_viewUpdated = _TRSUpdated = false;
-//	}
-//	/*for (int i = 0; i < 2; i++)
-//	{*/
-//		_vLightInView = _mxView * Lights.position;		// 將 Light 轉換到鏡頭座標再傳入
-//		// 算出 AmbientProduct DiffuseProduct 與 SpecularProduct 的內容
-//		_ambientProduct = _material.ka * _material.ambient * Lights.ambient;
-//		_diffuseProduct = _material.kd * _material.diffuse * Lights.diffuse;
-//		_specularProduct = _material.ks * _material.specular * Lights.specular;
-//	//}
-//	
-//
-//}
+void CQuad::update(float dt, const LightSource* Lights)
+{
+
+	if (_viewUpdated || _TRSUpdated) {
+		_mxMVFinal = _mxView * _mxTRS;
+		_viewUpdated = _TRSUpdated = false;
+	}
+	/*vec3 vLightDir = _mxMVFinal * Lights[1].spotDirection;
+
+	// 5. 計算照明的點是否落在 spotCutoff 之內
+	GLfloat fLdotLDir = -(vLight.x * vLightDir.x + vLight.y * vLightDir.y + vLight.z * vLightDir.z);
+	*/
+	for (int i = 0; i < 2; i++)
+	{
+		_vLightInView[i] = _mxView * Lights[i].position;		// 將 Light 轉換到鏡頭座標再傳入
+		// 算出 AmbientProduct DiffuseProduct 與 SpecularProduct 的內容
+		_ambientProduct[i] = _material.ka * _material.ambient * Lights[i].ambient;
+		_diffuseProduct[i] = _material.kd * _material.diffuse * Lights[i].diffuse ;
+		_specularProduct[i] = _material.ks * _material.specular * Lights[i].specular;
+		_cutoff[i] = Lights[i].spotCutoff;
+		
+	}
+	
+
+}
 
 void CQuad::update(float dt, const LightSource& Lights)
 {
 
-	if (_viewUpdated || _TRSUpdated) {
+	/*if (_viewUpdated || _TRSUpdated) {
 		_mxMVFinal = _mxView * _mxTRS;
 		_viewUpdated = _TRSUpdated = false;
 	}
@@ -143,7 +150,7 @@ void CQuad::update(float dt, const LightSource& Lights)
 	// 算出 AmbientProduct DiffuseProduct 與 SpecularProduct 的內容
 	_ambientProduct = _material.ka * _material.ambient * Lights.ambient;
 	_diffuseProduct = _material.kd * _material.diffuse * Lights.diffuse;
-	_specularProduct = _material.ks * _material.specular * Lights.specular;
+	_specularProduct = _material.ks * _material.specular * Lights.specular;*/
 
 }
 

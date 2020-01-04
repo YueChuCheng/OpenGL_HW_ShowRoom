@@ -4,6 +4,7 @@
 #include "Common/CSmoothQuad.h"
 #include "Common/CCamera.h"
 
+
 #define SPACE_KEY 32
 #define SCREEN_SIZE 800
 #define HALF_SIZE SCREEN_SIZE /2 
@@ -33,7 +34,7 @@ point4 right;
 // Part 2 : for single light source
 bool g_bAutoRotating = false;
 float _fLightDelta = 0; //燈光旋轉，經過時間
-float _fLightRadius = 10;//燈光位置
+float _fLightRadius = 16;//燈光位置
 float _fLightTheta = 0;//燈光旋轉角度
 
 float g_fLightR = 0.85f;
@@ -41,11 +42,8 @@ float g_fLightG = 0.85f;
 float g_fLightB = 0.85f;
 
 //light
-#define LIGHT_NUM 2
 vec4 vlight_Center(0.0f, 10.0f, 0.0f, 1.0f);
 vec4 vlight_Center_Color(g_fLightR, g_fLightG, g_fLightB, 1.0f);
-
-
 
 
 
@@ -70,15 +68,15 @@ LightSource  Light_center = {
 
 LightSource  _Light1 = {
 
-	color4(g_fLightR, g_fLightG, g_fLightB, 1.0f), // ambient 
-	color4(g_fLightR, 0.5, 0.5, 1.0f), // diffuse
-	color4(g_fLightR, g_fLightG, g_fLightB, 1.0f), // specular
-	point4(_fLightRadius, _fLightRadius, 0.0f, 1.0f),   // position
+	color4(0.0, 0.0, 0.0, 1.0f), // ambient 
+	color4(1.0, 0.0, 0.0, 1.0f), // diffuse
+	color4(0.0, 0.0, 0.0, 1.0f), // specular
+	point4(10.0, 16.0, 10.0f, 1.0f),   // position
 	point4(0.0f, 0.0f, 0.0f, 1.0f),   // halfVector
-	vec3(0.0f, 0.0f, 0.0f),		  //spotTarget
-	vec3(0.0f, 0.0f, 0.0f),			  //spotDirection
+	vec3(10.0f, 0.0f, 10.0f),		  //spotTarget
+	vec3(10.0f, 0.0f, 10.0f),			  //spotDirection
 	1.0f	,	// spotExponent(parameter e); cos^(e)(phi) 
-	45.0f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
+	0.85f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
 	1.0f	,	// spotCosCutoff; // (range: [1.0,0.0],-1.0), 照明方向與被照明點之間的角度取 cos 後, cut off 的值
 	1	,	// constantAttenuation	(a + bd + cd^2)^-1 中的 a, d 為光源到被照明點的距離
 	0	,	// linearAttenuation	    (a + bd + cd^2)^-1 中的 b
@@ -87,27 +85,8 @@ LightSource  _Light1 = {
 
 LightSource Light_resulte[LIGHT_NUM] = { //最後燈光結果
 
-	Light_center , _Light1
+	Light_center,  _Light1
 };
-
-
-
-//LightSource  _Light_end = {
-//
-//	color4(0, 0, 0, 1.0f), // ambient 
-//	color4(0, 0, 0, 1.0f), // diffuse
-//	color4(0, 0, 0, 1.0f), // specular
-//	point4(_fLightRadius, _fLightRadius, 0.0f, 1.0f),   // position
-//	point4(0.0f, 0.0f, 0.0f, 1.0f),   // halfVector
-//	vec3(0.0f, 0.0f, 0.0f),		  //spotTarget
-//	vec3(0.0f, 0.0f, 0.0f),			  //spotDirection
-//	1.0f	,	// spotExponent(parameter e); cos^(e)(phi) 
-//	45.0f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
-//	1.0f	,	// spotCosCutoff; // (range: [1.0,0.0],-1.0), 照明方向與被照明點之間的角度取 cos 後, cut off 的值
-//	1	,	// constantAttenuation	(a + bd + cd^2)^-1 中的 a, d 為光源到被照明點的距離
-//	0	,	// linearAttenuation	    (a + bd + cd^2)^-1 中的 b
-//	0		// quadraticAttenuation (a + bd + cd^2)^-1 中的 c
-//};
 
 
 // 函式的原型宣告
@@ -132,9 +111,9 @@ void init( void )
 	CFloor->setShadingMode(GOURAUD_SHADING);
 	CFloor->setShader();
 	
-	vec3 test=vec3(0.0f, -1.0f, 0.0f);
-	CQ_ceiling = new CSmoothQuad(GRID_SIZE,15.0f);
-	CQ_ceiling->setNormal(test);
+	vec3 vceilingNormal =vec3(0.0f, -1.0f, 0.0f);
+	CQ_ceiling = new CSmoothQuad(GRID_SIZE,20.0f);
+	CQ_ceiling->setNormal(vceilingNormal);
 	CQ_ceiling->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	CQ_ceiling->setKaKdKsShini(0, 0.8f, 0.5f, 1);
 	CQ_ceiling->setShadingMode(GOURAUD_SHADING);
@@ -146,37 +125,43 @@ void init( void )
 	vT.x = -20.0f; vT.y = 20.0f; vT.z = 0;
 	mxT = Translate(vT);
 	CQ_leftWall = new CQuad;
+	CQ_leftWall->setNormal(vec3(-1.0, 0.0, 0.0));
 	CQ_leftWall->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	CQ_leftWall->setShadingMode(GOURAUD_SHADING);
 	CQ_leftWall->setShader();
 	CQ_leftWall->setColor(vec4(0.6f));
 	CQ_leftWall->setTRSMatrix(mxT * RotateZ(-90.0f) * Scale(40.0f, 1, 40.0f));
 	CQ_leftWall->setKaKdKsShini(0, 0.8f, 0.5f, 1);
-
+	
 
 	vT.x = 20.0f; vT.y = 20.0f; vT.z = 0;
 	mxT = Translate(vT);
 	CQ_rightWall = new CQuad;
+	CQ_rightWall->setNormal(vec3(1.0, 0.0, 0.0));
 	CQ_rightWall->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	CQ_rightWall->setShadingMode(GOURAUD_SHADING);
 	CQ_rightWall->setShader();
 	CQ_rightWall->setColor(vec4(0.6f));
 	CQ_rightWall->setTRSMatrix(mxT * RotateZ(90.0f) * Scale(40.0f, 1, 40.0f));
 	CQ_rightWall->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+	
 
 	vT.x = 0.0f; vT.y = 20.0f; vT.z = 20.0f;
 	mxT = Translate(vT);
 	CQ_frontWall = new CQuad;
+	CQ_frontWall->setNormal(vec3(0.0, 0.0, 1.0));
 	CQ_frontWall->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	CQ_frontWall->setShadingMode(GOURAUD_SHADING);
 	CQ_frontWall->setShader();
 	CQ_frontWall->setColor(vec4(0.6f));
 	CQ_frontWall->setTRSMatrix(mxT * RotateX(-90.0f) * Scale(40.0f, 1, 40.0f));
 	CQ_frontWall->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+	
 
 	vT.x = 0.0f; vT.y = 20.0f; vT.z = -20.0f;
 	mxT = Translate(vT);
 	CQ_backWall = new CQuad;
+	CQ_backWall->setNormal(vec3(0.0, 0.0, -1.0));
 	CQ_backWall->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	CQ_backWall->setShadingMode(GOURAUD_SHADING);
 	CQ_backWall->setShader();
@@ -226,8 +211,8 @@ void UpdateLightPosition(float dt)
 		_fLightTheta -= (float)M_PI * 2.0f;
 		_fLightDelta -= 8.0f;
 	}
-	Light_center.position.x = _fLightRadius * cosf(_fLightTheta);
-	Light_center.position.z = _fLightRadius * sinf(_fLightTheta);
+	Light_resulte[0].position.x = _fLightRadius * cosf(_fLightTheta);
+	Light_resulte[0].position.z = _fLightRadius * sinf(_fLightTheta);
 	
 	
 }
@@ -258,31 +243,14 @@ void onFrameMove(float delta)
 	// 如果需要重新計算時，在這邊計算每一個物件的顏色
 
 
-
-
-
-	/*CFloor->update(delta, vlight_Center,vlight_Center_Color);
-	CQ_ceiling->update(delta, vlight_Center, vlight_Center_Color);
-	CQ_leftWall->update(delta, vlight_Center, vlight_Center_Color);
-	CQ_rightWall->update(delta, vlight_Center, vlight_Center_Color);
-	CQ_frontWall->update(delta, vlight_Center, vlight_Center_Color);
-	CQ_backWall->update(delta, vlight_Center, vlight_Center_Color);*/
 	
-	/*CFloor->update(delta, Light_resulte);
+	CFloor->update(delta, Light_resulte);
 	CQ_ceiling->update(delta, Light_resulte);
 	CQ_leftWall->update(delta, Light_resulte);
 	CQ_rightWall->update(delta, Light_resulte);
 	CQ_frontWall->update(delta, Light_resulte);
-	CQ_backWall->update(delta, Light_resulte);*/
+	CQ_backWall->update(delta, Light_resulte);
 
-
-	CFloor->update(delta, Light_center);
-	CQ_ceiling->update(delta, Light_center);
-	CQ_leftWall->update(delta, Light_center);
-	CQ_rightWall->update(delta, Light_center);
-	CQ_frontWall->update(delta, Light_center);
-	CQ_backWall->update(delta, Light_center);
-	
 
 
 	GL_Display();
@@ -299,46 +267,46 @@ void Win_Keyboard( unsigned char key, int x, int y )
 		g_bAutoRotating = !g_bAutoRotating;
 		break;
 
-	//case 82: //R
-	//	if (Light_center.diffuse.x < 1.0f)
-	//		Light_center.diffuse.x += 0.05f;
-	//	else
-	//		Light_center.diffuse.x = 0.95f;
-	//	break;
-	//case 114: //r
-	//	if (Light_center.diffuse.x > 0.0f)
-	//		Light_center.diffuse.x -= 0.05f;
-	//	else
-	//		Light_center.diffuse.x = 0.01f;
-	//	break;
+	case 82: //R
+		if (Light_resulte[0].diffuse.x < 1.0f)
+			Light_resulte[0].diffuse.x += 0.05f;
+		else
+			Light_resulte[0].diffuse.x = 0.95f;
+		break;
+	case 114: //r
+		if (Light_resulte[0].diffuse.x > 0.0f)
+			Light_resulte[0].diffuse.x -= 0.05f;
+		else
+			Light_resulte[0].diffuse.x = 0.01f;
+		break;
 
-	//case 71: //G
-	//	if (Light_center.diffuse.y < 1.0f)
-	//		Light_center.diffuse.y += 0.05f;
-	//	else
-	//		Light_center.diffuse.y = 0.95f;
-	//	break;
+	case 71: //G
+		if (Light_resulte[0].diffuse.y < 1.0f)
+			Light_resulte[0].diffuse.y += 0.05f;
+		else
+			Light_resulte[0].diffuse.y = 0.95f;
+		break;
 
-	//case 103: //g
-	//	if (Light_center.diffuse.y > 0.0f)
-	//		Light_center.diffuse.y -= 0.05f;
-	//	else
-	//		Light_center.diffuse.y = 0.01;
-	//	break;
+	case 103: //g
+		if (Light_resulte[0].diffuse.y > 0.0f)
+			Light_resulte[0].diffuse.y -= 0.05f;
+		else
+			Light_resulte[0].diffuse.y = 0.01;
+		break;
 
-	//case 66: //B
-	//	if (Light_center.diffuse.z < 1.0f)
-	//		Light_center.diffuse.z += 0.05f;
-	//	else
-	//		Light_center.diffuse.z = 0.95f;
-	//	break;
+	case 66: //B
+		if (Light_resulte[0].diffuse.z < 1.0f)
+			Light_resulte[0].diffuse.z += 0.05f;
+		else
+			Light_resulte[0].diffuse.z = 0.95f;
+		break;
 
-	//case 98: //b
-	//	if (Light_center.diffuse.z > 0.0f)
-	//		Light_center.diffuse.z -= 0.05f;
-	//	else
-	//		Light_center.diffuse.z = 0.01;
-	//	break;
+	case 98: //b
+		if (Light_resulte[0].diffuse.z > 0.0f)
+			Light_resulte[0].diffuse.z -= 0.05f;
+		else
+			Light_resulte[0].diffuse.z = 0.01;
+		break;
 
 
 	case 80://P
