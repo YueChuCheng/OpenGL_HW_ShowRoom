@@ -1,6 +1,6 @@
 // Phong reflection model
 #version 130
-#define LIGHT_NUM 2 //燈泡數量
+#define LIGHT_NUM 4 //燈泡數量
 
 in vec4 vPosition;	// Vertex Position
 in vec3 vNormal;    // Vertex Normal

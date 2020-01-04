@@ -1,7 +1,7 @@
 #version 130
 // iTexLayer 的設定與判斷方式，假設此處可以支援到六張貼圖
 
-#define LIGHT_NUM 2 //燈泡數量
+#define LIGHT_NUM 4 //燈泡數量
 #define NONE_MAP 0
 #define DIFFUSE_MAP 1
 #define LIGHT_MAP 2
@@ -50,7 +50,7 @@ void main()
 		{
 
 			//V 1. 計算 Ambient color : Ia = AmbientProduct = Ka * Material.ambient * La =
-			vec4 ambient = AmbientProduct[i]; // m_sMaterial.ka * m_sMaterial.ambient * vLightI;
+			vec4 ambient = AmbientProduct[0]; // m_sMaterial.ka * m_sMaterial.ambient * vLightI;
 
 			// 單位化傳入的 Normal Dir
 			vec3 vN = normalize(v3N);
@@ -65,7 +65,7 @@ void main()
 
 				//V Diffuse Color : Id = Kd * Material.diffuse * Ld * (L dot N)
 				if(Cutoff[i] > 0.0f) //spot light
-					diffuse += fLdotN *fLdotN *fLdotN *fLdotN *fLdotN *fLdotN *fLdotN *fLdotN * DiffuseProduct[i]  ;
+					diffuse += pow(fLdotN , 10) * DiffuseProduct[i];
 				else
 					diffuse += fLdotN * DiffuseProduct[i]  ;
 

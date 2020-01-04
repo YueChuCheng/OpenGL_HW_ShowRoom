@@ -1,7 +1,7 @@
 
 #ifndef CSHAPE_H
 #define CSHAPE_H
-#define LIGHT_NUM 2 //燈泡數量
+#define LIGHT_NUM 4 //燈泡數量
 
 
 #include "../Header/Angel.h"
@@ -52,7 +52,7 @@ protected:
 	color4 _ambientProduct[LIGHT_NUM];
 	color4 _diffuseProduct[LIGHT_NUM];
 	color4 _specularProduct[LIGHT_NUM];
-	int _iLighting[LIGHT_NUM]; //是否要打燈
+	
 	float _cutoff[LIGHT_NUM];
 
 	
@@ -94,11 +94,11 @@ public:
 	vec4 phongReflectionModel(vec4 vPoint, vec3 vNormal, vec4 vLightPos, color4 vLight);
 	vec4 phongReflectionModel(vec4 vPoint, vec3 vNormal, const LightSource &Lights);
 
-	void setLightingDisable() { 
-		for (int i = 0; i < LIGHT_NUM; i++)
-		{
+	int _iLighting[LIGHT_NUM]; //是否要打燈
+
+	void setLightingDisable(int i /*編號第幾號的燈光*/) { 
+		
 			_iLighting[i] = 0;
-		}
 		
 	}
 

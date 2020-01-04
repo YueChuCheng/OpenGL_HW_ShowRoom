@@ -57,6 +57,9 @@
     <ClCompile Include="Common\CSmoothQuad.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="Common\C2DBTN.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\CLineSegment.h">
@@ -92,6 +95,9 @@
     <ClInclude Include="Common\CSmoothQuad.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="Common\C2DBTN.h">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="fsPerPixelLighting.glsl">
@@ -122,6 +128,12 @@
       <Filter>原始程式檔</Filter>
     </None>
     <None Include="vsLighting_GPU.glsl">
+      <Filter>原始程式檔</Filter>
+    </None>
+    <None Include="vsVtxNormal.glsl">
+      <Filter>原始程式檔</Filter>
+    </None>
+    <None Include="fsVtxNormal.glsl">
       <Filter>原始程式檔</Filter>
     </None>
   </ItemGroup>

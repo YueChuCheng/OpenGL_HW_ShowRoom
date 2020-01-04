@@ -2,6 +2,7 @@
 #include "Common/TypeDefine.h"
 #include "Common/CQuad.h"
 #include "Common/CSmoothQuad.h"
+#include "Common/C2DBTN.h"
 #include "Common/CCamera.h"
 
 
@@ -20,6 +21,9 @@ CQuad* CQ_frontWall, * CQ_backWall;
 CSmoothQuad* CFloor;
 CSmoothQuad* CQ_ceiling;
 
+//button
+C2DBTN* CBtn[4];
+
 GLfloat g_fRadius = 40.0; //視覺範圍
 GLfloat g_fTheta = 60.0f * DegreesToRadians;
 GLfloat g_fPhi = 45.0f * DegreesToRadians;
@@ -34,12 +38,12 @@ point4 right;
 // Part 2 : for single light source
 bool g_bAutoRotating = false;
 float _fLightDelta = 0; //燈光旋轉，經過時間
-float _fLightRadius = 16;//燈光位置
+float _fLightRadius = 6;//燈光位置
 float _fLightTheta = 0;//燈光旋轉角度
 
-float g_fLightR = 0.85f;
-float g_fLightG = 0.85f;
-float g_fLightB = 0.85f;
+float g_fLightR = 0.7f;
+float g_fLightG = 0.7f;
+float g_fLightB = 0.7f;
 
 //light
 vec4 vlight_Center(0.0f, 10.0f, 0.0f, 1.0f);
@@ -52,7 +56,7 @@ LightSource  Light_center = {
 	color4(g_fLightR, g_fLightG, g_fLightB, 1.0f), // ambient 
 	color4(g_fLightR, g_fLightG, g_fLightB, 1.0f), // diffuse
 	color4(g_fLightR, g_fLightG, g_fLightB, 1.0f), // specular
-	point4(_fLightRadius, _fLightRadius, 0.0f, 1.0f),   // position
+	point4(_fLightRadius, 15.0f, 0.0f, 1.0f),   // position
 	point4(0.0f, 0.0f, 0.0f, 1.0f),   // halfVector
 	vec3(0.0f, 0.0f, 0.0f),		  //spotTarget
 	vec3(0.0f, 0.0f, 0.0f),			  //spotDirection
@@ -71,12 +75,46 @@ LightSource  _Light1 = {
 	color4(0.0, 0.0, 0.0, 1.0f), // ambient 
 	color4(1.0, 0.0, 0.0, 1.0f), // diffuse
 	color4(0.0, 0.0, 0.0, 1.0f), // specular
-	point4(10.0, 16.0, 10.0f, 1.0f),   // position
+	point4(0.0, 17.0, -10.0f, 1.0f),   // position
 	point4(0.0f, 0.0f, 0.0f, 1.0f),   // halfVector
 	vec3(10.0f, 0.0f, 10.0f),		  //spotTarget
 	vec3(10.0f, 0.0f, 10.0f),			  //spotDirection
 	1.0f	,	// spotExponent(parameter e); cos^(e)(phi) 
-	0.85f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
+	0.95f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
+	1.0f	,	// spotCosCutoff; // (range: [1.0,0.0],-1.0), 照明方向與被照明點之間的角度取 cos 後, cut off 的值
+	1	,	// constantAttenuation	(a + bd + cd^2)^-1 中的 a, d 為光源到被照明點的距離
+	0	,	// linearAttenuation	    (a + bd + cd^2)^-1 中的 b
+	0		// quadraticAttenuation (a + bd + cd^2)^-1 中的 c
+};
+
+LightSource  _Light2 = {
+
+	color4(0.0, 0.0, 0.0, 1.0f), // ambient 
+	color4(0.0, 1.0, 0.0, 1.0f), // diffuse
+	color4(0.0, 0.0, 0.0, 1.0f), // specular
+	point4(-10.4, 17.0, 6.0f, 1.0f),   // position
+	point4(0.0f, 0.0f, 0.0f, 1.0f),   // halfVector
+	vec3(10.0f, 0.0f, 10.0f),		  //spotTarget
+	vec3(10.0f, 0.0f, 10.0f),			  //spotDirection
+	1.0f	,	// spotExponent(parameter e); cos^(e)(phi) 
+	0.95f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
+	1.0f	,	// spotCosCutoff; // (range: [1.0,0.0],-1.0), 照明方向與被照明點之間的角度取 cos 後, cut off 的值
+	1	,	// constantAttenuation	(a + bd + cd^2)^-1 中的 a, d 為光源到被照明點的距離
+	0	,	// linearAttenuation	    (a + bd + cd^2)^-1 中的 b
+	0		// quadraticAttenuation (a + bd + cd^2)^-1 中的 c
+};
+
+LightSource  _Light3 = {
+
+	color4(0.0, 0.0, 0.0, 1.0f), // ambient 
+	color4(0.0, 0.0, 1.0, 1.0f), // diffuse
+	color4(0.0, 0.0, 0.0, 1.0f), // specular
+	point4(10.4, 17.0, 6.0f, 1.0f),   // position
+	point4(0.0f, 0.0f, 0.0f, 1.0f),   // halfVector
+	vec3(10.0f, 0.0f, 10.0f),		  //spotTarget
+	vec3(10.0f, 0.0f, 10.0f),			  //spotDirection
+	1.0f	,	// spotExponent(parameter e); cos^(e)(phi) 
+	0.95f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
 	1.0f	,	// spotCosCutoff; // (range: [1.0,0.0],-1.0), 照明方向與被照明點之間的角度取 cos 後, cut off 的值
 	1	,	// constantAttenuation	(a + bd + cd^2)^-1 中的 a, d 為光源到被照明點的距離
 	0	,	// linearAttenuation	    (a + bd + cd^2)^-1 中的 b
@@ -85,7 +123,7 @@ LightSource  _Light1 = {
 
 LightSource Light_resulte[LIGHT_NUM] = { //最後燈光結果
 
-	Light_center,  _Light1
+	Light_center, _Light1 ,  _Light2 ,  _Light3
 };
 
 
@@ -94,7 +132,7 @@ extern void IdleProcess();
 
 void init( void )
 {
-	mat4 mxT;
+	mat4 mxT , mxS;
 	vec4 vT, vColor;
 	// 產生所需之 Model View 與 Projection Matrix
 
@@ -170,6 +208,40 @@ void init( void )
 	CQ_backWall->setKaKdKsShini(0, 0.8f, 0.5f, 1);
 	
 
+	
+
+	CBtn[0] = new C2DBTN;
+	vColor.x = 1; vColor.y = 0; vColor.z = 0;
+	CBtn[0]->setDefaultColor(vColor);
+	CBtn[0]->setShader();
+	mxS = Scale(0.1f, 0.1f, 0.1f);
+	mxT = Translate(0.9f, -0.9f, 0);
+	CBtn[0]->setTRSMatrix(mxT * mxS);
+
+	CBtn[1] = new C2DBTN;
+	vColor.x = 1; vColor.y = 0; vColor.z = 0;
+	CBtn[1]->setDefaultColor(vColor);
+	CBtn[1]->setShader();
+	mxS = Scale(0.1f, 0.1f, 0.1f);
+	mxT = Translate(0.75f, -0.9f, 0);
+	CBtn[1]->setTRSMatrix(mxT * mxS);
+
+	CBtn[2] = new C2DBTN;
+	vColor.x = 1; vColor.y = 0; vColor.z = 0;
+	CBtn[2]->setDefaultColor(vColor);
+	CBtn[2]->setShader();
+	mxS = Scale(0.1f, 0.1f, 0.1f);
+	mxT = Translate(0.6f, -0.9f, 0);
+	CBtn[2]->setTRSMatrix(mxT * mxS);
+
+	CBtn[3] = new C2DBTN;
+	vColor.x = 1; vColor.y = 0; vColor.z = 0;
+	CBtn[3]->setDefaultColor(vColor);
+	CBtn[3]->setShader();
+	mxS = Scale(0.1f, 0.1f, 0.1f);
+	mxT = Translate(0.45f, -0.9f, 0);
+	CBtn[3]->setTRSMatrix(mxT* mxS);
+
 
 	bool bPDirty;
 	mat4 mpx = camera->getProjectionMatrix(bPDirty);
@@ -195,8 +267,13 @@ void GL_Display( void )
 	CQ_rightWall->draw();
 	CQ_frontWall->draw();
 	CQ_backWall->draw();
-
 	
+	for (int i = 0; i < 4; i++)
+	{
+		CBtn[i]->draw();
+	}
+	
+
 	glutSwapBuffers();	// 交換 Frame Buffer
 }
 
@@ -206,10 +283,10 @@ void UpdateLightPosition(float dt)
 {
 	mat4 mxT;
 	_fLightDelta += dt;
-	_fLightTheta = _fLightDelta * (float)M_PI_2 * 0.5; //每一秒轉180度
+	_fLightTheta = _fLightDelta * (float)M_PI_2 ; //每一秒轉180度
 	if (_fLightTheta>=(float)M_PI*2.0f) {
 		_fLightTheta -= (float)M_PI * 2.0f;
-		_fLightDelta -= 8.0f;
+		_fLightDelta -= 4.0f;
 	}
 	Light_resulte[0].position.x = _fLightRadius * cosf(_fLightTheta);
 	Light_resulte[0].position.z = _fLightRadius * sinf(_fLightTheta);
@@ -321,15 +398,56 @@ void Win_Keyboard( unsigned char key, int x, int y )
 		delete CQ_rightWall;
 		delete CQ_frontWall;
 		delete CQ_backWall;
+		for (int i = 0; i < 4; i++)
+		{
+			delete CBtn[i];
+		}
+		
 		CCamera::getInstance()->destroyInstance();
         exit( EXIT_SUCCESS );
         break;
     }
 }
 
+inline void ScreenToUICoordinate(int x, int y, vec2& pt) {
+
+	pt.x = 2.0f * (float)x / SCREEN_SIZE - 1.0f;
+	pt.y = -2.0f * (float)y / SCREEN_SIZE + 1.0f;
+}
+
+
 //----------------------------------------------------------------------------
 void Win_Mouse(int button, int state, int x, int y) {
-	
+	vec2 pt;
+	if (button==GLUT_LEFT_BUTTON && state==GLUT_DOWN) {
+		ScreenToUICoordinate(x, y, pt);
+
+		//spot light 開關鍵
+		for (int i = 0; i < 3; i++) 
+		{
+			if (CBtn[i]->onTouch(pt)) //關閉開關
+			{
+				if(Light_resulte[i + 1].spotCutoff==1.0f)
+					Light_resulte[i+1].spotCutoff = 0.95f;
+				else
+					Light_resulte[i + 1].spotCutoff = 1.0f;
+			}
+			
+
+		}
+
+		//rotate center light
+		if (CBtn[3]->onTouch(pt)) //關閉開關
+		{
+			g_bAutoRotating = !g_bAutoRotating;
+		}
+
+
+		
+	}
+
+
+
 }
 //----------------------------------------------------------------------------
 void Win_SpecialKeyboard(int key, int x, int y) {

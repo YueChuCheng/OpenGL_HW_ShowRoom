@@ -15,13 +15,13 @@ CShape::CShape() {
 
 	// 預設為 RGBA 為 (0.5,0.5,0.5,1.0) , 由這個灰階顏色來代表的物件顏色
 	_Color[0] = 0.5f; _Color[1] = 0.5f; _Color[2] = 0.5f; _Color[3] = 1.0f;
-	/*for (int i = 0; i < LIGHT_NUM; i++)
+	for (int i = 0; i < LIGHT_NUM; i++)
 	{
 		_iLighting[i] = 1; // 預設接受燈光的照明
 
-	}*/
-	_iLighting[0] = 1; // 預設接受燈光的照明
-	_iLighting[1] = 1; // 預設接受燈光的照明
+	}
+	//_iLighting[0] = 1; // 預設接受燈光的照明
+	//_iLighting[2] = 1; // 預設接受燈光的照明
 
 }
 
@@ -89,44 +89,80 @@ void CShape::setShader(GLuint shaderHandle) {
 	glUniform1f(_uiShininess, _material.shininess);
 
 	
-		_uiLightInView[0] = glGetUniformLocation(_vbo, "LightInView[0]");
-		glUniform4fv(_uiLightInView[0], 1, _vLightInView[0]);
+	_uiLightInView[0] = glGetUniformLocation(_vbo, "LightInView[0]");
+	glUniform4fv(_uiLightInView[0], 1, _vLightInView[0]);
 
-		_uiLightInView[1] = glGetUniformLocation(_vbo, "LightInView[1]");
-		glUniform4fv(_uiLightInView[1], 1, _vLightInView[1]);
+	_uiLightInView[1] = glGetUniformLocation(_vbo, "LightInView[1]");
+	glUniform4fv(_uiLightInView[1], 1, _vLightInView[1]);
 
-	
-		_uiAmbient[0] = glGetUniformLocation(_vbo, "AmbientProduct[0]");
-		glUniform4fv(_uiAmbient[0], 1, _ambientProduct[0]);
+	_uiLightInView[2] = glGetUniformLocation(_vbo, "LightInView[2]");
+	glUniform4fv(_uiLightInView[2], 1, _vLightInView[2]);
 
-		_uiAmbient[1] = glGetUniformLocation(_vbo, "AmbientProduct[1]");
-		glUniform4fv(_uiAmbient[1], 1, _ambientProduct[1]);
-
-		_uiDiffuse[0] = glGetUniformLocation(_vbo, "DiffuseProduct[0]");
-		glUniform4fv(_uiDiffuse[0], 1, _diffuseProduct[0]);
+	_uiLightInView[3] = glGetUniformLocation(_vbo, "LightInView[3]");
+	glUniform4fv(_uiLightInView[3], 1, _vLightInView[3]);
 		
-		_uiDiffuse[1] = glGetUniformLocation(_vbo, "DiffuseProduct[1]");
-		glUniform4fv(_uiDiffuse[1], 1, _diffuseProduct[1]);
-
-
-		_uiSpecular[0] = glGetUniformLocation(_vbo, "SpecularProduct[0]");
-		glUniform4fv(_uiSpecular[0], 1, _specularProduct[0]);
-
-		_uiSpecular[1] = glGetUniformLocation(_vbo, "SpecularProduct[1]");
-		glUniform4fv(_uiSpecular[1], 1, _specularProduct[1]);
-
-		_uiLighting[0] = glGetUniformLocation(_vbo, "iLighting[0]");
-		glUniform1i(_uiLighting[0], _iLighting[0]);
-
-		_uiLighting[1] = glGetUniformLocation(_vbo, "iLighting[1]");
-		glUniform1i(_uiLighting[1], _iLighting[1]);
 	
-		_uicutoff[0] = glGetUniformLocation(_vbo, "Cutoff[0]");
-		glUniform1f(_uicutoff[0], _cutoff[0]);
+	_uiAmbient[0] = glGetUniformLocation(_vbo, "AmbientProduct[0]");
+	glUniform4fv(_uiAmbient[0], 1, _ambientProduct[0]);
 
-		_uicutoff[1] = glGetUniformLocation(_vbo, "Cutoff[1]");
-		glUniform1f(_uicutoff[1], _cutoff[1]);
+	_uiAmbient[1] = glGetUniformLocation(_vbo, "AmbientProduct[1]");
+	glUniform4fv(_uiAmbient[1], 1, _ambientProduct[1]);
 
+	_uiAmbient[2] = glGetUniformLocation(_vbo, "AmbientProduct[2]");
+	glUniform4fv(_uiAmbient[2], 1, _ambientProduct[2]);
+
+	_uiAmbient[3] = glGetUniformLocation(_vbo, "AmbientProduct[3]");
+	glUniform4fv(_uiAmbient[3], 1, _ambientProduct[3]);
+		
+
+	_uiDiffuse[0] = glGetUniformLocation(_vbo, "DiffuseProduct[0]");
+	glUniform4fv(_uiDiffuse[0], 1, _diffuseProduct[0]);
+		
+	_uiDiffuse[1] = glGetUniformLocation(_vbo, "DiffuseProduct[1]");
+	glUniform4fv(_uiDiffuse[1], 1, _diffuseProduct[1]);
+
+	_uiDiffuse[2] = glGetUniformLocation(_vbo, "DiffuseProduct[2]");
+	glUniform4fv(_uiDiffuse[2], 1, _diffuseProduct[2]);
+
+	_uiDiffuse[3] = glGetUniformLocation(_vbo, "DiffuseProduct[3]");
+	glUniform4fv(_uiDiffuse[3], 1, _diffuseProduct[3]);
+		
+	_uiSpecular[0] = glGetUniformLocation(_vbo, "SpecularProduct[0]");
+	glUniform4fv(_uiSpecular[0], 1, _specularProduct[0]);
+
+	_uiSpecular[1] = glGetUniformLocation(_vbo, "SpecularProduct[1]");
+	glUniform4fv(_uiSpecular[1], 1, _specularProduct[1]);
+		
+	_uiSpecular[2] = glGetUniformLocation(_vbo, "SpecularProduct[2]");
+	glUniform4fv(_uiSpecular[2], 1, _specularProduct[2]);
+
+	_uiSpecular[3] = glGetUniformLocation(_vbo, "SpecularProduct[3]");
+	glUniform4fv(_uiSpecular[3], 1, _specularProduct[3]);
+		
+	_uiLighting[0] = glGetUniformLocation(_vbo, "iLighting[0]");
+	glUniform1i(_uiLighting[0], _iLighting[0]);
+
+	_uiLighting[1] = glGetUniformLocation(_vbo, "iLighting[1]");
+	glUniform1i(_uiLighting[1], _iLighting[1]);
+		
+	_uiLighting[2] = glGetUniformLocation(_vbo, "iLighting[2]");
+	glUniform1i(_uiLighting[2], _iLighting[2]);
+
+	_uiLighting[3] = glGetUniformLocation(_vbo, "iLighting[3]");
+	glUniform1i(_uiLighting[3], _iLighting[3]);
+	
+	_uicutoff[0] = glGetUniformLocation(_vbo, "Cutoff[0]");
+	glUniform1f(_uicutoff[0], _cutoff[0]);
+
+	_uicutoff[1] = glGetUniformLocation(_vbo, "Cutoff[1]");
+	glUniform1f(_uicutoff[1], _cutoff[1]);
+		
+	_uicutoff[2] = glGetUniformLocation(_vbo, "Cutoff[2]");
+	glUniform1f(_uicutoff[2], _cutoff[2]);
+
+	_uicutoff[3] = glGetUniformLocation(_vbo, "Cutoff[3]");
+	glUniform1f(_uicutoff[3], _cutoff[3]);
+		
 		
 
 
@@ -140,6 +176,10 @@ void CShape::drawingSetShader() {
 	glUseProgram(_vbo);
 	glBindVertexArray(_vao);
 
+	if (_viewUpdated || _TRSUpdated) { // Model View 的相關矩陣內容有更動
+		_mxMVFinal = _mxView * _mxTRS;
+		_viewUpdated = _TRSUpdated = false;
+	}
 	glUniformMatrix4fv(_uiModelView, 1, GL_TRUE, _mxMVFinal);
 	
 	if (_projUpdated) {
@@ -169,6 +209,12 @@ void CShape::drawingSetShader() {
 void CShape::drawingWithoutSetShader()
 {
 	glBindVertexArray(_vao);
+	glUniformMatrix4fv(_uiModelView, 1, GL_TRUE, _mxMVFinal);
+
+	if (_viewUpdated || _TRSUpdated) { // Model View 的相關矩陣內容有更動
+		_mxMVFinal = _mxView * _mxTRS;
+		_viewUpdated = _TRSUpdated = false;
+	}
 	glUniformMatrix4fv(_uiModelView, 1, GL_TRUE, _mxMVFinal);
 
 	if (_projUpdated) {
