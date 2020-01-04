@@ -50,7 +50,7 @@ protected:
 	vec4 _lookAt;
 	vec4 _upVector;
 
-	mat4 _projection;
+	mat4 _uiProjection;
 	mutable mat4 _view;
 	mutable mat4 _viewInv;
 	mutable mat4 _viewProjection;

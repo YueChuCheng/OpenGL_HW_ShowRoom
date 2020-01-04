@@ -113,24 +113,24 @@ void CQuad::update(float dt, vec4 vLightPos, color4 vLightI)
 
 }
 
-void CQuad::update(float dt, const LightSource* Lights)
-{
-
-	if (_viewUpdated || _TRSUpdated) {
-		_mxMVFinal = _mxView * _mxTRS;
-		_viewUpdated = _TRSUpdated = false;
-	}
-	for (int i = 0; i < 2; i++)
-	{
-		_vLightInView = _mxView * Lights[i].position;		// 將 Light 轉換到鏡頭座標再傳入
-		// 算出 AmbientProduct DiffuseProduct 與 SpecularProduct 的內容
-		_ambientProduct = _material.ka * _material.ambient * Lights[i].ambient;
-		_diffuseProduct = _material.kd * _material.diffuse * Lights[i].diffuse;
-		_specularProduct = _material.ks * _material.specular * Lights[i].specular;
-	}
-	
-
-}
+//void CQuad::update(float dt, const LightSource* Lights)
+//{
+//
+//	if (_viewUpdated || _TRSUpdated) {
+//		_mxMVFinal = _mxView * _mxTRS;
+//		_viewUpdated = _TRSUpdated = false;
+//	}
+//	/*for (int i = 0; i < 2; i++)
+//	{*/
+//		_vLightInView = _mxView * Lights.position;		// 將 Light 轉換到鏡頭座標再傳入
+//		// 算出 AmbientProduct DiffuseProduct 與 SpecularProduct 的內容
+//		_ambientProduct = _material.ka * _material.ambient * Lights.ambient;
+//		_diffuseProduct = _material.kd * _material.diffuse * Lights.diffuse;
+//		_specularProduct = _material.ks * _material.specular * Lights.specular;
+//	//}
+//	
+//
+//}
 
 void CQuad::update(float dt, const LightSource& Lights)
 {

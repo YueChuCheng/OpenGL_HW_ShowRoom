@@ -12,7 +12,7 @@ typedef Angel::vec4 point4;
 
 
 #define LIGHTING_WITHGPU
-#define PERVERTEX_LIGHTING
+#define PERVERTEX_uiLighting
 
 class CShape
 {
@@ -31,17 +31,17 @@ protected:
 	GLuint _vao;
 	
 	//for shader
-	GLuint _modelView, _projection, _sColor;
+	GLuint _uiModelView, _uiProjection, _uiColor;
 	GLuint _vbo;
-	GLuint _buffer;
+	GLuint _uiBuffer;
 
 	point4 _vLightInView; //光源在世界座標的位置
-	GLuint _sLightInView; //光源在shader的位置
-	GLuint _ambient; //light's ambient 與 object's ambient 與 ka的乘積
-	GLuint _diffuse;
-	GLuint _specular;
-	GLuint _shininess;
-	GLuint _lighting;
+	GLuint _uiLightInView; //光源在shader的位置
+	GLuint _uiAmbient; //light's ambient 與 object's ambient 與 ka的乘積
+	GLuint _uiDiffuse;
+	GLuint _uiSpecular;
+	GLuint _uiShininess;
+	GLuint _uiLighting;
 
 	LightSource _light;
 

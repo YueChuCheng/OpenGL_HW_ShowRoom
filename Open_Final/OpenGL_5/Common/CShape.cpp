@@ -34,8 +34,8 @@ void CShape::createBufferObject()
 	glBindVertexArray(_vao);
 
 	// Create and initialize a buffer object
-	glGenBuffers(1, &_buffer);
-	glBindBuffer(GL_ARRAY_BUFFER, _buffer);
+	glGenBuffers(1, &_uiBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, _uiBuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vec4) * _iNumVtx + sizeof(vec3) * _iNumVtx + sizeof(vec4) * _iNumVtx, NULL, GL_STATIC_DRAW);
 	//sizeof(vec4)*m_iNumVtx + sizeof(vec3)*m_iNumVtx + sizeof(vec4)*m_iNumVtx <- vertices, normal and color
 
@@ -63,36 +63,36 @@ void CShape::setShader(GLuint shaderHandle) {
 	glEnableVertexAttribArray(vColorVtx);
 	glVertexAttribPointer(vColorVtx, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(vec4) * _iNumVtx + sizeof(vec3) * _iNumVtx));
 
-	_modelView = glGetUniformLocation(_vbo, "ModelView");
+	_uiModelView = glGetUniformLocation(_vbo, "ModelView");
 	// m_mxMVFinal , m_mxModelView 宣告時就是單位矩陣
-	glUniformMatrix4fv(_modelView, 1, GL_TRUE, _mxMVFinal);
+	glUniformMatrix4fv(_uiModelView, 1, GL_TRUE, _mxMVFinal);
 
-	_projection = glGetUniformLocation(_vbo, "Projection");
+	_uiProjection = glGetUniformLocation(_vbo, "Projection");
 	// m_mxProjection 宣告時就是單位矩陣
-	glUniformMatrix4fv(_projection, 1, GL_TRUE, _mxProjection);
+	glUniformMatrix4fv(_uiProjection, 1, GL_TRUE, _mxProjection);
 
-	_sColor = glGetUniformLocation(_vbo, "vObjectColor");
-	glUniform4fv(_sColor, 1, _Color);
+	_uiColor = glGetUniformLocation(_vbo, "vObjectColor");
+	glUniform4fv(_uiColor, 1, _Color);
 
 
 	//lighting with GPU
-	_sLightInView = glGetUniformLocation(_vbo, "LightInView");
-	glUniform4fv(_sLightInView, 1, _vLightInView);
+	_uiLightInView = glGetUniformLocation(_vbo, "LightInView");
+	glUniform4fv(_uiLightInView, 1, _vLightInView);
 
-	_ambient = glGetUniformLocation(_vbo, "AmbientProduct");
-	glUniform4fv(_ambient, 1, _ambientProduct);
+	_uiAmbient = glGetUniformLocation(_vbo, "AmbientProduct");
+	glUniform4fv(_uiAmbient, 1, _ambientProduct);
 
-	_diffuse = glGetUniformLocation(_vbo, "DiffuseProduct");
-	glUniform4fv(_diffuse, 1, _diffuseProduct);
+	_uiDiffuse = glGetUniformLocation(_vbo, "DiffuseProduct");
+	glUniform4fv(_uiDiffuse, 1, _diffuseProduct);
 
-	_specular = glGetUniformLocation(_vbo, "SpecularProduct");
-	glUniform4fv(_specular, 1, _specularProduct);
+	_uiSpecular = glGetUniformLocation(_vbo, "SpecularProduct");
+	glUniform4fv(_uiSpecular, 1, _specularProduct);
 
-	_shininess = glGetUniformLocation(_vbo, "fShininess");
-	glUniform1f(_shininess, _material.shininess);
+	_uiShininess = glGetUniformLocation(_vbo, "fShininess");
+	glUniform1f(_uiShininess, _material.shininess);
 
-	_lighting = glGetUniformLocation(_vbo, "iLighting");
-	glUniform1i(_lighting, _iLighting);
+	_uiLighting = glGetUniformLocation(_vbo, "iLighting");
+	glUniform1i(_uiLighting, _iLighting);
 
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -105,20 +105,20 @@ void CShape::drawingSetShader() {
 	glUseProgram(_vbo);
 	glBindVertexArray(_vao);
 
-	glUniformMatrix4fv(_modelView, 1, GL_TRUE, _mxMVFinal);
+	glUniformMatrix4fv(_uiModelView, 1, GL_TRUE, _mxMVFinal);
 	
 	if (_projUpdated) {
-		glUniformMatrix4fv(_projection, 1, GL_TRUE, _mxProjection);
+		glUniformMatrix4fv(_uiProjection, 1, GL_TRUE, _mxProjection);
 		_projUpdated = false;
 	}
 
-	glUniform4fv(_sColor, 1, _Color);
-	glUniform4fv(_sLightInView, 1, _vLightInView);
-	glUniform4fv(_ambient, 1, _ambientProduct);
-	glUniform4fv(_diffuse, 1, _diffuseProduct);
-	glUniform4fv(_specular, 1, _specularProduct);
-	glUniform1f(_shininess, _material.shininess);
-	glUniform1i(_lighting, _iLighting);
+	glUniform4fv(_uiColor, 1, _Color);
+	glUniform4fv(_uiLightInView, 1, _vLightInView);
+	glUniform4fv(_uiAmbient, 1, _ambientProduct);
+	glUniform4fv(_uiDiffuse, 1, _diffuseProduct);
+	glUniform4fv(_uiSpecular, 1, _specularProduct);
+	glUniform1f(_uiShininess, _material.shininess);
+	glUniform1i(_uiLighting, _iLighting);
 
 }
 
@@ -126,20 +126,20 @@ void CShape::drawingSetShader() {
 void CShape::drawingWithoutSetShader()
 {
 	glBindVertexArray(_vao);
-	glUniformMatrix4fv(_modelView, 1, GL_TRUE, _mxMVFinal);
+	glUniformMatrix4fv(_uiModelView, 1, GL_TRUE, _mxMVFinal);
 
 	if (_projUpdated) {
-		glUniformMatrix4fv(_projection, 1, GL_TRUE, _mxProjection);
+		glUniformMatrix4fv(_uiProjection, 1, GL_TRUE, _mxProjection);
 		_projUpdated = false;
 	}
 
-	glUniform4fv(_sColor, 1, _Color);
-	glUniform4fv(_sLightInView, 1, _vLightInView);
-	glUniform4fv(_ambient, 1, _ambientProduct);
-	glUniform4fv(_diffuse, 1, _diffuseProduct);
-	glUniform4fv(_specular, 1, _specularProduct);
-	glUniform1f(_shininess, _material.shininess);
-	glUniform1i(_lighting, _iLighting);
+	glUniform4fv(_uiColor, 1, _Color);
+	glUniform4fv(_uiLightInView, 1, _vLightInView);
+	glUniform4fv(_uiAmbient, 1, _ambientProduct);
+	glUniform4fv(_uiDiffuse, 1, _diffuseProduct);
+	glUniform4fv(_uiSpecular, 1, _specularProduct);
+	glUniform1f(_uiShininess, _material.shininess);
+	glUniform1i(_uiLighting, _iLighting);
 }
 
 
@@ -178,7 +178,7 @@ void CShape::setColor(vec4 vColor) {
 	_Color[1] = vColor.y;
 	_Color[2] = vColor.z;
 	_Color[3] = vColor.w;
-	glUniform4fv(_sColor, 1, _Color);
+	glUniform4fv(_uiColor, 1, _Color);
 }
 
 void CShape::setMaterials(color4 ambient, color4 diffuse, color4 specular) {

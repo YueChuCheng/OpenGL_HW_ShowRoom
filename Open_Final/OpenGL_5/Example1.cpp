@@ -47,10 +47,6 @@ vec4 vlight_Center_Color(g_fLightR, g_fLightG, g_fLightB, 1.0f);
 
 
 
-LightSource Light_resulte[LIGHT_NUM] = { //最後燈光結果
-
-	Light_center , _Light1
-};
 
 
 LightSource  Light_center = {
@@ -88,6 +84,12 @@ LightSource  _Light1 = {
 	0	,	// linearAttenuation	    (a + bd + cd^2)^-1 中的 b
 	0		// quadraticAttenuation (a + bd + cd^2)^-1 中的 c
 };
+
+LightSource Light_resulte[LIGHT_NUM] = { //最後燈光結果
+
+	Light_center , _Light1
+};
+
 
 
 //LightSource  _Light_end = {
@@ -266,20 +268,20 @@ void onFrameMove(float delta)
 	CQ_frontWall->update(delta, vlight_Center, vlight_Center_Color);
 	CQ_backWall->update(delta, vlight_Center, vlight_Center_Color);*/
 	
-	CFloor->update(delta, Light_resulte);
+	/*CFloor->update(delta, Light_resulte);
 	CQ_ceiling->update(delta, Light_resulte);
 	CQ_leftWall->update(delta, Light_resulte);
 	CQ_rightWall->update(delta, Light_resulte);
 	CQ_frontWall->update(delta, Light_resulte);
-	CQ_backWall->update(delta, Light_resulte);
+	CQ_backWall->update(delta, Light_resulte);*/
 
 
-	/*CFloor->update(delta, Light_center);
+	CFloor->update(delta, Light_center);
 	CQ_ceiling->update(delta, Light_center);
 	CQ_leftWall->update(delta, Light_center);
 	CQ_rightWall->update(delta, Light_center);
 	CQ_frontWall->update(delta, Light_center);
-	CQ_backWall->update(delta, Light_center);*/
+	CQ_backWall->update(delta, Light_center);
 	
 
 
