@@ -3,6 +3,7 @@
 #include "Common/CQuad.h"
 #include "Common/CSmoothQuad.h"
 #include "Common/C2DBTN.h"
+#include "Common/CSoildCube.h"
 #include "Common/CCamera.h"
 
 
@@ -13,6 +14,8 @@
 #define VP_HALFHEIGHT 20.0f
 #define GRID_SIZE 40 // must be an even number
 
+
+CSolidCube* CCube[3];
 
 CQuad* CQ_leftWall, * CQ_rightWall;
 CQuad* CQ_frontWall, * CQ_backWall;
@@ -219,7 +222,7 @@ void init( void )
 	CBtn[0]->setTRSMatrix(mxT * mxS);
 
 	CBtn[1] = new C2DBTN;
-	vColor.x = 1; vColor.y = 0; vColor.z = 0;
+	vColor.x = 0; vColor.y = 1; vColor.z = 0;
 	CBtn[1]->setDefaultColor(vColor);
 	CBtn[1]->setShader();
 	mxS = Scale(0.1f, 0.1f, 0.1f);
@@ -227,7 +230,7 @@ void init( void )
 	CBtn[1]->setTRSMatrix(mxT * mxS);
 
 	CBtn[2] = new C2DBTN;
-	vColor.x = 1; vColor.y = 0; vColor.z = 0;
+	vColor.x = 0; vColor.y = 0; vColor.z = 1;
 	CBtn[2]->setDefaultColor(vColor);
 	CBtn[2]->setShader();
 	mxS = Scale(0.1f, 0.1f, 0.1f);
@@ -235,7 +238,7 @@ void init( void )
 	CBtn[2]->setTRSMatrix(mxT * mxS);
 
 	CBtn[3] = new C2DBTN;
-	vColor.x = 1; vColor.y = 0; vColor.z = 0;
+	vColor.x = 1; vColor.y = 1; vColor.z = 1;
 	CBtn[3]->setDefaultColor(vColor);
 	CBtn[3]->setShader();
 	mxS = Scale(0.1f, 0.1f, 0.1f);
@@ -243,6 +246,42 @@ void init( void )
 	CBtn[3]->setTRSMatrix(mxT* mxS);
 
 
+	CCube[0] = new CSolidCube;
+	//set material
+	CCube[0]->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CCube[0]->setKaKdKsShini(0.15f, 0.8f, 0.2f, 2);
+	CCube[0]->setShader();
+	vT.x = 0.0; vT.y = 1.0; vT.z = -10.0f;
+	mxT = Translate(vT);
+	CCube[0]->setTRSMatrix(mxT);
+	CCube[0]->setShadingMode(GOURAUD_SHADING);
+
+
+
+	CCube[1] = new CSolidCube;
+	//set material
+	CCube[1]->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CCube[1]->setKaKdKsShini(0.15f, 0.8f, 0.2f, 2);
+	CCube[1]->setShader();
+	vT.x = -10.4; vT.y = 1.0; vT.z = 6.0f;
+	mxT = Translate(vT);
+	CCube[1]->setTRSMatrix(mxT);
+	CCube[1]->setShadingMode(GOURAUD_SHADING);
+
+
+	CCube[2] = new CSolidCube;
+	//set material
+	CCube[2]->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CCube[2]->setKaKdKsShini(0.15f, 0.8f, 0.2f, 2);
+	CCube[2]->setShader();
+	vT.x = 10.4; vT.y = 1.0; vT.z = 6.0f;
+	mxT = Translate(vT);
+	CCube[2]->setTRSMatrix(mxT);
+	CCube[2]->setShadingMode(GOURAUD_SHADING);
+
+
+
+	
 	bool bPDirty;
 	mat4 mpx = camera->getProjectionMatrix(bPDirty);
 	
@@ -252,6 +291,12 @@ void init( void )
 	CQ_backWall->setProjectionMatrix(mpx);
 	CFloor->setProjectionMatrix(mpx);
 	CQ_ceiling->setProjectionMatrix(mpx);
+
+	for (int i = 0; i < 3; i++)
+	{
+		CCube[i]->setProjectionMatrix(mpx);
+	}
+	
 
 
 
@@ -272,6 +317,12 @@ void GL_Display( void )
 	{
 		CBtn[i]->draw();
 	}
+
+	for (int i = 0; i < 3; i++)
+	{
+		CCube[i]->draw();
+	}
+	
 	
 
 	glutSwapBuffers();	// ец┤л Frame Buffer
@@ -309,7 +360,12 @@ void onFrameMove(float delta)
 		CQ_frontWall->setViewMatrix(mvx);
 		CQ_backWall->setViewMatrix(mvx);
 		CQ_ceiling->setViewMatrix(mvx);
-	
+
+		for (int i = 0; i < 3; i++)
+		{
+			CCube[i]->setViewMatrix(mvx);
+		}
+		
 	
 	}
 
@@ -327,7 +383,11 @@ void onFrameMove(float delta)
 	CQ_rightWall->update(delta, Light_resulte);
 	CQ_frontWall->update(delta, Light_resulte);
 	CQ_backWall->update(delta, Light_resulte);
-
+	for (int i = 0; i < 3; i++)
+	{
+		CCube[i]->update(delta, Light_resulte);
+	}
+	
 
 
 	GL_Display();
@@ -354,7 +414,7 @@ void Win_Keyboard( unsigned char key, int x, int y )
 		if (Light_resulte[0].diffuse.x > 0.0f)
 			Light_resulte[0].diffuse.x -= 0.05f;
 		else
-			Light_resulte[0].diffuse.x = 0.01f;
+			Light_resulte[0].diffuse.x = 0.0f;
 		break;
 
 	case 71: //G
@@ -368,7 +428,7 @@ void Win_Keyboard( unsigned char key, int x, int y )
 		if (Light_resulte[0].diffuse.y > 0.0f)
 			Light_resulte[0].diffuse.y -= 0.05f;
 		else
-			Light_resulte[0].diffuse.y = 0.01;
+			Light_resulte[0].diffuse.y = 0.0f;
 		break;
 
 	case 66: //B
@@ -382,7 +442,7 @@ void Win_Keyboard( unsigned char key, int x, int y )
 		if (Light_resulte[0].diffuse.z > 0.0f)
 			Light_resulte[0].diffuse.z -= 0.05f;
 		else
-			Light_resulte[0].diffuse.z = 0.01;
+			Light_resulte[0].diffuse.z = 0.0f;
 		break;
 
 
@@ -402,6 +462,12 @@ void Win_Keyboard( unsigned char key, int x, int y )
 		{
 			delete CBtn[i];
 		}
+
+		for (int i = 0; i < 3; i++)
+		{
+			delete CCube[i];
+		}
+		
 		
 		CCamera::getInstance()->destroyInstance();
         exit( EXIT_SUCCESS );
