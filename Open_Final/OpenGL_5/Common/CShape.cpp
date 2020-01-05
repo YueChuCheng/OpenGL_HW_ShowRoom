@@ -20,8 +20,7 @@ CShape::CShape() {
 		_iLighting[i] = 1; // 預設接受燈光的照明
 
 	}
-	//_iLighting[0] = 1; // 預設接受燈光的照明
-	//_iLighting[2] = 1; // 預設接受燈光的照明
+	
 
 }
 
@@ -66,7 +65,7 @@ void CShape::setShader(GLuint shaderHandle) {
 	GLuint vNormal = glGetAttribLocation(_vbo, "vNormal");
 	glEnableVertexAttribArray(vNormal);
 	glVertexAttribPointer(vNormal, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(vec4) * _iNumVtx));
-
+	
 	GLuint vColorVtx = glGetAttribLocation(_vbo, "vVtxColor");  // vertices' color 
 	glEnableVertexAttribArray(vColorVtx);
 	glVertexAttribPointer(vColorVtx, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(vec4) * _iNumVtx + sizeof(vec3) * _iNumVtx));

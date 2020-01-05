@@ -81,6 +81,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CObj_loader.cpp" />
     <ClCompile Include="Common\C2DBTN.cpp" />
     <ClCompile Include="Common\CCamera.cpp" />
     <ClCompile Include="Common\CLineSegment.cpp" />
@@ -89,12 +90,14 @@
     <ClCompile Include="Common\CShape.cpp" />
     <ClCompile Include="Common\CSmoothQuad.cpp" />
     <ClCompile Include="Common\CSolidCube.cpp" />
+    <ClCompile Include="Common\test.cpp" />
     <ClCompile Include="Common\Timer.cpp" />
     <ClCompile Include="Example1.cpp" />
     <ClCompile Include="InitShader.cpp" />
     <ClCompile Include="png_loader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CObj_loader.h" />
     <ClInclude Include="Common\C2DBTN.h" />
     <ClInclude Include="Common\CCamera.h" />
     <ClInclude Include="Common\CLineSegment.h" />
@@ -102,6 +105,7 @@
     <ClInclude Include="Common\CShape.h" />
     <ClInclude Include="Common\CSmoothQuad.h" />
     <ClInclude Include="Common\CSoildCube.h" />
+    <ClInclude Include="Common\test.h" />
     <ClInclude Include="Common\Timer.h" />
     <ClInclude Include="Common\TypeDefine.h" />
     <ClInclude Include="Header\Angel.h" />

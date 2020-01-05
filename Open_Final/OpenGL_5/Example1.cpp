@@ -4,6 +4,7 @@
 #include "Common/CSmoothQuad.h"
 #include "Common/C2DBTN.h"
 #include "Common/CSoildCube.h"
+#include "Common/test.h"
 #include "Common/CCamera.h"
 
 
@@ -23,6 +24,9 @@ CQuad* CQ_frontWall, * CQ_backWall;
 
 CSmoothQuad* CFloor;
 CSmoothQuad* CQ_ceiling;
+
+ModelPool* ObjModel;
+
 
 //button
 C2DBTN* CBtn[4];
@@ -146,6 +150,9 @@ void init( void )
 	camera->updatePerspective(60.0, (GLfloat)SCREEN_SIZE / (GLfloat)SCREEN_SIZE, 1.0, 1000.0);
 	
 
+
+	
+
 	CFloor = new CSmoothQuad(GRID_SIZE);
 	CFloor->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	CFloor->setKaKdKsShini(0, 0.8f, 0.5f, 1);
@@ -163,6 +170,9 @@ void init( void )
 	
 
 
+
+
+
 	vT.x = -20.0f; vT.y = 20.0f; vT.z = 0;
 	mxT = Translate(vT);
 	CQ_leftWall = new CQuad;
@@ -174,6 +184,14 @@ void init( void )
 	CQ_leftWall->setTRSMatrix(mxT * RotateZ(-90.0f) * Scale(40.0f, 1, 40.0f));
 	CQ_leftWall->setKaKdKsShini(0, 0.8f, 0.5f, 1);
 	
+
+	vT.x = 0.0; vT.y = 1.0; vT.z = 0.0f;
+	ObjModel = new ModelPool("Model/TeaPot.obj");
+	mxT = Translate(vT);
+	ObjModel->setTRSMatrix(mxT * Scale(2.0f, 2.0f, 2.0f));
+	
+
+
 
 	vT.x = 20.0f; vT.y = 20.0f; vT.z = 0;
 	mxT = Translate(vT);
@@ -297,7 +315,7 @@ void init( void )
 		CCube[i]->setProjectionMatrix(mpx);
 	}
 	
-
+	ObjModel->setProjectionMatrix(mpx);
 
 
 }
@@ -322,9 +340,9 @@ void GL_Display( void )
 	{
 		CCube[i]->draw();
 	}
+	ObjModel->draw();
 	
 	
-
 	glutSwapBuffers();	// ец┤л Frame Buffer
 }
 
@@ -365,7 +383,7 @@ void onFrameMove(float delta)
 		{
 			CCube[i]->setViewMatrix(mvx);
 		}
-		
+		ObjModel->setViewMatrix(mvx);
 	
 	}
 
@@ -387,7 +405,7 @@ void onFrameMove(float delta)
 	{
 		CCube[i]->update(delta, Light_resulte);
 	}
-	
+	ObjModel->update(delta, Light_resulte);
 
 
 	GL_Display();
@@ -467,6 +485,7 @@ void Win_Keyboard( unsigned char key, int x, int y )
 		{
 			delete CCube[i];
 		}
+		delete ObjModel;
 		
 		
 		CCamera::getInstance()->destroyInstance();
