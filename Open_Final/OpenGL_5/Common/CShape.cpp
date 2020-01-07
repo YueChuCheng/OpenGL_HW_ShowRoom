@@ -99,6 +99,13 @@ void CShape::setShader(GLuint shaderHandle) {
 
 	_uiLightInView[3] = glGetUniformLocation(_vbo, "LightInView[3]");
 	glUniform4fv(_uiLightInView[3], 1, _vLightInView[3]);
+
+
+
+	_uiLightNUM = glGetUniformLocation(_vbo, "LightNUM");
+	glUniform1i(_uiLightNUM, _vLightNUM);
+
+
 		
 	
 	_uiAmbient[0] = glGetUniformLocation(_vbo, "AmbientProduct[0]");
@@ -174,7 +181,7 @@ void CShape::drawingSetShader() {
 
 	glUseProgram(_vbo);
 	glBindVertexArray(_vao);
-
+	glUniformMatrix4fv(_uiModelView, 1, GL_TRUE, _mxMVFinal);
 	if (_viewUpdated || _TRSUpdated) { // Model View 的相關矩陣內容有更動
 		_mxMVFinal = _mxView * _mxTRS;
 		_viewUpdated = _TRSUpdated = false;

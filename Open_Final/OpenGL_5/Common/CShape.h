@@ -52,6 +52,8 @@ protected:
 	color4 _ambientProduct[LIGHT_NUM];
 	color4 _diffuseProduct[LIGHT_NUM];
 	color4 _specularProduct[LIGHT_NUM];
+	int _vLightNUM = 4; //¦³´X·ø¿O
+
 	
 	float _cutoff[LIGHT_NUM];
 

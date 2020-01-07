@@ -66,7 +66,7 @@ LightSource  Light_center = {
 	point4(_fLightRadius, 15.0f, 0.0f, 1.0f),   // position
 	point4(0.0f, 0.0f, 0.0f, 1.0f),   // halfVector
 	vec3(0.0f, 0.0f, 0.0f),		  //spotTarget
-	vec3(0.0f, 0.0f, 0.0f),			  //spotDirection
+	vec3(_fLightRadius, 0.0f, 0.0f),			  //spotDirection
 	1.0f	,	// spotExponent(parameter e); cos^(e)(phi) 
 	0.0f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
 	1.0f	,	// spotCosCutoff; // (range: [1.0,0.0],-1.0), 照明方向與被照明點之間的角度取 cos 後, cut off 的值
@@ -85,9 +85,9 @@ LightSource  _Light1 = {
 	point4(0.0, 17.0, -10.0f, 1.0f),   // position
 	point4(0.0f, 0.0f, 0.0f, 1.0f),   // halfVector
 	vec3(10.0f, 0.0f, 10.0f),		  //spotTarget
-	vec3(10.0f, 0.0f, 10.0f),			  //spotDirection
+	vec3(0.0, 0.0, -10.0f),			  //spotDirection
 	1.0f	,	// spotExponent(parameter e); cos^(e)(phi) 
-	0.95f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
+	0.9f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
 	1.0f	,	// spotCosCutoff; // (range: [1.0,0.0],-1.0), 照明方向與被照明點之間的角度取 cos 後, cut off 的值
 	1	,	// constantAttenuation	(a + bd + cd^2)^-1 中的 a, d 為光源到被照明點的距離
 	0	,	// linearAttenuation	    (a + bd + cd^2)^-1 中的 b
@@ -102,9 +102,9 @@ LightSource  _Light2 = {
 	point4(-10.4, 17.0, 6.0f, 1.0f),   // position
 	point4(0.0f, 0.0f, 0.0f, 1.0f),   // halfVector
 	vec3(10.0f, 0.0f, 10.0f),		  //spotTarget
-	vec3(10.0f, 0.0f, 10.0f),			  //spotDirection
+	vec3(-10.4, 17.0, 6.0f),			  //spotDirection
 	1.0f	,	// spotExponent(parameter e); cos^(e)(phi) 
-	0.95f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
+	0.9f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
 	1.0f	,	// spotCosCutoff; // (range: [1.0,0.0],-1.0), 照明方向與被照明點之間的角度取 cos 後, cut off 的值
 	1	,	// constantAttenuation	(a + bd + cd^2)^-1 中的 a, d 為光源到被照明點的距離
 	0	,	// linearAttenuation	    (a + bd + cd^2)^-1 中的 b
@@ -119,9 +119,9 @@ LightSource  _Light3 = {
 	point4(10.4, 17.0, 6.0f, 1.0f),   // position
 	point4(0.0f, 0.0f, 0.0f, 1.0f),   // halfVector
 	vec3(10.0f, 0.0f, 10.0f),		  //spotTarget
-	vec3(10.0f, 0.0f, 10.0f),			  //spotDirection
+	vec3(10.4, 0.0, 6.0f),			  //spotDirection
 	1.0f	,	// spotExponent(parameter e); cos^(e)(phi) 
-	0.95f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
+	0.9f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
 	1.0f	,	// spotCosCutoff; // (range: [1.0,0.0],-1.0), 照明方向與被照明點之間的角度取 cos 後, cut off 的值
 	1	,	// constantAttenuation	(a + bd + cd^2)^-1 中的 a, d 為光源到被照明點的距離
 	0	,	// linearAttenuation	    (a + bd + cd^2)^-1 中的 b
@@ -139,6 +139,8 @@ extern void IdleProcess();
 
 void init( void )
 {
+
+
 	mat4 mxT , mxS;
 	vec4 vT, vColor;
 	// 產生所需之 Model View 與 Projection Matrix
@@ -184,14 +186,6 @@ void init( void )
 	CQ_leftWall->setTRSMatrix(mxT * RotateZ(-90.0f) * Scale(40.0f, 1, 40.0f));
 	CQ_leftWall->setKaKdKsShini(0, 0.8f, 0.5f, 1);
 	
-
-	vT.x = 0.0; vT.y = 1.0; vT.z = 0.0f;
-	ObjModel = new ModelPool("Model/TeaPot.obj");
-	mxT = Translate(vT);
-	ObjModel->setTRSMatrix(mxT * Scale(2.0f, 2.0f, 2.0f));
-	
-
-
 
 	vT.x = 20.0f; vT.y = 20.0f; vT.z = 0;
 	mxT = Translate(vT);
@@ -298,6 +292,16 @@ void init( void )
 	CCube[2]->setShadingMode(GOURAUD_SHADING);
 
 
+
+	vT.x = 0.0; vT.y = 1.0; vT.z = 0.0f;
+	ObjModel = new ModelPool("Model/TeaPot.obj");
+	ObjModel->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	ObjModel->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+	ObjModel->setLightNUM(1);
+	ObjModel->setShader();
+	mxT = Translate(vT);
+	ObjModel->setTRSMatrix(mxT* Scale(2.0f, 2.0f, 2.0f));
+	ObjModel->setShadingMode(GOURAUD_SHADING);
 
 	
 	bool bPDirty;

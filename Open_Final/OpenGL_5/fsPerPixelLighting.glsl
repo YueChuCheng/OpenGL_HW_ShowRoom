@@ -26,6 +26,7 @@ uniform float fShininess;
 uniform int iLighting[LIGHT_NUM];
 uniform float Cutoff[LIGHT_NUM];
 uniform vec4 vObjectColor; // 代表物件的單一顏色
+uniform int LightNUM; // 有幾盞燈
 
 // For Texture Sampler
 uniform sampler2D diffuMap; // 貼圖的參數設定
@@ -37,7 +38,7 @@ void main()
 	vec4 diffuse = vec4(0.0, 0.0, 0.0, 1.0);
 	vec4 specular = vec4(0.0, 0.0, 0.0, 1.0);
 	vec4 LightingColor = vec4(0.0, 0.0, 0.0, 1.0);
-	for (int i = 0; i < LIGHT_NUM; i++)
+	for (int i = 0; i < LightNUM; i++)
 	{
 		if (iLighting[i] != 1)
 		{
@@ -86,6 +87,7 @@ void main()
 				if (RdotV > 0)
 					specular += SpecularProduct[i] * pow(RdotV, fShininess);
 			}
+			
 
 			LightingColor = ambient + diffuse + specular; // 計算顏色 ambient + diffuse + specular;
 			LightingColor.w += DiffuseProduct[i].w;		  //V 設定為傳入材質的 alpha,	DiffuseProduct.w

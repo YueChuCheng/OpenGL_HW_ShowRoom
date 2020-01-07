@@ -203,6 +203,10 @@ bool LoadObj(const char* path, std::vector<float>* vertices, std::vector<float>*
 	std::vector<float> temp_vertices;
 	std::vector<float> temp_normals;
 	std::vector<unsigned int> indices;
+
+	std::vector<unsigned int> index_vertice , index_normal;
+	
+	
 	float vertex[3], normal[3];
 	unsigned int index[3][3], f = 0;
 	FILE* objfile = fopen(path, "r");
@@ -232,6 +236,15 @@ bool LoadObj(const char* path, std::vector<float>* vertices, std::vector<float>*
 				printf("Impossible to open the file !\n");
 				return false;
 			}
+
+			/*index_vertice.push_back(index[0][0]);
+			index_vertice.push_back(index[0][1]);
+			index_vertice.push_back(index[0][2]);
+
+			index_normal.push_back(index[2][0]);
+			index_normal.push_back(index[2][1]);
+			index_normal.push_back(index[2][2]);*/
+
 			indices.push_back(index[0][0]);
 			indices.push_back(index[2][0]);
 			indices.push_back(index[0][1]);
@@ -249,4 +262,18 @@ bool LoadObj(const char* path, std::vector<float>* vertices, std::vector<float>*
 		normals->push_back(temp_normals[(indices[i + 1] - 1) * 3 + 1]);
 		normals->push_back(temp_normals[(indices[i + 1] - 1) * 3 + 2]);
 	}
+
+	/*for (unsigned int i = 0; i < index_vertice.size(); i ++) {
+
+		vertices->push_back(temp_vertices[index_vertice[i] - 1] * 3 + 0);
+		vertices->push_back(temp_vertices[index_vertice[i] - 1] * 3 + 1);
+		vertices->push_back(temp_vertices[index_vertice[i] - 1] * 3 + 2);
+
+		normals->push_back(temp_normals[index_normal[i] - 1] * 3 + 0);
+		normals->push_back(temp_normals[index_normal[i] - 1] * 3 + 1);
+		normals->push_back(temp_normals[index_normal[i] - 1] * 3 + 2);
+
+	}*/
+
+
 }
