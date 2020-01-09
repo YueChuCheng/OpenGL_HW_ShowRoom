@@ -3,6 +3,8 @@
 
 
 CShape::CShape() {
+
+	_TRSUpdated = _viewUpdated = _projUpdated = false;
 	// ambient 預設為 0, diffuse, specular 的顏色都是灰色 0.5
 	// Ka = 0 係數 , kd = 0.8 , ks = 0.2
 	_material.ambient = vec4(vec3(0));
@@ -20,7 +22,9 @@ CShape::CShape() {
 		_iLighting[i] = 1; // 預設接受燈光的照明
 
 	}
-	
+
+	m_iTexLayer = 0;		// 預設有0張 Diffuse 貼圖
+	_pPoints = nullptr; 	_pNormals = nullptr; 	_pColors = nullptr; 	_pTex = nullptr;
 
 }
 
@@ -43,12 +47,19 @@ void CShape::createBufferObject()
 	// Create and initialize a buffer object
 	glGenBuffers(1, &_uiBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, _uiBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vec4) * _iNumVtx + sizeof(vec3) * _iNumVtx + sizeof(vec4) * _iNumVtx, NULL, GL_STATIC_DRAW);
+
+
+	glBufferData(GL_ARRAY_BUFFER, (sizeof(vec4) + sizeof(vec3) + sizeof(vec4) + sizeof(vec2)/*新增貼圖座標的位置*/) * _iNumVtx, NULL, GL_STATIC_DRAW);
 	//sizeof(vec4)*m_iNumVtx + sizeof(vec3)*m_iNumVtx + sizeof(vec4)*m_iNumVtx <- vertices, normal and color
 
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vec4) * _iNumVtx, _pPoints);  // vertices
-	glBufferSubData(GL_ARRAY_BUFFER, sizeof(vec4) * _iNumVtx, sizeof(vec3) * _iNumVtx, _pNormals); // // vertices' normal
-	glBufferSubData(GL_ARRAY_BUFFER, sizeof(vec4) * _iNumVtx + sizeof(vec3) * _iNumVtx, sizeof(vec4) * _iNumVtx, _pColors); // vertcies' Color
+	// vertices
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vec4) * _iNumVtx, _pPoints);
+	// vertices' normal
+	glBufferSubData(GL_ARRAY_BUFFER, sizeof(vec4) * _iNumVtx, sizeof(vec3) * _iNumVtx, _pNormals);
+	// vertcies' Color
+	glBufferSubData(GL_ARRAY_BUFFER, (sizeof(vec4) + sizeof(vec3)) * _iNumVtx, sizeof(vec4) * _iNumVtx, _pColors);
+
+	glBufferSubData(GL_ARRAY_BUFFER, (sizeof(vec4) + sizeof(vec3) + sizeof(vec4)) * _iNumVtx, sizeof(vec2)/*貼圖座標的大小*/ * _iNumVtx, _pTex/*貼圖座標*/);
 }
 
 
@@ -65,10 +76,16 @@ void CShape::setShader(GLuint shaderHandle) {
 	GLuint vNormal = glGetAttribLocation(_vbo, "vNormal");
 	glEnableVertexAttribArray(vNormal);
 	glVertexAttribPointer(vNormal, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(vec4) * _iNumVtx));
-	
+
 	GLuint vColorVtx = glGetAttribLocation(_vbo, "vVtxColor");  // vertices' color 
 	glEnableVertexAttribArray(vColorVtx);
-	glVertexAttribPointer(vColorVtx, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(sizeof(vec4) * _iNumVtx + sizeof(vec3) * _iNumVtx));
+	glVertexAttribPointer(vColorVtx, 4, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET((sizeof(vec4) + sizeof(vec3)) * _iNumVtx));
+
+	GLuint vDifMapCoord = glGetAttribLocation(_vbo, "vDiffuseMapCoord");  // vertices' texture coordinates //兩貼圖座標用不同名子傳入
+	glEnableVertexAttribArray(vDifMapCoord);
+	glVertexAttribPointer(vDifMapCoord, 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET((sizeof(vec4) + sizeof(vec3) + sizeof(vec4)) * _iNumVtx));
+	glUniform1i(glGetUniformLocation(_vbo, "diffuMap"), 0);// 0 : glAtiveTexture(GL_TEXTURE1);
+
 
 	_uiModelView = glGetUniformLocation(_vbo, "ModelView");
 	// m_mxMVFinal , m_mxModelView 宣告時就是單位矩陣
@@ -169,7 +186,8 @@ void CShape::setShader(GLuint shaderHandle) {
 	_uicutoff[3] = glGetUniformLocation(_vbo, "Cutoff[3]");
 	glUniform1f(_uicutoff[3], _cutoff[3]);
 		
-		
+	m_uiTexLayer = glGetUniformLocation(_vbo, "iTexLayer");
+	glUniform1i(m_uiTexLayer, m_iTexLayer);	// 貼圖的個數，預設為 1，直接傳入 pixel shader
 
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -205,7 +223,7 @@ void CShape::drawingSetShader() {
 	}
 	
 	
-	
+	glUniform1i(m_uiTexLayer, m_iTexLayer);
 	glUniform1f(_uiShininess, _material.shininess);
 	
 
@@ -240,7 +258,7 @@ void CShape::drawingWithoutSetShader()
 	}
 	
 	
-	
+	glUniform1i(m_uiTexLayer, m_iTexLayer);
 	glUniform1f(_uiShininess, _material.shininess);
 	
 }
@@ -281,7 +299,12 @@ void CShape::setColor(vec4 vColor) {
 	_Color[1] = vColor.y;
 	_Color[2] = vColor.z;
 	_Color[3] = vColor.w;
-	glUniform4fv(_uiColor, 1, _Color);
+//	glUniform4fv(_uiColor, 1, _Color);
+}
+
+void CShape::SetTextureLayer(int texlayer)
+{
+	m_iTexLayer = texlayer;
 }
 
 void CShape::setMaterials(color4 ambient, color4 diffuse, color4 specular) {

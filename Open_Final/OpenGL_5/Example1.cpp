@@ -6,7 +6,8 @@
 #include "Common/CSoildCube.h"
 #include "Common/test.h"
 #include "Common/CCamera.h"
-//#include "Room_init.cpp"
+#include "Common/CTexturePool.h"
+#include "png_loader.h"
 
 #define SPACE_KEY 32
 #define SCREEN_SIZE 600
@@ -15,6 +16,8 @@
 #define VP_HALFHEIGHT 20.0f
 #define GRID_SIZE 40 // must be an even number
 
+
+GLuint g_uiFTexID; //貼圖
 
 //Room1 Wall
 CQuad* CSFloor_Room1;
@@ -218,7 +221,7 @@ LightSource  _Light1 = {
 	vec3(10.0f, 0.0f, 10.0f),		  //spotTarget
 	vec3(0.0, 0.0, -10.0f),			  //spotDirection
 	1.0f	,	// spotExponent(parameter e); cos^(e)(phi) 
-	0.95f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
+	1.0f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
 	1.0f	,	// spotCosCutoff; // (range: [1.0,0.0],-1.0), 照明方向與被照明點之間的角度取 cos 後, cut off 的值
 	1	,	// constantAttenuation	(a + bd + cd^2)^-1 中的 a, d 為光源到被照明點的距離
 	0	,	// linearAttenuation	    (a + bd + cd^2)^-1 中的 b
@@ -235,7 +238,7 @@ LightSource  _Light2 = {
 	vec3(10.0f, 0.0f, 10.0f),		  //spotTarget
 	vec3(-10.4, 17.0, 6.0f),			  //spotDirection
 	1.0f	,	// spotExponent(parameter e); cos^(e)(phi) 
-	0.95f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
+	1.0f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
 	1.0f	,	// spotCosCutoff; // (range: [1.0,0.0],-1.0), 照明方向與被照明點之間的角度取 cos 後, cut off 的值
 	1	,	// constantAttenuation	(a + bd + cd^2)^-1 中的 a, d 為光源到被照明點的距離
 	0	,	// linearAttenuation	    (a + bd + cd^2)^-1 中的 b
@@ -252,7 +255,7 @@ LightSource  _Light3 = {
 	vec3(10.0f, 0.0f, 10.0f),		  //spotTarget
 	vec3(10.4, 0.0, 6.0f),			  //spotDirection
 	1.0f	,	// spotExponent(parameter e); cos^(e)(phi) 
-	0.95f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
+	1.0f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
 	1.0f	,	// spotCosCutoff; // (range: [1.0,0.0],-1.0), 照明方向與被照明點之間的角度取 cos 後, cut off 的值
 	1	,	// constantAttenuation	(a + bd + cd^2)^-1 中的 a, d 為光源到被照明點的距離
 	0	,	// linearAttenuation	    (a + bd + cd^2)^-1 中的 b
@@ -302,11 +305,13 @@ void init_Room1() {
 	vT.x = 0.0f; vT.y = 0.0f; vT.z = 0.0f;
 	mxT = Translate(vT);
 	CSFloor_Room1 = new CQuad;
+	CSFloor_Room1->SetTextureLayer(1);
 	CSFloor_Room1->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	CSFloor_Room1->setKaKdKsShini(0, 0.8f, 0.5f, 1);
 	CSFloor_Room1->setTRSMatrix(mxT * Scale(40.0f, 1, 40.0f));
 	CSFloor_Room1->setShadingMode(GOURAUD_SHADING);
 	CSFloor_Room1->setColor(vec4(0.6f));
+	
 	CSFloor_Room1->setShader();
 	
 	
@@ -757,6 +762,9 @@ void init( void )
 	camera->updateViewLookAt(eye, at);
 	camera->updatePerspective(60.0, (GLfloat)SCREEN_SIZE / (GLfloat)SCREEN_SIZE, 1.0, 1000.0);
 	
+	auto texturepool = CTexturePool::create();
+	g_uiFTexID = texturepool->AddTexture("texture/checker.png");
+
 
 	init_Room1();
 	init_Room2();
@@ -820,14 +828,21 @@ void GL_Display( void )
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the window
 	
+
 	CSCeiling_Room1->draw();
 	CQRightWall_Room1->draw();
 	CQLeftWall_Room1->draw();
 	CQFrontWall_Room1->draw();
+	
 	CQBackWall_Room1->draw();
-	CSFloor_Room1->draw();
 
-	CQRightWall_Room2->draw();
+
+	glBindTexture(GL_TEXTURE_2D, g_uiFTexID);
+	CSFloor_Room1->draw();
+	glBindTexture(GL_TEXTURE_2D, 0);
+	
+
+	/*CQRightWall_Room2->draw();
 	CQLeftWall_Room2->draw();
 	CQFrontWall_Room2->draw();
 	CQBackWall_Room2->draw();
@@ -863,7 +878,7 @@ void GL_Display( void )
 	CQBackWall_Room6->draw();
 	CSFloor_Room6->draw();
 	CSCeiling_Room6->draw();
-	
+	*/
 	glutSwapBuffers();	// 交換 Frame Buffer
 }
 
@@ -1065,6 +1080,7 @@ void Win_Keyboard( unsigned char key, int x, int y )
 		break;
 
     case 033:
+		glutIdleFunc(NULL);
 		delete CSFloor_Room1;
 		delete CSCeiling_Room1;
 		delete CQRightWall_Room1;
@@ -1107,6 +1123,7 @@ void Win_Keyboard( unsigned char key, int x, int y )
 		delete CQFrontWall_Room6;
 		delete CQBackWall_Room6;
 		CCamera::getInstance()->destroyInstance();
+		CTexturePool::getInstance()->destroyInstance();
         exit( EXIT_SUCCESS );
         break;
     }
@@ -1141,9 +1158,9 @@ void Win_SpecialKeyboard(int key, int x, int y) {
 		g_matMoveDir = Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
 		
 			//if (g_fCameraMoveX <= 18.5f && g_fCameraMoveX >= -18.5f)
-				g_fCameraMoveX += (g_matMoveDir._m[0][3] * 0.5f);
+				g_fCameraMoveX += (g_matMoveDir._m[0][3] * 3.0f);
 			//if (g_fCameraMoveZ <= 18.5f && g_fCameraMoveZ >= -18.5f)
-				g_fCameraMoveZ += (g_matMoveDir._m[2][3] * 0.5f);
+				g_fCameraMoveZ += (g_matMoveDir._m[2][3] * 3.0f);
 		
 			//避免穿牆
 			/*if (g_fCameraMoveX > 18.5) g_fCameraMoveX = 18.5f;
@@ -1158,9 +1175,9 @@ void Win_SpecialKeyboard(int key, int x, int y) {
 		g_matMoveDir = Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
 		
 			//if (g_fCameraMoveX <= 18.5f && g_fCameraMoveX >= -18.5f)
-				g_fCameraMoveX -= (g_matMoveDir._m[0][3] * 0.5f);
+				g_fCameraMoveX -= (g_matMoveDir._m[0][3] * 3.0f);
 			//if (g_fCameraMoveZ <= 18.5f && g_fCameraMoveZ >= -18.5f)
-				g_fCameraMoveZ -= (g_matMoveDir._m[2][3] * 0.5f);
+				g_fCameraMoveZ -= (g_matMoveDir._m[2][3] * 3.0f);
 			
 			//避免穿牆
 			/*if (g_fCameraMoveX > 18.5) g_fCameraMoveX = 18.5f;
@@ -1175,9 +1192,9 @@ void Win_SpecialKeyboard(int key, int x, int y) {
 		g_matMoveDir = RotateY(90.f) * Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
 			
 			//if (g_fCameraMoveX <= 18.5f && g_fCameraMoveX >= -18.5f)
-				g_fCameraMoveX += (g_matMoveDir._m[0][3] * 0.5f);
+				g_fCameraMoveX += (g_matMoveDir._m[0][3] * 3.0f);
 			//if (g_fCameraMoveZ <= 18.5f && g_fCameraMoveZ >= -18.5f)
-				g_fCameraMoveZ += (g_matMoveDir._m[2][3] * 0.5f);
+				g_fCameraMoveZ += (g_matMoveDir._m[2][3] * 3.0f);
 		
 			//避免穿牆
 			/*if (g_fCameraMoveX > 18.5) g_fCameraMoveX = 18.5f;
@@ -1192,9 +1209,9 @@ void Win_SpecialKeyboard(int key, int x, int y) {
 		g_matMoveDir = RotateY(90.f) * Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
 
 			//if (g_fCameraMoveX <= 18.5f && g_fCameraMoveX >= -18.5f)
-				g_fCameraMoveX -= (g_matMoveDir._m[0][3] * 0.5f);
+				g_fCameraMoveX -= (g_matMoveDir._m[0][3] * 3.0f);
 			//if (g_fCameraMoveZ <= 18.5f && g_fCameraMoveZ >= -18.5f)
-				g_fCameraMoveZ -= (g_matMoveDir._m[2][3] * 0.5f);
+				g_fCameraMoveZ -= (g_matMoveDir._m[2][3] * 3.0f);
 
 			//避免穿牆
 			/*if (g_fCameraMoveX > 18.5) g_fCameraMoveX = 18.5f;

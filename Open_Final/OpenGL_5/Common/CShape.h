@@ -47,7 +47,10 @@ protected:
 	GLuint _uiLighting[LIGHT_NUM];
 	float _uicutoff[LIGHT_NUM];
 	GLuint _uiLightNUM; //有幾盞燈
+	GLuint  m_uiTexLayer;	// 貼圖的層次，預設就是一層 diffuse
 
+
+	int    m_iTexLayer;		// 設定貼圖的層次，0 表示沒有貼圖
 	point4 _vLightInView[LIGHT_NUM]; //光源在世界座標的位置
 	color4 _ambientProduct[LIGHT_NUM];
 	color4 _diffuseProduct[LIGHT_NUM];
@@ -89,6 +92,7 @@ public:
 	void setProjectionMatrix(mat4& mat);
 	void setTRSMatrix(mat4& mat);
 
+	void SetTextureLayer(int texlayer);
 	void setMaterials(color4 ambient, color4 diffuse, color4 specular);
 	void setKaKdKsShini(float ka, float kd, float ks, float shininess);//ka kd ks shininess
 

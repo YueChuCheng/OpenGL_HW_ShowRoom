@@ -90,6 +90,7 @@
     <ClCompile Include="Common\CShape.cpp" />
     <ClCompile Include="Common\CSmoothQuad.cpp" />
     <ClCompile Include="Common\CSolidCube.cpp" />
+    <ClCompile Include="Common\CTexturePool.cpp" />
     <ClCompile Include="Common\test.cpp" />
     <ClCompile Include="Common\Timer.cpp" />
     <ClCompile Include="Example1.cpp" />
@@ -105,6 +106,7 @@
     <ClInclude Include="Common\CShape.h" />
     <ClInclude Include="Common\CSmoothQuad.h" />
     <ClInclude Include="Common\CSoildCube.h" />
+    <ClInclude Include="Common\CTexturePool.h" />
     <ClInclude Include="Common\test.h" />
     <ClInclude Include="Common\Timer.h" />
     <ClInclude Include="Common\TypeDefine.h" />
