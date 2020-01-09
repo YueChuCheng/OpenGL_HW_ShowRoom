@@ -11,7 +11,7 @@ public:
 	void setShader();
 	void setProjectionMatrix(mat4& mat);
 	void setViewMatrix(mat4& mat);
-	void setTRSMatrix(mat4& mat);
+	void setTRSMatrix(mat4 &mat);
 	void setShadingMode(int iMode);//設定每一格的渲染方式
 	void update(float dt, point4 vLightPos, color4 vLightI);
 	void update(float dt, const LightSource& Lights);

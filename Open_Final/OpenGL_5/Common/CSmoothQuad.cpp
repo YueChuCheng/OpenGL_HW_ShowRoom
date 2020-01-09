@@ -78,6 +78,7 @@ void CSmoothQuad::setTRSMatrix(mat4& mat) {
 	for (int i = 0; i < _iGridSize* _iGridSize; i++)
 	{
 		mxT = Translate(_pfSquaresT[i * 3 + 0], _pfSquaresT[i * 3 + 1], _pfSquaresT[i * 3 + 2]);
+		
 		_pSquares[i].setTRSMatrix(mat * mxT);
 	}
 }
