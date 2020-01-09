@@ -278,6 +278,15 @@ void CShape::setShaderName(const char vxShader[], const char fsShader[])
 
 }
 
+void CShape::SetTiling(float uTiling, float vTiling)  // 對 U軸 與 V軸 進行拼貼的縮放
+{
+	for (int i = 0; i < _iNumVtx; i++) {
+		_pTex[i].x *= uTiling; _pTex[i].y *= vTiling;
+	}
+	glBindBuffer(GL_ARRAY_BUFFER, _uiBuffer);
+	glBufferSubData(GL_ARRAY_BUFFER, (sizeof(vec4) + sizeof(vec3) + sizeof(vec4)) * _iNumVtx, sizeof(vec2) * _iNumVtx, _pTex); // vertcies' Color
+}
+
 void CShape::setViewMatrix(mat4& mat) {
 	_mxView = mat;
 	_viewUpdated = true;

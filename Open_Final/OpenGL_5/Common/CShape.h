@@ -95,6 +95,9 @@ public:
 	void SetTextureLayer(int texlayer);
 	void setMaterials(color4 ambient, color4 diffuse, color4 specular);
 	void setKaKdKsShini(float ka, float kd, float ks, float shininess);//ka kd ks shininess
+	void SetTiling(float uTiling, float vTiling);  // 對 U軸 與 V軸 進行拼貼的縮放
+
+
 
 	void setShadingMode(int iMode) { _iMode = iMode; } //更改繪圖模式
 	vec4 phongReflectionModel(vec4 vPoint, vec3 vNormal, vec4 vLightPos, color4 vLight);

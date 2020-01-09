@@ -17,7 +17,7 @@
 #define GRID_SIZE 40 // must be an even number
 
 
-GLuint g_uiFTexID; //貼圖
+GLuint g_uiFTexID[2]; //貼圖
 
 //Room1 Wall
 CQuad* CSFloor_Room1;
@@ -100,9 +100,9 @@ float _fLightDelta = 0; //燈光旋轉，經過時間
 float _fLightRadius = 6;//燈光位置
 float _fLightTheta = 0;//燈光旋轉角度
 
-float g_fLightR = 0.7f;
-float g_fLightG = 0.7f;
-float g_fLightB = 0.7f;
+float g_fLightR = 0.8f;
+float g_fLightG = 0.8f;
+float g_fLightB = 0.8f;
 
 
 
@@ -306,6 +306,7 @@ void init_Room1() {
 	mxT = Translate(vT);
 	CSFloor_Room1 = new CQuad;
 	CSFloor_Room1->SetTextureLayer(1);
+	CSFloor_Room1->SetTiling(4, 4);
 	CSFloor_Room1->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	CSFloor_Room1->setKaKdKsShini(0, 0.8f, 0.5f, 1);
 	CSFloor_Room1->setTRSMatrix(mxT * Scale(40.0f, 1, 40.0f));
@@ -320,6 +321,8 @@ void init_Room1() {
 	mxT = Translate(vT);
 	vec3 vceilingNormal = vec3(0.0f, -1.0f, 0.0f);
 	CSCeiling_Room1 = new CQuad;
+	CSCeiling_Room1->SetTextureLayer(1);
+	CSCeiling_Room1->SetTiling(4, 4);
 	CSCeiling_Room1->setNormal(vceilingNormal);
 	CSCeiling_Room1->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	CSCeiling_Room1->setKaKdKsShini(0, 0.8f, 0.5f, 1);
@@ -333,6 +336,8 @@ void init_Room1() {
 	vT.x = -20.0f; vT.y = 20.0f; vT.z = 0;
 	mxT = Translate(vT);
 	CQLeftWall_Room1 = new CQuad;
+	CQLeftWall_Room1->SetTextureLayer(1);
+	CQLeftWall_Room1->SetTiling(2, 2);
 	CQLeftWall_Room1->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	CQLeftWall_Room1->setShadingMode(GOURAUD_SHADING);
 	CQLeftWall_Room1->setShader();
@@ -344,6 +349,8 @@ void init_Room1() {
 	vT.x = 20.0f; vT.y = 20.0f; vT.z = 0;
 	mxT = Translate(vT);
 	CQRightWall_Room1 = new CQuad;
+	CQRightWall_Room1->SetTextureLayer(1);
+	CQRightWall_Room1->SetTiling(2, 2);
 	CQRightWall_Room1->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	CQRightWall_Room1->setShadingMode(GOURAUD_SHADING);
 	CQRightWall_Room1->setShader();
@@ -355,6 +362,8 @@ void init_Room1() {
 	vT.x = 0.0f; vT.y = 20.0f; vT.z = 20.0f;
 	mxT = Translate(vT);
 	CQFrontWall_Room1 = new CQuad;
+	CQFrontWall_Room1->SetTextureLayer(1);
+	CQFrontWall_Room1->SetTiling(2, 2);
 	CQFrontWall_Room1->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	CQFrontWall_Room1->setShadingMode(GOURAUD_SHADING);
 	CQFrontWall_Room1->setShader();
@@ -366,6 +375,8 @@ void init_Room1() {
 	vT.x = 0.0f; vT.y = 20.0f; vT.z = -20.0f;
 	mxT = Translate(vT);
 	CQBackWall_Room1 = new CQuad;
+	CQBackWall_Room1->SetTextureLayer(1);
+	CQBackWall_Room1->SetTiling(2, 2);
 	CQBackWall_Room1->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	CQBackWall_Room1->setShadingMode(GOURAUD_SHADING);
 	CQBackWall_Room1->setShader();
@@ -763,8 +774,8 @@ void init( void )
 	camera->updatePerspective(60.0, (GLfloat)SCREEN_SIZE / (GLfloat)SCREEN_SIZE, 1.0, 1000.0);
 	
 	auto texturepool = CTexturePool::create();
-	g_uiFTexID = texturepool->AddTexture("texture/checker.png");
-
+	g_uiFTexID[0] = texturepool->AddTexture("texture/Room1WallTex_1.png");
+	g_uiFTexID[1] = texturepool->AddTexture("texture/Room1WallTex_3.png");
 
 	init_Room1();
 	init_Room2();
@@ -829,20 +840,22 @@ void GL_Display( void )
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the window
 	
 
-	CSCeiling_Room1->draw();
+	
+	
+	glBindTexture(GL_TEXTURE_2D, g_uiFTexID[0]);
 	CQRightWall_Room1->draw();
 	CQLeftWall_Room1->draw();
 	CQFrontWall_Room1->draw();
-	
 	CQBackWall_Room1->draw();
-
-
-	glBindTexture(GL_TEXTURE_2D, g_uiFTexID);
-	CSFloor_Room1->draw();
-	glBindTexture(GL_TEXTURE_2D, 0);
+	
 	
 
-	/*CQRightWall_Room2->draw();
+	glBindTexture(GL_TEXTURE_2D, g_uiFTexID[1]);
+	CSFloor_Room1->draw();
+	CSCeiling_Room1->draw();
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	CQRightWall_Room2->draw();
 	CQLeftWall_Room2->draw();
 	CQFrontWall_Room2->draw();
 	CQBackWall_Room2->draw();
@@ -878,7 +891,7 @@ void GL_Display( void )
 	CQBackWall_Room6->draw();
 	CSFloor_Room6->draw();
 	CSCeiling_Room6->draw();
-	*/
+	
 	glutSwapBuffers();	// 交換 Frame Buffer
 }
 
