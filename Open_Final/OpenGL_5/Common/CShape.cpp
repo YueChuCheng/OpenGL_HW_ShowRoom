@@ -260,6 +260,20 @@ void CShape::setShader(GLuint shaderHandle) {
 	m_uiTexLayer = glGetUniformLocation(_vbo, "iTexLayer");
 	glUniform1i(m_uiTexLayer, m_iTexLayer);	// 貼圖的個數，預設為 1，直接傳入 pixel shader
 
+#ifdef CUBIC_MAP
+	// For Cube Map
+	_uiCubeMap = glGetUniformLocation(_vbo, "cubeMap");
+	glUniform1i(_uiCubeMap, _uiCubeMapTexName);
+
+	_uiViewPos = glGetUniformLocation(_vbo, "ViewPos");
+	glUniform4fv(_uiViewPos, 1, _v4Eye);
+
+	_uiTRS = glGetUniformLocation(_vbo, "TRSMatrix");
+	glUniformMatrix4fv(_uiTRS, 1, GL_TRUE, _mxTRS);
+
+#endif // CUBIC_MAP
+
+
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -297,6 +311,13 @@ void CShape::drawingSetShader() {
 	glUniform1i(m_uiTexLayer, m_iTexLayer);
 	glUniform1f(_uiShininess, _material.shininess);
 	
+#ifdef CUBIC_MAP
+	glUniform4fv(_uiViewPos, 1, _v4Eye);
+	glUniformMatrix4fv(_uiTRS, 1, GL_TRUE, _mxTRS);
+#endif // CUBIC_MAP
+
+
+
 
 }
 
@@ -332,6 +353,12 @@ void CShape::drawingWithoutSetShader()
 	glUniform1i(m_uiTexLayer, m_iTexLayer);
 	glUniform1f(_uiShininess, _material.shininess);
 	
+#ifdef CUBIC_MAP
+	glUniform4fv(_uiViewPos, 1, _v4Eye);
+	glUniformMatrix4fv(_uiTRS, 1, GL_TRUE, _mxTRS);
+#endif // CUBIC_MAP
+
+
 }
 
 

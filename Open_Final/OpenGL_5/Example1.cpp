@@ -6,6 +6,7 @@
 #include "Common/CSoildCube.h"
 #include "Common/test.h"
 #include "Common/CCamera.h"
+#include "Common/CSolidSphere.h"
 #include "Common/CTexturePool.h"
 #include "png_loader.h"
 
@@ -20,6 +21,10 @@
 GLuint g_uiFTexID_Room1[2]; //貼圖
 GLuint g_uiLightTexID_Room1; //light map 貼圖
 GLuint g_uiNormalTexID_Room1; //normal map 貼圖
+GLuint g_uiSphereCubeMap; //normal map 貼圖
+
+
+
 
 
 //Room1 Wall
@@ -30,6 +35,9 @@ CQuad* CQRightWall_Room1;
 CQuad* CQLeftWall_Room1;
 CQuad* CQFrontWall_Room1;
 CQuad* CQBackWall_Room1;
+
+//Room1 decorate
+CSolidSphere* CSSphere; //environment map
 
 
 
@@ -76,7 +84,6 @@ CQuad* CQFrontWall_Room6;
 CQuad* CQBackWall_Room6;
 
 
-//button
 GLfloat g_fRadius = 120.0; //視覺範圍
 GLfloat g_fTheta = 60.0f * DegreesToRadians;
 GLfloat g_fPhi = 45.0f * DegreesToRadians;
@@ -780,6 +787,7 @@ void init_Room6() {
 
 void init( void )
 {
+
 	auto camera = CCamera::create();
 	camera->updateViewLookAt(eye, at);
 	camera->updatePerspective(60.0, (GLfloat)SCREEN_SIZE / (GLfloat)SCREEN_SIZE, 1.0, 1000.0);
@@ -795,7 +803,30 @@ void init( void )
 #ifdef NORMALMAP
 	g_uiNormalTexID_Room1 = texturepool->AddTexture("texture/Room1WallNormal_1.png");
 #endif // NORMALMAP
+#ifdef CUBIC_MAP
+	g_uiSphereCubeMap = CubeMap_load_SOIL();
+#endif // CUBIC_MAP
 
+	
+
+	mat4 mxT, mxS;
+	vec4 vT, vColor;
+	CSSphere = new CSolidSphere(1.0f, 24, 12);
+	CSSphere->SetTextureLayer(DIFFUSE_MAP);  // 使用 
+	CSSphere->SetCubeMapTexName(1);
+	CSSphere->SetViewPosition(eye);
+	CSSphere->setShaderName("vsCubeMapping.glsl", "fsCubeMapping.glsl");
+	CSSphere->setShader();
+	vT.x = 0.0f; vT.y = 2.0f; vT.z = 0.0f;
+	mxT = Translate(vT);
+	mxT._m[0][0] = 2.0f; mxT._m[1][1] = 2.0f; mxT._m[2][2] = 2.0f;
+	CSSphere->setTRSMatrix(mxT * RotateX(90.0f));
+	CSSphere->setShadingMode(GOURAUD_SHADING);
+	// 設定貼圖
+	CSSphere->setMaterials(vec4(0), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CSSphere->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+	CSSphere->setColor(vec4(0.9f, 0.9f, 0.9f, 1.0f));
+	
 
 
 
@@ -809,6 +840,8 @@ void init( void )
 	bool bPDirty;
 	mat4 mpx = camera->getProjectionMatrix(bPDirty);
 	
+	CSSphere->setProjectionMatrix(mpx);
+
 	CQRightWall_Room1->setProjectionMatrix(mpx);
 	CQLeftWall_Room1->setProjectionMatrix(mpx);
 	CQFrontWall_Room1->setProjectionMatrix(mpx);
@@ -862,6 +895,13 @@ void GL_Display( void )
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the window
 	
 	
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[1]);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, g_uiSphereCubeMap);
+	CSSphere->draw();
+
+
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[0]);
 	CQRightWall_Room1->draw();
 	CQFrontWall_Room1->draw();
@@ -957,7 +997,11 @@ void onFrameMove(float delta)
 
 	mvx = camera->getViewMatrix(bVDirty);
 	if (bVDirty) {
+
+		CSSphere->SetViewPosition(camera->getViewPosition());
+		CSSphere->setViewMatrix(mvx);
 		
+
 		CQRightWall_Room1->setViewMatrix(mvx);
 		CQLeftWall_Room1->setViewMatrix(mvx);
 		CQFrontWall_Room1->setViewMatrix(mvx);
@@ -1011,7 +1055,7 @@ void onFrameMove(float delta)
 	}
 	// 如果需要重新計算時，在這邊計算每一個物件的顏色
 
-
+	CSSphere->update(delta, Light_resulte_Room1);
 	
 	CSFloor_Room1->update(delta, Light_resulte_Room1);
 	CSCeiling_Room1->update(delta, Light_resulte_Room1);
@@ -1121,6 +1165,9 @@ void Win_Keyboard( unsigned char key, int x, int y )
 
     case 033:
 		glutIdleFunc(NULL);
+
+		delete CSSphere;
+
 		delete CSFloor_Room1;
 		delete CSCeiling_Room1;
 		delete CQRightWall_Room1;

@@ -18,6 +18,9 @@ typedef Angel::vec4 point4;
 #define PERVERTEX_uiLighting
 #define LIGHTMAP
 #define NORMALMAP
+#define CUBIC_MAP //environment map
+
+
 
 class CShape
 {
@@ -36,6 +39,16 @@ protected:
 	vec2* _pTex_normal;		// 新增第三張貼圖 for example 4
 	vec3* _pTangent;	// 新增 tangent vector for each vertex
 #endif // NORMALMAP
+
+
+#ifdef CUBIC_MAP
+	GLuint  _uiTRS;			// TRSMatrix 傳入 Pixel Shader 的位置
+	GLuint  _uiViewPos;		// ViewPoint 傳入 Pixel Shader 的位置
+	point4  _v4Eye;			// Camera 的位置
+
+	GLuint  _uiCubeMap;     // pixel shader 中的 CubeMap Texture Name 的位置
+	GLuint  _uiCubeMapTexName;  // 傳入 pixel shader 中的 Cube map 的貼圖編號， 
+#endif // CUBIC_MAP
 
 	
 	int _iNumVtx;
@@ -125,6 +138,14 @@ public:
 		
 	}
 
+#ifdef CUBIC_MAP
+	void SetCubeMapTexName(GLuint uiTexName) {
+		_uiCubeMapTexName = uiTexName;
+	}
+	void SetViewPosition(point4 vEye) {
+		_v4Eye = vEye;
+	}
+#endif
 
 };
 

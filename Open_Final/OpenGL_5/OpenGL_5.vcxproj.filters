@@ -27,9 +27,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Common\CLineSegment.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
     <ClCompile Include="Common\common.cpp">
       <Filter>Common</Filter>
     </ClCompile>
@@ -72,11 +69,11 @@
     <ClCompile Include="Common\CTexturePool.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="Common\CSolidSphere.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Common\CLineSegment.h">
-      <Filter>Common</Filter>
-    </ClInclude>
     <ClInclude Include="Common\Timer.h">
       <Filter>Common</Filter>
     </ClInclude>
@@ -120,6 +117,9 @@
       <Filter>原始程式檔</Filter>
     </ClInclude>
     <ClInclude Include="Common\CTexturePool.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\CSolidSphere.h">
       <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
