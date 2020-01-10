@@ -26,6 +26,19 @@ CShape::CShape() {
 	m_iTexLayer = 0;		// 預設有0張 Diffuse 貼圖
 	_pPoints = nullptr; 	_pNormals = nullptr; 	_pColors = nullptr; 	_pTex = nullptr;
 
+	//light map
+#ifdef LIGHTMAP
+	_pTex_light = nullptr;
+#endif
+
+#ifdef NORMALMAP
+	_pTex_normal = nullptr;
+	_pTangent = nullptr;
+#endif // NORMALMAP
+
+
+
+
 }
 
 //收回空間
@@ -34,6 +47,17 @@ CShape::~CShape() {
 	if (_pNormals != NULL)delete[] _pNormals;
 	if (_pColors != NULL)delete[] _pColors;
 	if (_pTex != NULL)delete[] _pTex;
+
+
+#ifdef LIGHTMAP
+	if (_pTex_light != NULL) delete _pTex_light;
+#endif
+#ifdef NORMALMAP
+	if (_pTex_normal != NULL) delete _pTex_normal;
+	if (_pTangent != NULL) delete[] _pTangent;
+#endif
+
+
 
 	if (_pVXshader != NULL)delete[]_pVXshader;
 	if (_pFShader != NULL)delete[] _pFShader;
@@ -49,8 +73,23 @@ void CShape::createBufferObject()
 	glBindBuffer(GL_ARRAY_BUFFER, _uiBuffer);
 
 
-	glBufferData(GL_ARRAY_BUFFER, (sizeof(vec4) + sizeof(vec3) + sizeof(vec4) + sizeof(vec2)/*新增貼圖座標的位置*/) * _iNumVtx, NULL, GL_STATIC_DRAW);
-	//sizeof(vec4)*m_iNumVtx + sizeof(vec3)*m_iNumVtx + sizeof(vec4)*m_iNumVtx <- vertices, normal and color
+#ifndef LIGHTMAP 
+glBufferData(GL_ARRAY_BUFFER, (sizeof(vec4) + sizeof(vec3) + sizeof(vec4) + sizeof(vec2)/*新增貼圖座標的位置*/) * _iNumVtx, NULL, GL_STATIC_DRAW);
+//sizeof(vec4)*m_iNumVtx + sizeof(vec3)*m_iNumVtx + sizeof(vec4)*m_iNumVtx <- vertices, normal and color
+#endif
+
+#ifdef LIGHTMAP 
+#ifndef NORMALMAP
+	glBufferData(GL_ARRAY_BUFFER, (sizeof(vec4) + sizeof(vec3) + sizeof(vec4) + sizeof(vec2) * 2) * _iNumVtx, NULL, GL_STATIC_DRAW); // 包含兩張貼圖
+#endif
+#endif
+
+#ifdef NORMALMAP
+	glBufferData(GL_ARRAY_BUFFER, (sizeof(vec4) + sizeof(vec3) + sizeof(vec4) + sizeof(vec2) * 3 + sizeof(vec3)) * _iNumVtx, NULL, GL_STATIC_DRAW); // 包含三張貼圖與 tangent
+#endif // NORMALMAP
+
+
+	
 
 	// vertices
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vec4) * _iNumVtx, _pPoints);
@@ -60,6 +99,19 @@ void CShape::createBufferObject()
 	glBufferSubData(GL_ARRAY_BUFFER, (sizeof(vec4) + sizeof(vec3)) * _iNumVtx, sizeof(vec4) * _iNumVtx, _pColors);
 
 	glBufferSubData(GL_ARRAY_BUFFER, (sizeof(vec4) + sizeof(vec3) + sizeof(vec4)) * _iNumVtx, sizeof(vec2)/*貼圖座標的大小*/ * _iNumVtx, _pTex/*貼圖座標*/);
+
+#ifdef LIGHTMAP
+	glBufferSubData(GL_ARRAY_BUFFER, (sizeof(vec4) + sizeof(vec3) + sizeof(vec4) + sizeof(vec2)) * _iNumVtx, sizeof(vec2) * _iNumVtx, _pTex_light); // 第二張貼圖
+#endif
+
+
+#ifdef NORMALMAP
+// Normal Map's Texture Coordinates
+	glBufferSubData(GL_ARRAY_BUFFER, (sizeof(vec4) + sizeof(vec3) + sizeof(vec4) + sizeof(vec2) * 2) * _iNumVtx, sizeof(vec2) * _iNumVtx, _pTex_normal); // 第三張貼圖
+	glBufferSubData(GL_ARRAY_BUFFER, (sizeof(vec4) + sizeof(vec3) + sizeof(vec4) + sizeof(vec2) * 3) * _iNumVtx, sizeof(vec3) * _iNumVtx, _pTangent); // 第三張貼圖
+	// Vertex's Tangent
+#endif
+
 }
 
 
@@ -84,8 +136,27 @@ void CShape::setShader(GLuint shaderHandle) {
 	GLuint vDifMapCoord = glGetAttribLocation(_vbo, "vDiffuseMapCoord");  // vertices' texture coordinates //兩貼圖座標用不同名子傳入
 	glEnableVertexAttribArray(vDifMapCoord);
 	glVertexAttribPointer(vDifMapCoord, 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET((sizeof(vec4) + sizeof(vec3) + sizeof(vec4)) * _iNumVtx));
-	glUniform1i(glGetUniformLocation(_vbo, "diffuMap"), 0);// 0 : glAtiveTexture(GL_TEXTURE1);
+	glUniform1i(glGetUniformLocation(_vbo, "diffuMap"), 0);// 0 : glAtiveTexture(GL_TEXTURE0);
 
+#ifdef LIGHTMAP
+	GLuint vLightMapCoord = glGetAttribLocation(_vbo, "vLightMapCoord");  // Light maps' texture coordinates， 必須新增到 Shader 中 //兩貼圖座標用不同名子傳入
+	glEnableVertexAttribArray(vLightMapCoord);
+	glVertexAttribPointer(vLightMapCoord, 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET((sizeof(vec4) + sizeof(vec3) + sizeof(vec4) + sizeof(vec2)) * _iNumVtx));
+	glUniform1i(glGetUniformLocation(_vbo, "lightMap"), 1); // 1 : glAtiveTexture(GL_TEXTURE1);
+#endif // LIGHTMAP
+
+#ifdef NORMALMAP
+	// For Normal Map
+	GLuint vNormalMapCoord = glGetAttribLocation(_vbo, "vNormalMapCoord");  // Light maps' texture coordinates， 必須新增到 Shader 中
+	glEnableVertexAttribArray(vNormalMapCoord);
+	glVertexAttribPointer(vNormalMapCoord, 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET((sizeof(vec4) + sizeof(vec3) + sizeof(vec4) + sizeof(vec2) * 2) * _iNumVtx));
+	glUniform1i(glGetUniformLocation(_vbo, "normalMap"), 2);
+
+	GLuint vTangentVec = glGetAttribLocation(_vbo, "vTangentV");  // vertices' color 
+	glEnableVertexAttribArray(vTangentVec);
+	glVertexAttribPointer(vTangentVec, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET((sizeof(vec4) + sizeof(vec3) + sizeof(vec4) + sizeof(vec2) * 3) * _iNumVtx));
+
+#endif
 
 	_uiModelView = glGetUniformLocation(_vbo, "ModelView");
 	// m_mxMVFinal , m_mxModelView 宣告時就是單位矩陣

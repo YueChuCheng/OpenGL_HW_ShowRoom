@@ -16,6 +16,8 @@ typedef Angel::vec4 point4;
 
 #define LIGHTING_WITHGPU
 #define PERVERTEX_uiLighting
+#define LIGHTMAP
+#define NORMALMAP
 
 class CShape
 {
@@ -24,6 +26,18 @@ protected:
 	vec3* _pNormals;
 	vec4* _pColors;
 	vec2* _pTex;
+
+
+#ifdef LIGHTMAP
+	vec2* _pTex_light; //light map
+#endif // LIGHTMAP
+
+#ifdef NORMALMAP
+	vec2* _pTex_normal;		// 新增第三張貼圖 for example 4
+	vec3* _pTangent;	// 新增 tangent vector for each vertex
+#endif // NORMALMAP
+
+	
 	int _iNumVtx;
 
 	GLfloat _Color[4]; //object's color

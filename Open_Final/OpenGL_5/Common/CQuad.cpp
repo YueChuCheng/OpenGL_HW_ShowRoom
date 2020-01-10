@@ -10,6 +10,20 @@ CQuad::CQuad() {
 	_pNormals = new vec3[_iNumVtx];
 	_pColors = new vec4[_iNumVtx];
 	_pTex = new vec2[_iNumVtx];
+
+//light map
+#ifdef LIGHTMAP
+	_pTex_light = new vec2[_iNumVtx];
+#endif
+
+//normal map
+#ifdef NORMALMAP
+	_pTex_normal = new vec2[_iNumVtx];
+	_pTangent = new vec3[_iNumVtx];
+#endif // NORMALMAP
+
+
+
 	//點座標
 	_pPoints[0] = vec4(-0.5f, 0.0f, 0.5f, 1.0f);
 	_pPoints[1] = vec4(0.5f, 0.0f, 0.5f, 1.0f);
@@ -33,6 +47,52 @@ CQuad::CQuad() {
 	_pTex[3] = vec2(0.0f, 0.0f);
 	_pTex[4] = vec2(1.0f, 1.0f);
 	_pTex[5] = vec2(0.0f, 1.0f);
+
+	//light map
+#ifdef LIGHTMAP
+
+	_pTex_light[0] = vec2(0.0f, 0.0f);
+	_pTex_light[1] = vec2(1.0f, 0.0f);
+	_pTex_light[2] = vec2(1.0f, 1.0f);
+	_pTex_light[3] = vec2(0.0f, 0.0f);
+	_pTex_light[4] = vec2(1.0f, 1.0f);
+	_pTex_light[5] = vec2(0.0f, 1.0f);
+
+#endif // LIGHTMAP
+
+
+#ifdef NORMALMAP
+	_pTex_normal[0] = vec2(0.0f, 0.0f);
+	_pTex_normal[1] = vec2(1.0f, 0.0f);
+	_pTex_normal[2] = vec2(1.0f, 1.0f);
+	_pTex_normal[3] = vec2(0.0f, 0.0f);
+	_pTex_normal[4] = vec2(1.0f, 1.0f);
+	_pTex_normal[5] = vec2(0.0f, 1.0f);
+
+	for (int i = 0; i < 6; i += 3) { // 三個 vertex 一組
+		float dU1 = _pTex[i + 1].x - _pTex[i].x;
+		float dV1 = _pTex[i + 1].y - _pTex[i].y;
+		float dU2 = _pTex[i + 2].x - _pTex[i].x;
+		float dV2 = _pTex[i + 2].y - _pTex[i].y;
+		float f = 1.0f / (dU1 * dV2 - dU2 * dV1);
+		vec4 E1 = _pPoints[i + 1] - _pPoints[i];
+		vec4 E2 = _pPoints[i + 2] - _pPoints[i];
+
+		vec3 tangent;
+		tangent.x = f * (dV2 * E1.x + E2.x * (-dV1));
+		tangent.y = f * (dV2 * E1.y + E2.y * (-dV1));
+		tangent.z = f * (dV2 * E1.z + E2.z * (-dV1));
+
+		_pTangent[i] += tangent;
+		_pTangent[i + 1] += tangent;
+		_pTangent[i + 2] = tangent;
+	}
+	for (int i = 0; i < 6; i++)
+		_pTangent[i] = normalize(_pTangent[i]);
+
+
+#endif // NORMALMAP
+
 
 	//顏色
 	for (int i = 0; i < _iNumVtx; i++) _pColors[i] = vec4(1.0f, 1.0f, 1.0f, 1.0f);

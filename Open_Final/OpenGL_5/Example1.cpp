@@ -17,7 +17,10 @@
 #define GRID_SIZE 40 // must be an even number
 
 
-GLuint g_uiFTexID[2]; //貼圖
+GLuint g_uiFTexID_Room1[2]; //貼圖
+GLuint g_uiLightTexID_Room1; //light map 貼圖
+GLuint g_uiNormalTexID_Room1; //normal map 貼圖
+
 
 //Room1 Wall
 CQuad* CSFloor_Room1;
@@ -305,7 +308,14 @@ void init_Room1() {
 	vT.x = 0.0f; vT.y = 0.0f; vT.z = 0.0f;
 	mxT = Translate(vT);
 	CSFloor_Room1 = new CQuad;
-	CSFloor_Room1->SetTextureLayer(1);
+#ifndef LIGHTMAP
+	CSFloor_Room1->SetTextureLayer(DIFFUSE_MAP);
+#endif // !LIGHTMAP
+
+#ifdef LIGHTMAP
+	CSFloor_Room1->SetTextureLayer(DIFFUSE_MAP|LIGHT_MAP);
+#endif // LIGHTMAP
+	
 	CSFloor_Room1->SetTiling(4, 4);
 	CSFloor_Room1->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	CSFloor_Room1->setKaKdKsShini(0, 0.8f, 0.5f, 1);
@@ -336,7 +346,8 @@ void init_Room1() {
 	vT.x = -20.0f; vT.y = 20.0f; vT.z = 0;
 	mxT = Translate(vT);
 	CQLeftWall_Room1 = new CQuad;
-	CQLeftWall_Room1->SetTextureLayer(1);
+	CQLeftWall_Room1->SetTextureLayer(DIFFUSE_MAP|NORMAL_MAP);
+	CQLeftWall_Room1->setShaderName("vsNormalMapLighting.glsl", "fsNormalMapLighting.glsl");
 	CQLeftWall_Room1->SetTiling(2, 2);
 	CQLeftWall_Room1->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	CQLeftWall_Room1->setShadingMode(GOURAUD_SHADING);
@@ -774,8 +785,19 @@ void init( void )
 	camera->updatePerspective(60.0, (GLfloat)SCREEN_SIZE / (GLfloat)SCREEN_SIZE, 1.0, 1000.0);
 	
 	auto texturepool = CTexturePool::create();
-	g_uiFTexID[0] = texturepool->AddTexture("texture/Room1WallTex_1.png");
-	g_uiFTexID[1] = texturepool->AddTexture("texture/Room1WallTex_3.png");
+	g_uiFTexID_Room1[0] = texturepool->AddTexture("texture/Room1WallTex_1.png");
+	g_uiFTexID_Room1[1] = texturepool->AddTexture("texture/Room1WallTex_3.png");
+
+#ifdef LIGHTMAP
+	g_uiLightTexID_Room1 = texturepool->AddTexture("texture/lightMap3.png");
+#endif // LIGHTMAP
+
+#ifdef NORMALMAP
+	g_uiNormalTexID_Room1 = texturepool->AddTexture("texture/Room1WallNormal_1.png");
+#endif // NORMALMAP
+
+
+
 
 	init_Room1();
 	init_Room2();
@@ -839,23 +861,28 @@ void GL_Display( void )
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the window
 	
-
 	
-	
-	glBindTexture(GL_TEXTURE_2D, g_uiFTexID[0]);
+	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[0]);
 	CQRightWall_Room1->draw();
-	CQLeftWall_Room1->draw();
 	CQFrontWall_Room1->draw();
 	CQBackWall_Room1->draw();
-	
-	
 
-	glBindTexture(GL_TEXTURE_2D, g_uiFTexID[1]);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[0]);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, g_uiNormalTexID_Room1);
+	CQLeftWall_Room1->draw();
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[1]);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, g_uiLightTexID_Room1);
 	CSFloor_Room1->draw();
 	CSCeiling_Room1->draw();
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	CQRightWall_Room2->draw();
+	/*CQRightWall_Room2->draw();
 	CQLeftWall_Room2->draw();
 	CQFrontWall_Room2->draw();
 	CQBackWall_Room2->draw();
@@ -891,7 +918,7 @@ void GL_Display( void )
 	CQBackWall_Room6->draw();
 	CSFloor_Room6->draw();
 	CSCeiling_Room6->draw();
-	
+	*/
 	glutSwapBuffers();	// 交換 Frame Buffer
 }
 
