@@ -72,6 +72,9 @@
     <ClCompile Include="Common\CSolidSphere.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="Common\CObjReader.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\Timer.h">
@@ -120,6 +123,9 @@
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="Common\CSolidSphere.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\CObjReader.h">
       <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>

@@ -2,9 +2,10 @@
 #include "Common/TypeDefine.h"
 #include "Common/CQuad.h"
 #include "Common/CSmoothQuad.h"
-#include "Common/C2DBTN.h"
+#include "Common/CObjReader.h"
+//#include "Common/C2DBTN.h"
 #include "Common/CSoildCube.h"
-#include "Common/test.h"
+//#include "Common/test.h"
 #include "Common/CCamera.h"
 #include "Common/CSolidSphere.h"
 #include "Common/CTexturePool.h"
@@ -18,12 +19,14 @@
 #define GRID_SIZE 40 // must be an even number
 
 
-GLuint g_uiFTexID_Room1[2]; //貼圖
+GLuint g_uiFTexID_Room1[3]; //貼圖
 GLuint g_uiLightTexID_Room1; //light map 貼圖
 GLuint g_uiNormalTexID_Room1; //normal map 貼圖
-GLuint g_uiSphereCubeMap; //normal map 貼圖
+GLuint g_uiSphereCubeMap; //enviroment map 貼圖
 
 
+//model
+CObjReader* g_pDoor; //門
 
 
 
@@ -315,14 +318,7 @@ void init_Room1() {
 	vT.x = 0.0f; vT.y = 0.0f; vT.z = 0.0f;
 	mxT = Translate(vT);
 	CSFloor_Room1 = new CQuad;
-#ifndef LIGHTMAP
-	CSFloor_Room1->SetTextureLayer(DIFFUSE_MAP);
-#endif // !LIGHTMAP
-
-#ifdef LIGHTMAP
 	CSFloor_Room1->SetTextureLayer(DIFFUSE_MAP|LIGHT_MAP);
-#endif // LIGHTMAP
-	
 	CSFloor_Room1->SetTiling(4, 4);
 	CSFloor_Room1->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	CSFloor_Room1->setKaKdKsShini(0, 0.8f, 0.5f, 1);
@@ -795,6 +791,7 @@ void init( void )
 	auto texturepool = CTexturePool::create();
 	g_uiFTexID_Room1[0] = texturepool->AddTexture("texture/Room1WallTex_1.png");
 	g_uiFTexID_Room1[1] = texturepool->AddTexture("texture/Room1WallTex_3.png");
+	g_uiFTexID_Room1[2] = texturepool->AddTexture("texture/test_texture.png");
 
 #ifdef LIGHTMAP
 	g_uiLightTexID_Room1 = texturepool->AddTexture("texture/lightMap3.png");
@@ -810,7 +807,9 @@ void init( void )
 	
 
 	mat4 mxT, mxS;
-	vec4 vT, vColor;
+	vec4 vT, vColor ;
+	vec3 vS;
+
 	CSSphere = new CSolidSphere(1.0f, 24, 12);
 	CSSphere->SetTextureLayer(DIFFUSE_MAP);  // 使用 
 	CSSphere->SetCubeMapTexName(1);
@@ -829,6 +828,18 @@ void init( void )
 	
 
 
+	g_pDoor = new CObjReader("Model/test.obj");
+	g_pDoor->SetTextureLayer(DIFFUSE_MAP);
+	g_pDoor->setShader();
+	vT.x = 10.4f; vT.y = 0.0f; vT.z = 6.0f;
+	mxT = Translate(vT);
+	vS.x = vS.y = vS.z = 1.0f;
+	mxS = Scale(vS);
+	g_pDoor->setTRSMatrix(mxT * mxS);
+	g_pDoor->setShadingMode(GOURAUD_SHADING);
+	g_pDoor->setMaterials(vec4(0), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	g_pDoor->setKaKdKsShini(0.25f, 0.8f, 0.2f, 2);
+	
 
 	init_Room1();
 	init_Room2();
@@ -841,6 +852,9 @@ void init( void )
 	mat4 mpx = camera->getProjectionMatrix(bPDirty);
 	
 	CSSphere->setProjectionMatrix(mpx);
+	g_pDoor->setProjectionMatrix(mpx);
+
+
 
 	CQRightWall_Room1->setProjectionMatrix(mpx);
 	CQLeftWall_Room1->setProjectionMatrix(mpx);
@@ -920,9 +934,13 @@ void GL_Display( void )
 	CSFloor_Room1->draw();
 	CSCeiling_Room1->draw();
 	glActiveTexture(GL_TEXTURE0);
+	
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[2]);
+	g_pDoor->draw();
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-	/*CQRightWall_Room2->draw();
+	CQRightWall_Room2->draw();
 	CQLeftWall_Room2->draw();
 	CQFrontWall_Room2->draw();
 	CQBackWall_Room2->draw();
@@ -958,7 +976,7 @@ void GL_Display( void )
 	CQBackWall_Room6->draw();
 	CSFloor_Room6->draw();
 	CSCeiling_Room6->draw();
-	*/
+	
 	glutSwapBuffers();	// 交換 Frame Buffer
 }
 
@@ -1001,6 +1019,7 @@ void onFrameMove(float delta)
 		CSSphere->SetViewPosition(camera->getViewPosition());
 		CSSphere->setViewMatrix(mvx);
 		
+		g_pDoor->setViewMatrix(mvx);
 
 		CQRightWall_Room1->setViewMatrix(mvx);
 		CQLeftWall_Room1->setViewMatrix(mvx);
@@ -1056,7 +1075,9 @@ void onFrameMove(float delta)
 	// 如果需要重新計算時，在這邊計算每一個物件的顏色
 
 	CSSphere->update(delta, Light_resulte_Room1);
-	
+	g_pDoor->update(delta, Light_resulte_Room1);
+
+
 	CSFloor_Room1->update(delta, Light_resulte_Room1);
 	CSCeiling_Room1->update(delta, Light_resulte_Room1);
 	CQRightWall_Room1->update(delta, Light_resulte_Room1);
@@ -1167,6 +1188,7 @@ void Win_Keyboard( unsigned char key, int x, int y )
 		glutIdleFunc(NULL);
 
 		delete CSSphere;
+		delete g_pDoor;
 
 		delete CSFloor_Room1;
 		delete CSCeiling_Room1;
