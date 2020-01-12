@@ -87,8 +87,9 @@ protected:
 	
 	float _cutoff[LIGHT_NUM];
 
+	bool _bBillboarding = false; //是否為 bBillboarding style
 	
-	
+
 	mat4 _mxView, _mxProjection, _mxTRS;
 	mat4 _mxMVFinal;
 	mat3 _mxMV3x3Final, _mxITMV; //使用在計算 物體旋轉後的新Normal
@@ -102,7 +103,17 @@ protected:
 	void drawingSetShader();
 	void drawingWithoutSetShader();
 
+
+
 public:
+
+
+	float _fBillboardingAngle; //Billboarding 旋轉角度
+	vec3 _vS; //紀錄大小
+	vec4 _vT; //紀錄位移量
+	float _fRotateAngle; //r紀錄旋轉角度
+
+
 	CShape();
 	virtual ~CShape();
 	virtual void draw() = 0;
@@ -123,7 +134,7 @@ public:
 	void setMaterials(color4 ambient, color4 diffuse, color4 specular);
 	void setKaKdKsShini(float ka, float kd, float ks, float shininess);//ka kd ks shininess
 	void SetTiling(float uTiling, float vTiling);  // 對 U軸 與 V軸 進行拼貼的縮放
-
+	void SetbBillboarding(); //是否為 bBillboarding style
 
 
 	void setShadingMode(int iMode) { _iMode = iMode; } //更改繪圖模式
@@ -137,6 +148,10 @@ public:
 			_iLighting[i] = 0;
 		
 	}
+
+	float billboardCylindricalBegin(float camX, float camY, float camZ,float objPosX, float objPosY, float objPosZ);
+
+
 
 #ifdef CUBIC_MAP
 	void SetCubeMapTexName(GLuint uiTexName) {

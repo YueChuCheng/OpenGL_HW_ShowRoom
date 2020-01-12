@@ -289,6 +289,24 @@ void CShape::drawingSetShader() {
 		_mxMVFinal = _mxView * _mxTRS;
 		_viewUpdated = _TRSUpdated = false;
 	}
+
+	if(_bBillboarding){ //if style is Billboarding set _mxMVFinal
+	
+		/*_mxMVFinal._m[0].x = 1.0f;
+		_mxMVFinal._m[0].y = 0.0f;
+		_mxMVFinal._m[0].z = 0.0f;
+
+		_mxMVFinal._m[1].x = 0.0f;
+		_mxMVFinal._m[1].y = 1.0f;
+		_mxMVFinal._m[1].z = 0.0f;
+
+		_mxMVFinal._m[2].x = 0.0f;
+		_mxMVFinal._m[2].y = 0.0f;
+		_mxMVFinal._m[2].z = 1.0f;*/
+
+	
+	}
+	
 	glUniformMatrix4fv(_uiModelView, 1, GL_TRUE, _mxMVFinal);
 	
 	if (_projUpdated) {
@@ -321,6 +339,60 @@ void CShape::drawingSetShader() {
 
 }
 
+
+float CShape::billboardCylindricalBegin(float camX, float camY, float camZ,float objPosX, float objPosY, float objPosZ) {
+		
+			vec3 lookAt, objToCamProj, upAux;
+			float modelview[16], angleCosine;
+
+			glPushMatrix();
+
+			// objToCamProj is the vector in world coordinates from the 
+			// local origin to the camera projected in the XZ plane
+			objToCamProj.x = camX - objPosX;
+			objToCamProj.y = 0;
+			objToCamProj.z = camZ - objPosZ;
+
+			// This is the original lookAt vector for the object 
+			// in world coordinates
+			lookAt.x = 0;
+			lookAt.y = 0;
+			lookAt.z = 1;
+
+			// normalize both vectors to get the cosine directly afterwards
+			objToCamProj = normalize(objToCamProj);
+
+			// easy fix to determine wether the angle is negative or positive
+			// for positive angles upAux will be a vector pointing in the 
+			// positive y direction, otherwise upAux will point downwards
+			// effectively reversing the rotation.
+
+			upAux = cross(lookAt, objToCamProj);
+
+			// compute the angle
+			angleCosine = dot(lookAt, objToCamProj);
+
+			// perform the rotation. The if statement is used for stability reasons
+			// if the lookAt and objToCamProj vectors are too close together then 
+			// |angleCosine| could be bigger than 1 due to lack of precision
+			//if ((angleCosine < 0.99990) && (angleCosine > -0.9999))
+			_fBillboardingAngle = acos(angleCosine) * 180 / 3.14;
+			
+			
+			//依據象限修正旋轉量 
+			if ((objToCamProj.x > 0.0 && objToCamProj.z >= 0.0) || (objToCamProj.x > 0.0 && objToCamProj.z <= 0.0)) { //第一、四象限
+				_fBillboardingAngle += 180.0f;
+			}
+			else if ((objToCamProj.x <= 0.0 && objToCamProj.z < 0.0) || (objToCamProj.x < 0.0 && objToCamProj.z >= 0.0))  //第三、二象限
+			{
+				_fBillboardingAngle = 180.0f - _fBillboardingAngle;
+			}
+			
+			return _fBillboardingAngle;
+
+}
+
+
 // 此處預設使用前一個描繪物件所使用的 Shader
 void CShape::drawingWithoutSetShader()
 {
@@ -331,6 +403,29 @@ void CShape::drawingWithoutSetShader()
 		_mxMVFinal = _mxView * _mxTRS;
 		_viewUpdated = _TRSUpdated = false;
 	}
+
+	if (_bBillboarding) { //if style is Billboarding set _mxMVFinal
+
+
+		
+
+		/*_mxMVFinal._m[0].x = 1.0f;
+		_mxMVFinal._m[0].y = 0.0f;
+		_mxMVFinal._m[0].z = 0.0f;
+
+		_mxMVFinal._m[1].x = 0.0f;
+		_mxMVFinal._m[1].y = 1.0f;
+		_mxMVFinal._m[1].z = 0.0f;
+
+		_mxMVFinal._m[2].x = 0.0f;
+		_mxMVFinal._m[2].y = 0.0f;
+		_mxMVFinal._m[2].z = 1.0f;*/
+
+
+	}
+
+
+
 	glUniformMatrix4fv(_uiModelView, 1, GL_TRUE, _mxMVFinal);
 
 	if (_projUpdated) {
@@ -374,6 +469,12 @@ void CShape::setShaderName(const char vxShader[], const char fsShader[])
 	_pFShader = new char[len + 1];
 	memcpy(_pFShader, fsShader, len + 1);
 
+}
+
+
+void CShape::SetbBillboarding() {
+
+	_bBillboarding = true;
 }
 
 void CShape::SetTiling(float uTiling, float vTiling)  // 對 U軸 與 V軸 進行拼貼的縮放

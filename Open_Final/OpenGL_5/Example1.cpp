@@ -26,7 +26,7 @@ GLuint g_uiSphereCubeMap; //enviroment map 貼圖
 
 
 //model
-CObjReader* g_pDoor; //門
+CObjReader* g_tank; //坦克車
 
 
 
@@ -41,7 +41,7 @@ CQuad* CQBackWall_Room1;
 
 //Room1 decorate
 CSolidSphere* CSSphere; //environment map
-
+CQuad* CSCube_glass; //test glass texture
 
 
 //Room2 Wall
@@ -113,9 +113,9 @@ float _fLightDelta = 0; //燈光旋轉，經過時間
 float _fLightRadius = 6;//燈光位置
 float _fLightTheta = 0;//燈光旋轉角度
 
-float g_fLightR = 0.8f;
-float g_fLightG = 0.8f;
-float g_fLightB = 0.8f;
+float g_fLightR = 1.8f;
+float g_fLightG = 1.8f;
+float g_fLightB = 1.8f;
 
 
 
@@ -790,7 +790,7 @@ void init( void )
 	
 	auto texturepool = CTexturePool::create();
 	g_uiFTexID_Room1[0] = texturepool->AddTexture("texture/Room1WallTex_1.png");
-	g_uiFTexID_Room1[1] = texturepool->AddTexture("texture/Room1WallTex_3.png");
+	g_uiFTexID_Room1[1] = texturepool->AddTexture("texture/Masonry.Brick.png");
 	g_uiFTexID_Room1[2] = texturepool->AddTexture("texture/test_texture.png");
 
 #ifdef LIGHTMAP
@@ -807,17 +807,31 @@ void init( void )
 	
 
 	mat4 mxT, mxS;
-	vec4 vT, vColor ;
-	vec3 vS;
+	vec4 vColor ;
 
+	//test glass 
+	CSCube_glass = new CQuad;
+	CSCube_glass->setShader();
+	CSCube_glass->SetTextureLayer(DIFFUSE_MAP);  // 使用 
+	CSCube_glass->SetCubeMapTexName(1);
+	CSCube_glass->_vT.x = 0.0f; CSCube_glass->_vT.y = 3.0f; CSCube_glass->_vT.z = 6.0f;
+	mxT = Translate(CSCube_glass->_vT);
+	CSCube_glass->_vS.x = CSCube_glass->_vS.y = CSCube_glass->_vS.z = 3.0f;
+	mxS = Scale(CSCube_glass->_vS);
+	CSCube_glass->setTRSMatrix(mxT *RotateZ(90.0f)* mxS);
+	CSCube_glass->setShadingMode(GOURAUD_SHADING);
+	CSCube_glass->setMaterials(vec4(0), vec4(0.85f, 0.85f, 0.85f, 0.5f), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CSCube_glass->setKaKdKsShini(0.25f, 0.8f, 0.2f, 2);
+
+	
 	CSSphere = new CSolidSphere(1.0f, 24, 12);
 	CSSphere->SetTextureLayer(DIFFUSE_MAP);  // 使用 
 	CSSphere->SetCubeMapTexName(1);
 	CSSphere->SetViewPosition(eye);
 	CSSphere->setShaderName("vsCubeMapping.glsl", "fsCubeMapping.glsl");
 	CSSphere->setShader();
-	vT.x = 0.0f; vT.y = 2.0f; vT.z = 0.0f;
-	mxT = Translate(vT);
+	CSSphere->_vT.x = 0.0f; CSSphere->_vT.y = 2.0f; CSSphere->_vT.z = 0.0f;
+	mxT = Translate(CSSphere->_vT);
 	mxT._m[0][0] = 2.0f; mxT._m[1][1] = 2.0f; mxT._m[2][2] = 2.0f;
 	CSSphere->setTRSMatrix(mxT * RotateX(90.0f));
 	CSSphere->setShadingMode(GOURAUD_SHADING);
@@ -828,17 +842,18 @@ void init( void )
 	
 
 
-	g_pDoor = new CObjReader("Model/test.obj");
-	g_pDoor->SetTextureLayer(DIFFUSE_MAP);
-	g_pDoor->setShader();
-	vT.x = 10.4f; vT.y = 0.0f; vT.z = 6.0f;
-	mxT = Translate(vT);
-	vS.x = vS.y = vS.z = 1.0f;
-	mxS = Scale(vS);
-	g_pDoor->setTRSMatrix(mxT * mxS);
-	g_pDoor->setShadingMode(GOURAUD_SHADING);
-	g_pDoor->setMaterials(vec4(0), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	g_pDoor->setKaKdKsShini(0.25f, 0.8f, 0.2f, 2);
+	g_tank = new CObjReader("Model/test.obj");
+	g_tank->SetTextureLayer(DIFFUSE_MAP);
+	g_tank->SetbBillboarding(); 
+	g_tank->setShader();
+	g_tank->_vT.x = 10.4f; g_tank->_vT.y = 0.0f; g_tank->_vT.z = 6.0f;
+	mxT = Translate(g_tank->_vT);
+	g_tank->_vS.x = g_tank->_vS.y = g_tank->_vS.z = 1.0f;
+	mxS = Scale(g_tank->_vS);
+	g_tank->setTRSMatrix(mxT * mxS);
+	g_tank->setShadingMode(GOURAUD_SHADING);
+	g_tank->setMaterials(vec4(0), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	g_tank->setKaKdKsShini(0.25f, 0.8f, 0.2f, 2);
 	
 
 	init_Room1();
@@ -852,8 +867,8 @@ void init( void )
 	mat4 mpx = camera->getProjectionMatrix(bPDirty);
 	
 	CSSphere->setProjectionMatrix(mpx);
-	g_pDoor->setProjectionMatrix(mpx);
-
+	g_tank->setProjectionMatrix(mpx);
+	CSCube_glass->setProjectionMatrix(mpx);
 
 
 	CQRightWall_Room1->setProjectionMatrix(mpx);
@@ -908,6 +923,11 @@ void GL_Display( void )
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the window
 	
+	glEnable(GL_BLEND);  // 設定2D Texure Mapping 有作用
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //blend GL_ONE_MINUS_SRC_ALPHA ：(1,1,1,1)-(sa , sa , sa , sa)
+
+
+	
 	
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[1]);
@@ -935,10 +955,19 @@ void GL_Display( void )
 	CSCeiling_Room1->draw();
 	glActiveTexture(GL_TEXTURE0);
 	
+
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[2]);
-	g_pDoor->draw();
+	g_tank->draw();
+	
+
+	glDepthMask(GL_FALSE);
+	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[1]);
+	CSCube_glass->draw();
+	glDisable(GL_BLEND);	// 關閉 Blending
+	glDepthMask(GL_TRUE);	// 開啟對 Z-Buffer 的寫入操作
 	glBindTexture(GL_TEXTURE_2D, 0);
+
 
 	CQRightWall_Room2->draw();
 	CQLeftWall_Room2->draw();
@@ -1014,12 +1043,21 @@ void onFrameMove(float delta)
 	bool bVDirty;	// view 與 projection matrix 是否需要更新給物件
 
 	mvx = camera->getViewMatrix(bVDirty);
+
 	if (bVDirty) {
 
 		CSSphere->SetViewPosition(camera->getViewPosition());
 		CSSphere->setViewMatrix(mvx);
+		CSCube_glass->setViewMatrix(mvx);
 		
-		g_pDoor->setViewMatrix(mvx);
+
+		float fAngle; //旋轉角度
+		vec4 cameraPosition = camera->getViewPosition();
+		g_tank->setViewMatrix(mvx);
+		fAngle = g_tank->billboardCylindricalBegin(g_tank->_vT.x, g_tank->_vT.y, g_tank->_vT.z, cameraPosition.x, cameraPosition.y, cameraPosition.z);
+		g_tank->setTRSMatrix(Translate(g_tank->_vT) * RotateY(fAngle) * Scale(g_tank->_vS));
+		
+
 
 		CQRightWall_Room1->setViewMatrix(mvx);
 		CQLeftWall_Room1->setViewMatrix(mvx);
@@ -1075,8 +1113,8 @@ void onFrameMove(float delta)
 	// 如果需要重新計算時，在這邊計算每一個物件的顏色
 
 	CSSphere->update(delta, Light_resulte_Room1);
-	g_pDoor->update(delta, Light_resulte_Room1);
-
+	g_tank->update(delta, Light_resulte_Room1);
+	CSCube_glass->update(delta, Light_resulte_Room1);
 
 	CSFloor_Room1->update(delta, Light_resulte_Room1);
 	CSCeiling_Room1->update(delta, Light_resulte_Room1);
@@ -1188,7 +1226,8 @@ void Win_Keyboard( unsigned char key, int x, int y )
 		glutIdleFunc(NULL);
 
 		delete CSSphere;
-		delete g_pDoor;
+		delete g_tank;
+		delete CSCube_glass;
 
 		delete CSFloor_Room1;
 		delete CSCeiling_Room1;
