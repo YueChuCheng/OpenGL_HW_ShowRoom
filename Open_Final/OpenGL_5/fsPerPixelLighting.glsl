@@ -10,12 +10,15 @@
 in vec3 v3N;
 in vec3 v3L[LIGHT_NUM_MAX];
 in vec3 v3E;
+in vec3 lD[LIGHT_NUM_MAX];
 
 in vec2 DiffuseMapUV; // 輸入 Diffuse Map 貼圖座標
 in vec2 LightMapUV;   // 輸入 Light Map 貼圖座標
 
 uniform int iTexLayer;
 uniform float fElapsedTime;
+
+
 
 // 以下為新增的部分
 uniform vec4 LightInView[LIGHT_NUM_MAX];	 // Light's position in View Space
@@ -45,6 +48,10 @@ void main()
 	vec3 vV;
 	vec3 vRefL;
 	float RdotV ;
+	float fLdotLDir= 0.0f;
+	vec3 lDN[LIGHT_NUM_MAX];
+
+
 	for (int i = 0; i < iLightNUM; i++)
 	{
 		if (iLighting[i] != 1)
@@ -74,10 +81,8 @@ void main()
 				if (fLdotN >= Cutoff[i]){ // 該點被光源照到才需要計算
 
 						//V Diffuse Color : Id = Kd * Material.diffuse * Ld * (L dot N)
-						if(Cutoff[i] > 0.0f) //spot light
-							diffuse += pow(fLdotN , 40) * DiffuseProduct[i];
-						else
-							diffuse += fLdotN * DiffuseProduct[i]  ;
+						
+						diffuse += fLdotN * DiffuseProduct[i]  ;
 
 						// Specular color
 						// Method 1: Phone Model
@@ -101,15 +106,14 @@ void main()
 			}
 
 			else if(Cutoff[i] > 0.0f){ //聚光燈
-			
+				lDN[i] = normalize(lD[i]);
+				fLdotLDir = -(vL.x*lDN[i].x + vL.y*lDN[i].y + vL.z*lDN[i].z);
 				if (fLdotN >= Cutoff[i]){ // 該點被光源照到才需要計算
 
 						//V Diffuse Color : Id = Kd * Material.diffuse * Ld * (L dot N)
-						if(Cutoff[i] > 0.0f) //spot light
-							diffuse += pow(fLdotN , 40) * DiffuseProduct[i];
-						else
-							diffuse += fLdotN * DiffuseProduct[i]  ;
-
+						
+						diffuse += pow(fLdotN , 40) * DiffuseProduct[i];
+						
 						// Specular color
 						// Method 1: Phone Model
 						// 計算 View Vector

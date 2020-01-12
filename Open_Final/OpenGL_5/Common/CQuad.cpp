@@ -196,11 +196,13 @@ void CQuad::update(float dt, const LightSource* Lights)
 	for (int i = 0; i < LIGHT_NUM_MAX; i++)
 	{
 		_vLightInView[i] = _mxView * Lights[i].position;		// 將 Light 轉換到鏡頭座標再傳入
+		_vSpotTarget[i] = _mxView * Lights[i].spotTarget;
 		// 算出 AmbientProduct DiffuseProduct 與 SpecularProduct 的內容
 		_ambientProduct[i] = _material.ka * _material.ambient * Lights[i].ambient;
 		_diffuseProduct[i] = _material.kd * _material.diffuse * Lights[i].diffuse ;
 		_specularProduct[i] = _material.ks * _material.specular * Lights[i].specular;
 		_cutoff[i] = Lights[i].spotCutoff;
+
 		
 	}
 	

@@ -189,6 +189,19 @@ void CShape::setShader(GLuint shaderHandle) {
 	glUniform4fv(_uiLightInView[3], 1, _vLightInView[3]);
 
 
+	_uiSpotTarget[0] = glGetUniformLocation(_vbo, "SpotTarget[0]");
+	glUniform4fv(_uiSpotTarget[0], 1, _vSpotTarget[0]);
+
+	_uiSpotTarget[1] = glGetUniformLocation(_vbo, "SpotTarget[1]");
+	glUniform4fv(_uiSpotTarget[1], 1, _vSpotTarget[1]);
+
+	_uiSpotTarget[2] = glGetUniformLocation(_vbo, "SpotTarget[2]");
+	glUniform4fv(_uiSpotTarget[2], 1, _vSpotTarget[2]);
+
+	_uiSpotTarget[3] = glGetUniformLocation(_vbo, "SpotTarget[3]");
+	glUniform4fv(_uiSpotTarget[3], 1, _vSpotTarget[3]);
+
+
 
 	_uiLightNUM = glGetUniformLocation(_vbo, "LightNUM");
 	glUniform1i(_uiLightNUM, _iLightNUM);
@@ -306,6 +319,7 @@ void CShape::drawingSetShader() {
 	for (int i = 0; i < LIGHT_NUM_MAX; i++)
 	{
 		glUniform4fv(_uiLightInView[i], 1, _vLightInView[i]);
+		glUniform4fv(_uiSpotTarget[i], 1, _vSpotTarget[i]);
 		glUniform4fv(_uiAmbient[i], 1, _ambientProduct[i]);
 		glUniform4fv(_uiDiffuse[i], 1, _diffuseProduct[i]);
 		glUniform4fv(_uiSpecular[i], 1, _specularProduct[i]);
@@ -353,6 +367,7 @@ void CShape::drawingWithoutSetShader()
 	for (int i = 0; i < LIGHT_NUM_MAX; i++)
 	{
 		glUniform4fv(_uiLightInView[i], 1, _vLightInView[i]);
+		glUniform4fv(_uiSpotTarget[i], 1, _vSpotTarget[i]);
 		glUniform4fv(_uiAmbient[i], 1, _ambientProduct[i]);
 		glUniform4fv(_uiDiffuse[i], 1, _diffuseProduct[i]);
 		glUniform4fv(_uiSpecular[i], 1, _specularProduct[i]);

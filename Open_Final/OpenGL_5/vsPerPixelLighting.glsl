@@ -13,11 +13,13 @@ out vec3 v3L[LIGHT_NUM_MAX]; // 輸出 Light Direction 在鏡頭座標下的方向
 out vec3 v3E; // 輸出 View Direction 在鏡頭座標下的方向
 out vec2 DiffuseMapUV;  // 輸出貼圖座標
 out vec2 LightMapUV;    // 輸出貼圖座標
+out vec3 lD[LIGHT_NUM_MAX];
 
 uniform mat4  ModelView;   // Model View Matrix
 uniform mat4  Projection;  // Projection Matrix
 uniform vec4  LightInView[LIGHT_NUM_MAX]; // Light's position in View Space
 uniform int iLightNUM; //幾盞燈渲染
+uniform vec4  SpotTarget[LIGHT_NUM_MAX];      //Spot光照目標位置
 
 
 void main()
@@ -32,6 +34,7 @@ void main()
 	v3N = (ModelView * vec4(vNormal, 0.0)).xyz;
 	for(int i = 0 ; i < iLightNUM ; i++){
 		v3L[i] = vec3(LightInView[i].xyz - vPosInView.xyz);
+		lD[i]  = vec3(SpotTarget[i].xyz - LightInView[i].xyz);
 	}
 	gl_Position = Projection * vPosInView;
 	DiffuseMapUV = vDiffuseMapCoord;

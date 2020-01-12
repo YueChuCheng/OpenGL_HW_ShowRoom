@@ -68,6 +68,7 @@ protected:
 	GLuint _uiShininess;
 	
 	GLuint _uiLightInView[LIGHT_NUM_MAX]; //方shader竚
+	GLuint _uiSpotTarget[LIGHT_NUM_MAX]; //方ヘ夹竚
 	GLuint _uiAmbient[LIGHT_NUM_MAX]; //light's ambient 籔 object's ambient 籔 ka縩
 	GLuint _uiDiffuse[LIGHT_NUM_MAX];
 	GLuint _uiSpecular[LIGHT_NUM_MAX];
@@ -79,7 +80,7 @@ protected:
 
 	
 	point4 _vLightInView[LIGHT_NUM_MAX]; //方畒夹竚
-	point4 _vSpotTarget[LIGHT_NUM_MAX]; //方畒夹竚
+	point4 _vSpotTarget[LIGHT_NUM_MAX]; //方ヘ夹竚
 	color4 _ambientProduct[LIGHT_NUM_MAX];
 	color4 _diffuseProduct[LIGHT_NUM_MAX];
 	color4 _specularProduct[LIGHT_NUM_MAX];

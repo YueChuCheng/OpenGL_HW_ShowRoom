@@ -42,7 +42,7 @@ CQuad* CQBackWall_Room1;
 //Room1 decorate
 CSolidSphere* CSSphere; //environment map
 CQuad* CSCube_glass; //test glass texture
-
+CSolidCube* CSDoor1; //door
 
 //Room2 Wall
 CQuad* CSFloor_Room2;
@@ -51,6 +51,7 @@ CQuad* CQRightWall_Room2;
 CQuad* CQLeftWall_Room2;
 CQuad* CQBackWall_Room2;
 CQuad* CQFrontWall_Room2;
+
 
 //Room3 Wall
 CQuad* CSFloor_Room3;
@@ -398,6 +399,16 @@ void init_Room1() {
 	CQBackWall_Room1->setTRSMatrix(mxT * RotateX(90.0f) * Scale(40.0f, 1, 40.0f));
 	CQBackWall_Room1->setKaKdKsShini(0, 0.8f, 0.5f, 1);
 
+
+	vT.x = 0.0f; vT.y = 13.0f; vT.z = 21.0f;
+	mxT = Translate(vT);
+	CSDoor1 = new CSolidCube;
+	CSDoor1->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.0f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CSDoor1->setShadingMode(GOURAUD_SHADING);
+	CSDoor1->setShader();
+	CSDoor1->setColor(vec4(0.6f));
+	CSDoor1->setTRSMatrix(mxT * RotateX(-90.0f) * Scale(12.0f, 4.0f, 28.0f));
+	CSDoor1->setKaKdKsShini(0, 0.8f, 0.5f, 1);
 
 }
 
@@ -876,6 +887,7 @@ void init( void )
 	CQBackWall_Room1->setProjectionMatrix(mpx);
 	CSFloor_Room1->setProjectionMatrix(mpx);
 	CSCeiling_Room1->setProjectionMatrix(mpx);
+	CSDoor1->setProjectionMatrix(mpx);
 
 	CQRightWall_Room2->setProjectionMatrix(mpx);
 	CQLeftWall_Room2->setProjectionMatrix(mpx);
@@ -950,11 +962,14 @@ void GL_Display( void )
 	CSCeiling_Room1->draw();
 	glActiveTexture(GL_TEXTURE0);
 	
+	CSDoor1->draw();
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[2]);
 	g_tank->draw();
 	
+
+
 	
 
 
@@ -1065,6 +1080,7 @@ void onFrameMove(float delta)
 		CQBackWall_Room1->setViewMatrix(mvx);
 		CSCeiling_Room1->setViewMatrix(mvx);
 		CSFloor_Room1->setViewMatrix(mvx);
+		CSDoor1->setViewMatrix(mvx);
 
 		CQRightWall_Room2->setViewMatrix(mvx);
 		CQLeftWall_Room2->setViewMatrix(mvx);
@@ -1122,6 +1138,7 @@ void onFrameMove(float delta)
 	CQLeftWall_Room1->update(delta, Light_resulte_Room1);
 	CQFrontWall_Room1->update(delta, Light_resulte_Room1);
 	CQBackWall_Room1->update(delta, Light_resulte_Room1);
+	CSDoor1->update(delta, Light_resulte_Room1);
 
 	CQRightWall_Room2->update(delta, Light_resulte_Room2);
 	CQLeftWall_Room2->update(delta, Light_resulte_Room2);
@@ -1235,6 +1252,7 @@ void Win_Keyboard( unsigned char key, int x, int y )
 		delete CQLeftWall_Room1;
 		delete CQFrontWall_Room1;
 		delete CQBackWall_Room1;
+		delete CSDoor1;
 		
 		delete CSCeiling_Room2;
 		delete CSFloor_Room2;
@@ -1292,89 +1310,397 @@ void Win_Mouse(int button, int state, int x, int y) {
 
 }
 //----------------------------------------------------------------------------
-void Win_SpecialKeyboard(int key, int x, int y) {
+
+
+bool bInRoom[12] = { false };  //­þ¶¡©Ð¶¡
+float Room1_x_big = 18.5f;
+float Room1_x_small = -18.5;
+float Room1_y_big = 18.5f;
+float Room1_y_small = -18.5f;
+
+
+float Room2_x_big = 18.5f;
+float Room2_x_small = -18.5f;
+float Room2_y_big = 59.5f;
+float Room2_y_small = 22.5f;
+
+
+float c1_x_big = 3.0f;
+float c1_x_small = -5.0f;
+float c1_y_big =23.0f;
+float c1_y_small = 12.0f;
+
+
+void reset_bInRoom() { //±NbInRoomÂk¹s¥H«K­«·s§PÂ_
+	for (int i = 0; i < 12; i++)
+	{
+		bInRoom[i] = false;
+	}
+ }
+
+void detectWhichPart() { //§PÂ_¥Ø«e¦ì¦b­þ­Ó©Ð¶¡
 	
+
+	if ((g_fCameraMoveX <= c1_x_big && g_fCameraMoveX >= c1_x_small && g_fCameraMoveZ <= c1_y_big && g_fCameraMoveZ >= c1_y_small)) { //c1
+		bInRoom[1] = true;
+		printf("im in c1\n");
+	}
+
+	else if (g_fCameraMoveX <= Room1_x_big && g_fCameraMoveX >= Room1_x_small && g_fCameraMoveZ <= Room1_y_big && g_fCameraMoveZ >= Room1_y_small) { //room1
+		bInRoom[0] = true;
+		printf("im in room1\n");
+	}
+
+	else if (g_fCameraMoveX <= Room2_x_big && g_fCameraMoveX >= Room2_x_small && g_fCameraMoveZ <= Room2_y_big && g_fCameraMoveZ >= Room2_y_small) { //Room2
+		bInRoom[2] = true;
+		printf("im in Room2\n");
+	}
+
+
+}
+
+
+void Win_SpecialKeyboard(int key, int x, int y) {
+
 	front = normalize(at-eye);
 	right = normalize(cross(front, g_vUp));
 	
+	reset_bInRoom(); //reset boolean
+	detectWhichPart(); // detect in which part
 
-	switch (key)
-	{
-	case GLUT_KEY_UP:
-		g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
-		g_MoveDir = normalize(g_MoveDir);
-		g_matMoveDir = Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
-		
-			//if (g_fCameraMoveX <= 18.5f && g_fCameraMoveX >= -18.5f)
-				g_fCameraMoveX += (g_matMoveDir._m[0][3] * 3.0f);
-			//if (g_fCameraMoveZ <= 18.5f && g_fCameraMoveZ >= -18.5f)
-				g_fCameraMoveZ += (g_matMoveDir._m[2][3] * 3.0f);
-		
-			//Á×§K¬ïÀð
-			/*if (g_fCameraMoveX > 18.5) g_fCameraMoveX = 18.5f;
-			else if (g_fCameraMoveX < -18.5) g_fCameraMoveX = -18.5f;
-			if (g_fCameraMoveZ > 18.5) g_fCameraMoveZ = 18.5f;
-			else if (g_fCameraMoveZ < -18.5) g_fCameraMoveZ = -18.5f;*/
-		
-		break;
-	case GLUT_KEY_DOWN:
-		g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
-		g_MoveDir = normalize(g_MoveDir);
-		g_matMoveDir = Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
-		
-			//if (g_fCameraMoveX <= 18.5f && g_fCameraMoveX >= -18.5f)
-				g_fCameraMoveX -= (g_matMoveDir._m[0][3] * 3.0f);
-			//if (g_fCameraMoveZ <= 18.5f && g_fCameraMoveZ >= -18.5f)
-				g_fCameraMoveZ -= (g_matMoveDir._m[2][3] * 3.0f);
-			
-			//Á×§K¬ïÀð
-			/*if (g_fCameraMoveX > 18.5) g_fCameraMoveX = 18.5f;
-			else if (g_fCameraMoveX < -18.5) g_fCameraMoveX = -18.5f;
-			if (g_fCameraMoveZ > 18.5) g_fCameraMoveZ = 18.5f;
-			else if (g_fCameraMoveZ < -18.5) g_fCameraMoveZ = -18.5f;*/
-		
-		break;
-	case GLUT_KEY_LEFT:
-		g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
-		g_MoveDir = normalize(g_MoveDir);
-		g_matMoveDir = RotateY(90.f) * Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
-			
-			//if (g_fCameraMoveX <= 18.5f && g_fCameraMoveX >= -18.5f)
-				g_fCameraMoveX += (g_matMoveDir._m[0][3] * 3.0f);
-			//if (g_fCameraMoveZ <= 18.5f && g_fCameraMoveZ >= -18.5f)
-				g_fCameraMoveZ += (g_matMoveDir._m[2][3] * 3.0f);
-		
-			//Á×§K¬ïÀð
-			/*if (g_fCameraMoveX > 18.5) g_fCameraMoveX = 18.5f;
-			else if (g_fCameraMoveX < -18.5) g_fCameraMoveX = -18.5f;
-			if (g_fCameraMoveZ > 18.5) g_fCameraMoveZ = 18.5f;
-			else if (g_fCameraMoveZ < -18.5) g_fCameraMoveZ = -18.5f;*/
-		
-		break;
-	case GLUT_KEY_RIGHT:
-		g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
-		g_MoveDir = normalize(g_MoveDir);
-		g_matMoveDir = RotateY(90.f) * Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
 
-			//if (g_fCameraMoveX <= 18.5f && g_fCameraMoveX >= -18.5f)
+
+	if (bInRoom[0]) { //­Y¦ì©óroom1 ®Éªº½d³ò
+		switch (key)
+		{
+		case GLUT_KEY_UP:
+			g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
+			g_MoveDir = normalize(g_MoveDir);
+			g_matMoveDir = Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
+
+			if (g_fCameraMoveX <= Room1_x_big && g_fCameraMoveX >= Room1_x_small)
+				g_fCameraMoveX += (g_matMoveDir._m[0][3] * 3.0f);
+			if (g_fCameraMoveZ <= Room1_y_big && g_fCameraMoveZ >= Room1_y_small)
+				g_fCameraMoveZ += (g_matMoveDir._m[2][3] * 3.0f);
+
+			//Á×§K¬ïÀð
+			if (g_fCameraMoveX >= Room1_x_big) g_fCameraMoveX = Room1_x_big;
+			else if (g_fCameraMoveX < Room1_x_small) g_fCameraMoveX = Room1_x_small;
+			if (g_fCameraMoveZ >= Room1_y_big) g_fCameraMoveZ = Room1_y_big;
+			else if (g_fCameraMoveZ <= Room1_y_small) g_fCameraMoveZ = Room1_y_small;
+			printf("%f , %f\n", g_fCameraMoveX, g_fCameraMoveZ);
+			break;
+		case GLUT_KEY_DOWN:
+			g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
+			g_MoveDir = normalize(g_MoveDir);
+			g_matMoveDir = Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
+
+			if (g_fCameraMoveX <= Room1_x_big && g_fCameraMoveX >= Room1_x_small)
 				g_fCameraMoveX -= (g_matMoveDir._m[0][3] * 3.0f);
-			//if (g_fCameraMoveZ <= 18.5f && g_fCameraMoveZ >= -18.5f)
+			if (g_fCameraMoveZ <= Room1_y_big && g_fCameraMoveZ >= Room1_y_small)
 				g_fCameraMoveZ -= (g_matMoveDir._m[2][3] * 3.0f);
 
 			//Á×§K¬ïÀð
-			/*if (g_fCameraMoveX > 18.5) g_fCameraMoveX = 18.5f;
-			else if (g_fCameraMoveX < -18.5) g_fCameraMoveX = -18.5f;
-			if (g_fCameraMoveZ > 18.5) g_fCameraMoveZ = 18.5f;
-			else if (g_fCameraMoveZ < -18.5) g_fCameraMoveZ = -18.5f;*/
-		break;
+			if (g_fCameraMoveX >= Room1_x_big) g_fCameraMoveX = Room1_x_big;
+			else if (g_fCameraMoveX < Room1_x_small) g_fCameraMoveX = Room1_x_small;
+			if (g_fCameraMoveZ >= Room1_y_big) g_fCameraMoveZ = Room1_y_big;
+			else if (g_fCameraMoveZ <= Room1_y_small) g_fCameraMoveZ = Room1_y_small;
+			printf("%f , %f\n", g_fCameraMoveX, g_fCameraMoveZ);
+
+			break;
+		case GLUT_KEY_LEFT:
+			g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
+			g_MoveDir = normalize(g_MoveDir);
+			g_matMoveDir = RotateY(90.f) * Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
+
+			if (g_fCameraMoveX <= Room1_x_big && g_fCameraMoveX >= Room1_x_small)
+				g_fCameraMoveX += (g_matMoveDir._m[0][3] * 3.0f);
+			if (g_fCameraMoveZ <= Room1_y_big && g_fCameraMoveZ >= Room1_y_small)
+				g_fCameraMoveZ += (g_matMoveDir._m[2][3] * 3.0f);
+
+			//Á×§K¬ïÀð
+			if (g_fCameraMoveX >= Room1_x_big) g_fCameraMoveX = Room1_x_big;
+			else if (g_fCameraMoveX < Room1_x_small) g_fCameraMoveX = Room1_x_small;
+			if (g_fCameraMoveZ >= Room1_y_big) g_fCameraMoveZ = Room1_y_big;
+			else if (g_fCameraMoveZ <= Room1_y_small) g_fCameraMoveZ = Room1_y_small;
+			printf("%f , %f\n", g_fCameraMoveX, g_fCameraMoveZ);
+
+			break;
+		case GLUT_KEY_RIGHT:
+			g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
+			g_MoveDir = normalize(g_MoveDir);
+			g_matMoveDir = RotateY(90.f) * Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
+
+			if (g_fCameraMoveX <= Room1_x_big && g_fCameraMoveX >= Room1_x_small)
+				g_fCameraMoveX -= (g_matMoveDir._m[0][3] * 3.0f);
+			if (g_fCameraMoveZ <= Room1_y_big && g_fCameraMoveZ >= Room1_y_small)
+				g_fCameraMoveZ -= (g_matMoveDir._m[2][3] * 3.0f);
+
+			//Á×§K¬ïÀð
+			if (g_fCameraMoveX >= Room1_x_big) g_fCameraMoveX = Room1_x_big;
+			else if (g_fCameraMoveX < Room1_x_small) g_fCameraMoveX = Room1_x_small;
+			if (g_fCameraMoveZ >= Room1_y_big) g_fCameraMoveZ = Room1_y_big;
+			else if (g_fCameraMoveZ <= Room1_y_small) g_fCameraMoveZ = Room1_y_small;
+			printf("%f , %f\n", g_fCameraMoveX, g_fCameraMoveZ);
+			break;
 
 
 
-	default:
-		break;
+		default:
+			break;
+		}
+	
 	}
 
+	else if (bInRoom[2]) { //­Y¦ì©óroom2 ®Éªº½d³ò
+		switch (key)
+		{
+		case GLUT_KEY_UP:
+			g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
+			g_MoveDir = normalize(g_MoveDir);
+			g_matMoveDir = Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
+
+			if (g_fCameraMoveX <= Room2_x_big && g_fCameraMoveX >= Room2_x_small)
+				g_fCameraMoveX += (g_matMoveDir._m[0][3] * 3.0f);
+			if (g_fCameraMoveZ <= Room2_y_big && g_fCameraMoveZ >= Room2_y_small)
+				g_fCameraMoveZ += (g_matMoveDir._m[2][3] * 3.0f);
+
+			//Á×§K¬ïÀð
+			if (g_fCameraMoveX >= Room2_x_big) g_fCameraMoveX = Room2_x_big;
+			else if (g_fCameraMoveX < Room2_x_small) g_fCameraMoveX = Room2_x_small;
+			if (g_fCameraMoveZ >= Room2_y_big) g_fCameraMoveZ = Room2_y_big;
+			else if (g_fCameraMoveZ <= Room2_y_small) g_fCameraMoveZ = Room2_y_small;
+			printf("%f , %f\n", g_fCameraMoveX, g_fCameraMoveZ);
+			break;
+		case GLUT_KEY_DOWN:
+			g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
+			g_MoveDir = normalize(g_MoveDir);
+			g_matMoveDir = Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
+
+			if (g_fCameraMoveX <= Room2_x_big && g_fCameraMoveX >= Room2_x_small)
+				g_fCameraMoveX -= (g_matMoveDir._m[0][3] * 3.0f);
+			if (g_fCameraMoveZ <= Room2_y_big && g_fCameraMoveZ >= Room2_y_small)
+				g_fCameraMoveZ -= (g_matMoveDir._m[2][3] * 3.0f);
+
+			//Á×§K¬ïÀð
+			if (g_fCameraMoveX >= Room2_x_big) g_fCameraMoveX = Room2_x_big;
+			else if (g_fCameraMoveX < Room2_x_small) g_fCameraMoveX = Room2_x_small;
+			if (g_fCameraMoveZ >= Room2_y_big) g_fCameraMoveZ = Room2_y_big;
+			else if (g_fCameraMoveZ <= Room2_y_small) g_fCameraMoveZ = Room2_y_small;
+			printf("%f , %f\n", g_fCameraMoveX, g_fCameraMoveZ);
+
+			break;
+		case GLUT_KEY_LEFT:
+			g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
+			g_MoveDir = normalize(g_MoveDir);
+			g_matMoveDir = RotateY(90.f) * Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
+
+			if (g_fCameraMoveX <= Room2_x_big && g_fCameraMoveX >= Room2_x_small)
+				g_fCameraMoveX += (g_matMoveDir._m[0][3] * 3.0f);
+			if (g_fCameraMoveZ <= Room2_y_big && g_fCameraMoveZ >= Room2_y_small)
+				g_fCameraMoveZ += (g_matMoveDir._m[2][3] * 3.0f);
+
+			//Á×§K¬ïÀð
+			if (g_fCameraMoveX >= Room2_x_big) g_fCameraMoveX = Room2_x_big;
+			else if (g_fCameraMoveX < Room2_x_small) g_fCameraMoveX = Room2_x_small;
+			if (g_fCameraMoveZ >= Room2_y_big) g_fCameraMoveZ = Room2_y_big;
+			else if (g_fCameraMoveZ <= Room2_y_small) g_fCameraMoveZ = Room2_y_small;
+			printf("%f , %f\n", g_fCameraMoveX, g_fCameraMoveZ);
+
+			break;
+		case GLUT_KEY_RIGHT:
+			g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
+			g_MoveDir = normalize(g_MoveDir);
+			g_matMoveDir = RotateY(90.f) * Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
+
+			if (g_fCameraMoveX <= Room2_x_big && g_fCameraMoveX >= Room2_x_small)
+				g_fCameraMoveX -= (g_matMoveDir._m[0][3] * 3.0f);
+			if (g_fCameraMoveZ <= Room2_y_big && g_fCameraMoveZ >= Room2_y_small)
+				g_fCameraMoveZ -= (g_matMoveDir._m[2][3] * 3.0f);
+
+			//Á×§K¬ïÀð
+			if (g_fCameraMoveX >= Room2_x_big) g_fCameraMoveX = Room2_x_big;
+			else if (g_fCameraMoveX < Room2_x_small) g_fCameraMoveX = Room2_x_small;
+			if (g_fCameraMoveZ >= Room2_y_big) g_fCameraMoveZ = Room2_y_big;
+			else if (g_fCameraMoveZ <= Room2_y_small) g_fCameraMoveZ = Room2_y_small;
+			printf("%f , %f\n", g_fCameraMoveX, g_fCameraMoveZ);
+			break;
+
+
+
+		default:
+			break;
+		}
+
+	}
 	
+	else if (bInRoom[1]) { //­Y¦ì©óc1 ®Éªº½d³ò
+		switch (key)
+		{
+		case GLUT_KEY_UP:
+			g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
+			g_MoveDir = normalize(g_MoveDir);
+			g_matMoveDir = Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
+
+			//if (g_fCameraMoveX <= 18.5f && g_fCameraMoveX >= -18.5f)
+				g_fCameraMoveX += (g_matMoveDir._m[0][3] * 3.0f);
+			//if (g_fCameraMoveZ <= 18.5f && g_fCameraMoveZ >= -18.5f)
+				g_fCameraMoveZ += (g_matMoveDir._m[2][3] * 3.0f);
+
+			//Á×§K¬ïÀð
+			/*if (g_fCameraMoveX > 18.5) g_fCameraMoveX = 18.5f;
+			else if (g_fCameraMoveX < -18.5) g_fCameraMoveX = -18.5f;
+			if (g_fCameraMoveZ > 18.5) g_fCameraMoveZ = 18.5f;
+			else if (g_fCameraMoveZ < -18.5) g_fCameraMoveZ = -18.5f;*/
+			printf("%f , %f\n", g_fCameraMoveX, g_fCameraMoveZ);
+			break;
+		case GLUT_KEY_DOWN:
+			g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
+			g_MoveDir = normalize(g_MoveDir);
+			g_matMoveDir = Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
+
+			//if (g_fCameraMoveX <= 18.5f && g_fCameraMoveX >= -18.5f)
+				g_fCameraMoveX -= (g_matMoveDir._m[0][3] * 3.0f);
+			//if (g_fCameraMoveZ <= 18.5f && g_fCameraMoveZ >= -18.5f)
+				g_fCameraMoveZ -= (g_matMoveDir._m[2][3] * 3.0f);
+
+			//Á×§K¬ïÀð
+			/*if (g_fCameraMoveX > 18.5) g_fCameraMoveX = 18.5f;
+			else if (g_fCameraMoveX < -18.5) g_fCameraMoveX = -18.5f;
+			if (g_fCameraMoveZ > 18.5) g_fCameraMoveZ = 18.5f;
+			else if (g_fCameraMoveZ < -18.5) g_fCameraMoveZ = -18.5f;*/
+			printf("%f , %f\n", g_fCameraMoveX, g_fCameraMoveZ);
+
+			break;
+		case GLUT_KEY_LEFT:
+			g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
+			g_MoveDir = normalize(g_MoveDir);
+			g_matMoveDir = RotateY(90.f) * Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
+
+			if (g_fCameraMoveX <= c1_x_big && g_fCameraMoveX >= c1_x_small)
+				g_fCameraMoveX += (g_matMoveDir._m[0][3] * 3.0f);
+			/*if (g_fCameraMoveZ <= 18.5f && g_fCameraMoveZ >= -18.5f)
+				g_fCameraMoveZ += (g_matMoveDir._m[2][3] * 3.0f);*/
+
+			//Á×§K¬ïÀð
+			if (g_fCameraMoveX >= c1_x_big) g_fCameraMoveX = c1_x_big;
+			else if (g_fCameraMoveX <= c1_x_small) g_fCameraMoveX = c1_x_small;
+			/*if (g_fCameraMoveZ > 18.5) g_fCameraMoveZ = 18.5f;
+			else if (g_fCameraMoveZ < -18.5) g_fCameraMoveZ = -18.5f;*/
+			printf("%f , %f\n", g_fCameraMoveX, g_fCameraMoveZ);
+
+			break;
+		case GLUT_KEY_RIGHT:
+			g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
+			g_MoveDir = normalize(g_MoveDir);
+			g_matMoveDir = RotateY(90.f) * Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
+
+			if (g_fCameraMoveX <= c1_x_big && g_fCameraMoveX >= c1_x_small)
+				g_fCameraMoveX -= (g_matMoveDir._m[0][3] * 3.0f);
+			/*if (g_fCameraMoveZ <= 18.5f && g_fCameraMoveZ >= -18.5f)
+				g_fCameraMoveZ -= (g_matMoveDir._m[2][3] * 3.0f);*/
+
+			//Á×§K¬ïÀð
+			if (g_fCameraMoveX >= 3.0) g_fCameraMoveX = c1_x_big;
+			else if (g_fCameraMoveX <= c1_x_small) g_fCameraMoveX = c1_x_small;
+			/*if (g_fCameraMoveZ > 18.5) g_fCameraMoveZ = 18.5f;
+			else if (g_fCameraMoveZ < -18.5) g_fCameraMoveZ = -18.5f;*/
+			printf("%f , %f\n", g_fCameraMoveX, g_fCameraMoveZ);
+			break;
+
+
+
+		default:
+			break;
+		}
+
+	}
+	
+	else //µL½d³ò­­¨î
+	{
+		
+		switch (key)
+		{
+		case GLUT_KEY_UP:
+			g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
+			g_MoveDir = normalize(g_MoveDir);
+			g_matMoveDir = Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
+
+			//if (g_fCameraMoveX <= 18.5f && g_fCameraMoveX >= -18.5f)
+				g_fCameraMoveX += (g_matMoveDir._m[0][3] * 3.0f);
+			//if (g_fCameraMoveZ <= 18.5f && g_fCameraMoveZ >= -18.5f)
+				g_fCameraMoveZ += (g_matMoveDir._m[2][3] * 3.0f);
+
+			//Á×§K¬ïÀð
+			/*if (g_fCameraMoveX > 18.5) g_fCameraMoveX = 18.5f;
+			else if (g_fCameraMoveX < -18.5) g_fCameraMoveX = -18.5f;
+			if (g_fCameraMoveZ > 18.5) g_fCameraMoveZ = 18.5f;
+			else if (g_fCameraMoveZ < -18.5) g_fCameraMoveZ = -18.5f;*/
+			printf("%f , %f\n", g_fCameraMoveX, g_fCameraMoveZ);
+			break;
+		case GLUT_KEY_DOWN:
+			g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
+			g_MoveDir = normalize(g_MoveDir);
+			g_matMoveDir = Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
+
+			//if (g_fCameraMoveX <= 18.5f && g_fCameraMoveX >= -18.5f)
+				g_fCameraMoveX -= (g_matMoveDir._m[0][3] * 3.0f);
+			//if (g_fCameraMoveZ <= 18.5f && g_fCameraMoveZ >= -18.5f)
+				g_fCameraMoveZ -= (g_matMoveDir._m[2][3] * 3.0f);
+
+			//Á×§K¬ïÀð
+			/*if (g_fCameraMoveX > 18.5) g_fCameraMoveX = 18.5f;
+			else if (g_fCameraMoveX < -18.5) g_fCameraMoveX = -18.5f;
+			if (g_fCameraMoveZ > 18.5) g_fCameraMoveZ = 18.5f;
+			else if (g_fCameraMoveZ < -18.5) g_fCameraMoveZ = -18.5f;*/
+			printf("%f , %f\n", g_fCameraMoveX, g_fCameraMoveZ);
+
+			break;
+		case GLUT_KEY_LEFT:
+			g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
+			g_MoveDir = normalize(g_MoveDir);
+			g_matMoveDir = RotateY(90.f) * Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
+
+			//if (g_fCameraMoveX <= 18.5f && g_fCameraMoveX >= -18.5f)
+				g_fCameraMoveX += (g_matMoveDir._m[0][3] * 3.0f);
+			//if (g_fCameraMoveZ <= 18.5f && g_fCameraMoveZ >= -18.5f)
+				g_fCameraMoveZ += (g_matMoveDir._m[2][3] * 3.0f);
+
+			//Á×§K¬ïÀð
+			/*if (g_fCameraMoveX > 18.5) g_fCameraMoveX = 18.5f;
+			else if (g_fCameraMoveX < -18.5) g_fCameraMoveX = -18.5f;
+			if (g_fCameraMoveZ > 18.5) g_fCameraMoveZ = 18.5f;
+			else if (g_fCameraMoveZ < -18.5) g_fCameraMoveZ = -18.5f;*/
+			printf("%f , %f\n", g_fCameraMoveX, g_fCameraMoveZ);
+
+			break;
+		case GLUT_KEY_RIGHT:
+			g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
+			g_MoveDir = normalize(g_MoveDir);
+			g_matMoveDir = RotateY(90.f) * Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
+
+			//if (g_fCameraMoveX <= 18.5f && g_fCameraMoveX >= -18.5f)
+				g_fCameraMoveX -= (g_matMoveDir._m[0][3] * 3.0f);
+			//if (g_fCameraMoveZ <= 18.5f && g_fCameraMoveZ >= -18.5f)
+				g_fCameraMoveZ -= (g_matMoveDir._m[2][3] * 3.0f);
+
+			//Á×§K¬ïÀð
+			/*if (g_fCameraMoveX > 18.5) g_fCameraMoveX = 18.5f;
+			else if (g_fCameraMoveX < -18.5) g_fCameraMoveX = -18.5f;
+			if (g_fCameraMoveZ > 18.5) g_fCameraMoveZ = 18.5f;
+			else if (g_fCameraMoveZ < -18.5) g_fCameraMoveZ = -18.5f;*/
+			printf("%f , %f\n", g_fCameraMoveX, g_fCameraMoveZ);
+			break;
+
+
+
+		default:
+			break;
+		}
+
+
+
+	}
 
 
 	auto camera = CCamera::getInstance();

@@ -194,6 +194,7 @@ void CObjReader::update(float dt, const LightSource* Lights) {
 		_diffuseProduct[i] = _material.kd * _material.diffuse * Lights[i].diffuse;
 		_specularProduct[i] = _material.ks * _material.specular * Lights[i].specular;
 		_cutoff[i] = Lights[i].spotCutoff;
+		_vSpotTarget[i] = _mxView * Lights[i].spotTarget;
 
 	}
 
