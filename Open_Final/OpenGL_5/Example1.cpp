@@ -249,7 +249,7 @@ LightSource  _Light2 = {
 	point4(-10.4, 17.0, 6.0f, 1.0f),   // position
 	point4(0.0f, 0.0f, 0.0f, 1.0f),   // halfVector
 	vec3(10.0f, 0.0f, 10.0f),		  //spotTarget
-	vec3(-10.4, 17.0, 6.0f),			  //spotDirection
+	vec3(-10.4, 0.0, 6.0f),			  //spotDirection
 	1.0f	,	// spotExponent(parameter e); cos^(e)(phi) 
 	0.95f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
 	1.0f	,	// spotCosCutoff; // (range: [1.0,0.0],-1.0), 照明方向與被照明點之間的角度取 cos 後, cut off 的值
@@ -265,8 +265,8 @@ LightSource  _Light3 = {
 	color4(0.0, 0.0, 0.0, 1.0f), // specular
 	point4(10.4, 17.0, 6.0f, 1.0f),   // position
 	point4(0.0f, 0.0f, 0.0f, 1.0f),   // halfVector
-	vec3(10.0f, 0.0f, 10.0f),		  //spotTarget
-	vec3(10.4, 0.0, 6.0f),			  //spotDirection
+	vec3(10.0f, 0.0f, 6.0f),		  //spotTarget
+	vec3(10.0f, 0.0f, 6.0f),			  //spotDirection
 	1.0f	,	// spotExponent(parameter e); cos^(e)(phi) 
 	0.95f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
 	1.0f	,	// spotCosCutoff; // (range: [1.0,0.0],-1.0), 照明方向與被照明點之間的角度取 cos 後, cut off 的值
@@ -845,7 +845,7 @@ void init( void )
 	g_tank = new CObjReader("Model/test.obj");
 	g_tank->SetTextureLayer(DIFFUSE_MAP); 
 	g_tank->setShader();
-	g_tank->_vT.x = -10.4f; g_tank->_vT.y = 0.0f; g_tank->_vT.z = 6.0f;
+	g_tank->_vT.x = 0.0f; g_tank->_vT.y = 0.0f; g_tank->_vT.z = -10.0f;
 	mxT = Translate(g_tank->_vT);
 	g_tank->_vS.x = g_tank->_vS.y = g_tank->_vS.z = 1.0f;
 	mxS = Scale(g_tank->_vS);
@@ -853,7 +853,7 @@ void init( void )
 	g_tank->setShadingMode(GOURAUD_SHADING);
 	g_tank->setMaterials(vec4(0), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	g_tank->setKaKdKsShini(0.25f, 0.8f, 0.2f, 2);
-	
+	g_tank->SetIlightNUM(2);
 
 	init_Room1();
 	init_Room2();
@@ -922,12 +922,8 @@ void GL_Display( void )
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the window
 	
-	glEnable(GL_BLEND);  // 設定2D Texure Mapping 有作用
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //blend GL_ONE_MINUS_SRC_ALPHA ：(1,1,1,1)-(sa , sa , sa , sa)
-
-
 	
-	
+
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[1]);
 	glActiveTexture(GL_TEXTURE1);
@@ -959,13 +955,7 @@ void GL_Display( void )
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[2]);
 	g_tank->draw();
 	
-
-	glDepthMask(GL_FALSE);
-	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[1]);
-	CSCube_glass->draw();
-	glDisable(GL_BLEND);	// 關閉 Blending
-	glDepthMask(GL_TRUE);	// 開啟對 Z-Buffer 的寫入操作
-	glBindTexture(GL_TEXTURE_2D, 0);
+	
 
 
 	CQRightWall_Room2->draw();
@@ -1004,6 +994,17 @@ void GL_Display( void )
 	CQBackWall_Room6->draw();
 	CSFloor_Room6->draw();
 	CSCeiling_Room6->draw();
+
+
+	
+	glEnable(GL_BLEND);  // 設定2D Texure Mapping 有作用
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //blend GL_ONE_MINUS_SRC_ALPHA ：(1,1,1,1)-(sa , sa , sa , sa)
+	glDepthMask(GL_FALSE);
+	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[1]);
+	CSCube_glass->draw();
+	glDisable(GL_BLEND);	// 關閉 Blending
+	glDepthMask(GL_TRUE);	// 開啟對 Z-Buffer 的寫入操作
+	glBindTexture(GL_TEXTURE_2D, 0);
 	
 	glutSwapBuffers();	// 交換 Frame Buffer
 }

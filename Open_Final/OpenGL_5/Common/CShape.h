@@ -79,6 +79,7 @@ protected:
 
 	
 	point4 _vLightInView[LIGHT_NUM_MAX]; //光源在世界座標的位置
+	point4 _vSpotTarget[LIGHT_NUM_MAX]; //光源在世界座標的位置
 	color4 _ambientProduct[LIGHT_NUM_MAX];
 	color4 _diffuseProduct[LIGHT_NUM_MAX];
 	color4 _specularProduct[LIGHT_NUM_MAX];
