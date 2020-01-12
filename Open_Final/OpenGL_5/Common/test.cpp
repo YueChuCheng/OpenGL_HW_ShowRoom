@@ -50,7 +50,7 @@ void ModelPool::drawW()
 
 void ModelPool::setLightNUM(int num) {
 
-	_vLightNUM = num;
+	_iLightNUM = num;
 
 }
 
@@ -68,7 +68,7 @@ void ModelPool::update(float dt, const LightSource* Lights)
 	// 5. 計算照明的點是否落在 spotCutoff 之內
 	GLfloat fLdotLDir = -(vLight.x * vLightDir.x + vLight.y * vLightDir.y + vLight.z * vLightDir.z);
 	*/
-	for (int i = 0; i < LIGHT_NUM; i++)
+	for (int i = 0; i < LIGHT_NUM_MAX; i++)
 	{
 		_vLightInView[i] = _mxView * Lights[i].position;		// 將 Light 轉換到鏡頭座標再傳入
 		// 算出 AmbientProduct DiffuseProduct 與 SpecularProduct 的內容

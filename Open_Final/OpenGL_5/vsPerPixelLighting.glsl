@@ -1,6 +1,6 @@
 // Phong reflection model
 #version 130
-#define LIGHT_NUM 4 //燈泡數量
+#define LIGHT_NUM_MAX 4 //燈泡數量
 
 in vec4 vPosition;	// Vertex Position
 in vec3 vNormal;    // Vertex Normal
@@ -9,14 +9,16 @@ in vec2 vDiffuseMapCoord;
 in vec2 vLightMapCoord;
 
 out vec3 v3N; // 輸出 Normal 在鏡頭座標下的方向
-out vec3 v3L[LIGHT_NUM]; // 輸出 Light Direction 在鏡頭座標下的方向
+out vec3 v3L[LIGHT_NUM_MAX]; // 輸出 Light Direction 在鏡頭座標下的方向
 out vec3 v3E; // 輸出 View Direction 在鏡頭座標下的方向
 out vec2 DiffuseMapUV;  // 輸出貼圖座標
 out vec2 LightMapUV;    // 輸出貼圖座標
 
 uniform mat4  ModelView;   // Model View Matrix
 uniform mat4  Projection;  // Projection Matrix
-uniform vec4  LightInView[LIGHT_NUM]; // Light's position in View Space
+uniform vec4  LightInView[LIGHT_NUM_MAX]; // Light's position in View Space
+uniform int iLightNUM; //幾盞燈渲染
+
 
 void main()
 {
@@ -28,7 +30,7 @@ void main()
 	//		mat3 ITModelView = transpose(inverse(mat3(ModelView)); 
 	//		vec3 v3N = normalize(ITModelView * vNormal); 
 	v3N = (ModelView * vec4(vNormal, 0.0)).xyz;
-	for(int i = 0 ; i < LIGHT_NUM ; i++){
+	for(int i = 0 ; i < iLightNUM ; i++){
 		v3L[i] = vec3(LightInView[i].xyz - vPosInView.xyz);
 	}
 	gl_Position = Projection * vPosInView;

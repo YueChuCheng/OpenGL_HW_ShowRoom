@@ -1,13 +1,13 @@
 // #define CHANGE_COLOR
 #version 130
-#define LIGHT_NUM 4 //燈泡數量
+#define LIGHT_NUM_MAX 4 //燈泡數量
 #define NONE_MAP    0
 #define DIFFUSE_MAP 1
 #define LIGHT_MAP   2
 #define CUBIC_MAP   8
 
 in vec3 v3N;
-in vec3 v3L[LIGHT_NUM];
+in vec3 v3L[LIGHT_NUM_MAX];
 in vec3 v3E;
 
 in vec2 DiffuseMapUV; // 輸入貼圖座標
@@ -17,13 +17,13 @@ in vec3 ReflView;   // View 在該 Vertex 相對應於 Normal 的反射向量
 uniform int iTexLayer;
 
 // 以下為新增的部分
-uniform vec4  LightInView[LIGHT_NUM];        // Light's position in View Space
-uniform vec4  AmbientProduct[LIGHT_NUM];  // light's ambient  與 Object's ambient  與 ka 的乘積
-uniform vec4  DiffuseProduct[LIGHT_NUM];  // light's diffuse  與 Object's diffuse  與 kd 的乘積
-uniform vec4  SpecularProduct[LIGHT_NUM]; // light's specular 與 Object's specular 與 ks 的乘積
+uniform vec4  LightInView[LIGHT_NUM_MAX];        // Light's position in View Space
+uniform vec4  AmbientProduct[LIGHT_NUM_MAX];  // light's ambient  與 Object's ambient  與 ka 的乘積
+uniform vec4  DiffuseProduct[LIGHT_NUM_MAX];  // light's diffuse  與 Object's diffuse  與 kd 的乘積
+uniform vec4  SpecularProduct[LIGHT_NUM_MAX]; // light's specular 與 Object's specular 與 ks 的乘積
 uniform float fShininess;
-uniform int   iLighting[LIGHT_NUM];
-uniform float Cutoff[LIGHT_NUM];
+uniform int   iLighting[LIGHT_NUM_MAX];
+uniform float Cutoff[LIGHT_NUM_MAX];
 uniform vec4  vObjectColor;    // 代表物件的單一顏色
 
 

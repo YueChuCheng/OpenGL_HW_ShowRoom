@@ -113,9 +113,9 @@ float _fLightDelta = 0; //燈光旋轉，經過時間
 float _fLightRadius = 6;//燈光位置
 float _fLightTheta = 0;//燈光旋轉角度
 
-float g_fLightR = 1.8f;
-float g_fLightG = 1.8f;
-float g_fLightB = 1.8f;
+float g_fLightR = 0.8f;
+float g_fLightG = 0.8f;
+float g_fLightB = 0.8f;
 
 
 
@@ -227,14 +227,14 @@ LightSource  Light_center_Room6 = {
 LightSource  _Light1 = {
 
 	color4(0.0, 0.0, 0.0, 1.0f), // ambient 
-	color4(1.0, 0.0, 0.0, 1.0f), // diffuse
+	color4(10.0, 0.0, 0.0, 1.0f), // diffuse
 	color4(0.0, 0.0, 0.0, 1.0f), // specular
 	point4(0.0, 17.0, -10.0f, 1.0f),   // position
 	point4(0.0f, 0.0f, 0.0f, 1.0f),   // halfVector
 	vec3(10.0f, 0.0f, 10.0f),		  //spotTarget
 	vec3(0.0, 0.0, -10.0f),			  //spotDirection
 	1.0f	,	// spotExponent(parameter e); cos^(e)(phi) 
-	1.0f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
+	0.95f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
 	1.0f	,	// spotCosCutoff; // (range: [1.0,0.0],-1.0), 照明方向與被照明點之間的角度取 cos 後, cut off 的值
 	1	,	// constantAttenuation	(a + bd + cd^2)^-1 中的 a, d 為光源到被照明點的距離
 	0	,	// linearAttenuation	    (a + bd + cd^2)^-1 中的 b
@@ -244,14 +244,14 @@ LightSource  _Light1 = {
 LightSource  _Light2 = {
 
 	color4(0.0, 0.0, 0.0, 1.0f), // ambient 
-	color4(0.0, 1.0, 0.0, 1.0f), // diffuse
+	color4(0.0, 10.0, 0.0, 1.0f), // diffuse
 	color4(0.0, 0.0, 0.0, 1.0f), // specular
 	point4(-10.4, 17.0, 6.0f, 1.0f),   // position
 	point4(0.0f, 0.0f, 0.0f, 1.0f),   // halfVector
 	vec3(10.0f, 0.0f, 10.0f),		  //spotTarget
 	vec3(-10.4, 17.0, 6.0f),			  //spotDirection
 	1.0f	,	// spotExponent(parameter e); cos^(e)(phi) 
-	1.0f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
+	0.95f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
 	1.0f	,	// spotCosCutoff; // (range: [1.0,0.0],-1.0), 照明方向與被照明點之間的角度取 cos 後, cut off 的值
 	1	,	// constantAttenuation	(a + bd + cd^2)^-1 中的 a, d 為光源到被照明點的距離
 	0	,	// linearAttenuation	    (a + bd + cd^2)^-1 中的 b
@@ -261,47 +261,47 @@ LightSource  _Light2 = {
 LightSource  _Light3 = {
 
 	color4(0.0, 0.0, 0.0, 1.0f), // ambient 
-	color4(0.0, 0.0, 1.0, 1.0f), // diffuse
+	color4(0.0, 0.0, 10.0, 1.0f), // diffuse
 	color4(0.0, 0.0, 0.0, 1.0f), // specular
 	point4(10.4, 17.0, 6.0f, 1.0f),   // position
 	point4(0.0f, 0.0f, 0.0f, 1.0f),   // halfVector
 	vec3(10.0f, 0.0f, 10.0f),		  //spotTarget
 	vec3(10.4, 0.0, 6.0f),			  //spotDirection
 	1.0f	,	// spotExponent(parameter e); cos^(e)(phi) 
-	1.0f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
+	0.95f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
 	1.0f	,	// spotCosCutoff; // (range: [1.0,0.0],-1.0), 照明方向與被照明點之間的角度取 cos 後, cut off 的值
 	1	,	// constantAttenuation	(a + bd + cd^2)^-1 中的 a, d 為光源到被照明點的距離
 	0	,	// linearAttenuation	    (a + bd + cd^2)^-1 中的 b
 	0		// quadraticAttenuation (a + bd + cd^2)^-1 中的 c
 };
 
-LightSource Light_resulte_Room1[LIGHT_NUM] = { //最後燈光結果
+LightSource Light_resulte_Room1[LIGHT_NUM_MAX] = { //最後燈光結果
 
 	Light_center_Room1, _Light1 ,  _Light2 ,  _Light3
 };
 
-LightSource Light_resulte_Room2[LIGHT_NUM] = { //最後燈光結果
+LightSource Light_resulte_Room2[LIGHT_NUM_MAX] = { //最後燈光結果
 
 	Light_center_Room2, _Light1 ,  _Light2 ,  _Light3
 };
 
-LightSource Light_resulte_Room3[LIGHT_NUM] = { //最後燈光結果
+LightSource Light_resulte_Room3[LIGHT_NUM_MAX] = { //最後燈光結果
 
 	Light_center_Room3, _Light1 ,  _Light2 ,  _Light3
 };
 
-LightSource Light_resulte_Room4[LIGHT_NUM] = { //最後燈光結果
+LightSource Light_resulte_Room4[LIGHT_NUM_MAX] = { //最後燈光結果
 
 	Light_center_Room4, _Light1 ,  _Light2 ,  _Light3
 };
 
 
-LightSource Light_resulte_Room5[LIGHT_NUM] = { //最後燈光結果
+LightSource Light_resulte_Room5[LIGHT_NUM_MAX] = { //最後燈光結果
 
 	Light_center_Room5, _Light1 ,  _Light2 ,  _Light3
 };
 
-LightSource Light_resulte_Room6[LIGHT_NUM] = { //最後燈光結果
+LightSource Light_resulte_Room6[LIGHT_NUM_MAX] = { //最後燈光結果
 
 	Light_center_Room6, _Light1 ,  _Light2 ,  _Light3
 };
@@ -325,7 +325,7 @@ void init_Room1() {
 	CSFloor_Room1->setTRSMatrix(mxT * Scale(40.0f, 1, 40.0f));
 	CSFloor_Room1->setShadingMode(GOURAUD_SHADING);
 	CSFloor_Room1->setColor(vec4(0.6f));
-	
+	CSFloor_Room1->SetIlightNUM(4);
 	CSFloor_Room1->setShader();
 	
 	
@@ -843,10 +843,9 @@ void init( void )
 
 
 	g_tank = new CObjReader("Model/test.obj");
-	g_tank->SetTextureLayer(DIFFUSE_MAP);
-	g_tank->SetbBillboarding(); 
+	g_tank->SetTextureLayer(DIFFUSE_MAP); 
 	g_tank->setShader();
-	g_tank->_vT.x = 10.4f; g_tank->_vT.y = 0.0f; g_tank->_vT.z = 6.0f;
+	g_tank->_vT.x = -10.4f; g_tank->_vT.y = 0.0f; g_tank->_vT.z = 6.0f;
 	mxT = Translate(g_tank->_vT);
 	g_tank->_vS.x = g_tank->_vS.y = g_tank->_vS.z = 1.0f;
 	mxS = Scale(g_tank->_vS);

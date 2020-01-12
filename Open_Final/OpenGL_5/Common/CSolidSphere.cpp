@@ -211,7 +211,7 @@ void CSolidSphere::update(float dt, const LightSource* Lights)
 		_mxMVFinal = _mxView * _mxTRS;
 		_viewUpdated = _TRSUpdated = false;
 	}
-	for (int i = 0; i < LIGHT_NUM; i++)
+	for (int i = 0; i < LIGHT_NUM_MAX; i++)
 	{
 		_vLightInView[i] = _mxView * Lights[i].position;		// 將 Light 轉換到鏡頭座標再傳入
 	// 算出 AmbientProduct DiffuseProduct 與 SpecularProduct 的內容

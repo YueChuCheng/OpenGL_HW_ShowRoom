@@ -1,7 +1,7 @@
 
 #ifndef CSHAPE_H
 #define CSHAPE_H
-#define LIGHT_NUM 4 //燈泡數量
+#define LIGHT_NUM_MAX 4 //燈泡數量
 
 
 #include "../Header/Angel.h"
@@ -67,27 +67,25 @@ protected:
 	
 	GLuint _uiShininess;
 	
-	GLuint _uiLightInView[LIGHT_NUM]; //光源在shader的位置
-	GLuint _uiAmbient[LIGHT_NUM]; //light's ambient 與 object's ambient 與 ka的乘積
-	GLuint _uiDiffuse[LIGHT_NUM];
-	GLuint _uiSpecular[LIGHT_NUM];
-	GLuint _uiLighting[LIGHT_NUM];
-	float _uicutoff[LIGHT_NUM];
-	GLuint _uiLightNUM; //有幾盞燈
+	GLuint _uiLightInView[LIGHT_NUM_MAX]; //光源在shader的位置
+	GLuint _uiAmbient[LIGHT_NUM_MAX]; //light's ambient 與 object's ambient 與 ka的乘積
+	GLuint _uiDiffuse[LIGHT_NUM_MAX];
+	GLuint _uiSpecular[LIGHT_NUM_MAX];
+	GLuint _uiLighting[LIGHT_NUM_MAX];
+	float _uicutoff[LIGHT_NUM_MAX];
+	GLuint _uiLightNUM; //渲染幾盞燈
 	GLuint  m_uiTexLayer;	// 貼圖的層次，預設就是一層 diffuse
 
 
-	int    m_iTexLayer;		// 設定貼圖的層次，0 表示沒有貼圖
-	point4 _vLightInView[LIGHT_NUM]; //光源在世界座標的位置
-	color4 _ambientProduct[LIGHT_NUM];
-	color4 _diffuseProduct[LIGHT_NUM];
-	color4 _specularProduct[LIGHT_NUM];
-	int _vLightNUM = 4; //有幾盞燈
-
 	
-	float _cutoff[LIGHT_NUM];
+	point4 _vLightInView[LIGHT_NUM_MAX]; //光源在世界座標的位置
+	color4 _ambientProduct[LIGHT_NUM_MAX];
+	color4 _diffuseProduct[LIGHT_NUM_MAX];
+	color4 _specularProduct[LIGHT_NUM_MAX];
+	float _cutoff[LIGHT_NUM_MAX];
+	int _iLightNUM = 1; //渲染幾盞燈 預設至少一盞
+	int    m_iTexLayer;		// 設定貼圖的層次，0 表示沒有貼圖
 
-	bool _bBillboarding = false; //是否為 bBillboarding style
 	
 
 	mat4 _mxView, _mxProjection, _mxTRS;
@@ -106,7 +104,6 @@ protected:
 
 
 public:
-
 
 	float _fBillboardingAngle; //Billboarding 旋轉角度
 	vec3 _vS; //紀錄大小
@@ -134,14 +131,13 @@ public:
 	void setMaterials(color4 ambient, color4 diffuse, color4 specular);
 	void setKaKdKsShini(float ka, float kd, float ks, float shininess);//ka kd ks shininess
 	void SetTiling(float uTiling, float vTiling);  // 對 U軸 與 V軸 進行拼貼的縮放
-	void SetbBillboarding(); //是否為 bBillboarding style
-
+	void SetIlightNUM(int iNum); //設定須受幾盞燈渲染
 
 	void setShadingMode(int iMode) { _iMode = iMode; } //更改繪圖模式
 	vec4 phongReflectionModel(vec4 vPoint, vec3 vNormal, vec4 vLightPos, color4 vLight);
 	vec4 phongReflectionModel(vec4 vPoint, vec3 vNormal, const LightSource &Lights);
 
-	int _iLighting[LIGHT_NUM]; //是否要打燈
+	int _iLighting[LIGHT_NUM_MAX]; //是否要打燈
 
 	void setLightingDisable(int i /*編號第幾號的燈光*/) { 
 		

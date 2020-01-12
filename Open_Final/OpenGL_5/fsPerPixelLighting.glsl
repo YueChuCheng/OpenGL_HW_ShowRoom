@@ -1,14 +1,14 @@
 #version 130
 // iTexLayer 的設定與判斷方式，假設此處可以支援到六張貼圖
 
-#define LIGHT_NUM 4 //燈泡數量
+#define LIGHT_NUM_MAX 4 //燈泡數量
 #define NONE_MAP 0
 #define DIFFUSE_MAP 1
 #define LIGHT_MAP 2
 #define NORMAL_MAP 4
 
 in vec3 v3N;
-in vec3 v3L[LIGHT_NUM];
+in vec3 v3L[LIGHT_NUM_MAX];
 in vec3 v3E;
 
 in vec2 DiffuseMapUV; // 輸入 Diffuse Map 貼圖座標
@@ -18,15 +18,15 @@ uniform int iTexLayer;
 uniform float fElapsedTime;
 
 // 以下為新增的部分
-uniform vec4 LightInView[LIGHT_NUM];	 // Light's position in View Space
-uniform vec4 AmbientProduct[LIGHT_NUM];  // light's ambient  與 Object's ambient  與 ka 的乘積
-uniform vec4 DiffuseProduct[LIGHT_NUM];  // light's diffuse  與 Object's diffuse  與 kd 的乘積
-uniform vec4 SpecularProduct[LIGHT_NUM]; // light's specular 與 Object's specular 與 ks 的乘積
+uniform vec4 LightInView[LIGHT_NUM_MAX];	 // Light's position in View Space
+uniform vec4 AmbientProduct[LIGHT_NUM_MAX];  // light's ambient  與 Object's ambient  與 ka 的乘積
+uniform vec4 DiffuseProduct[LIGHT_NUM_MAX];  // light's diffuse  與 Object's diffuse  與 kd 的乘積
+uniform vec4 SpecularProduct[LIGHT_NUM_MAX]; // light's specular 與 Object's specular 與 ks 的乘積
 uniform float fShininess;
-uniform int iLighting[LIGHT_NUM];
-uniform float Cutoff[LIGHT_NUM];
+uniform int iLighting[LIGHT_NUM_MAX];
+uniform float Cutoff[LIGHT_NUM_MAX];
 uniform vec4 vObjectColor; // 代表物件的單一顏色
-uniform int LightNUM; // 有幾盞燈
+uniform int iLightNUM; // 有幾盞燈
 
 // For Texture Sampler
 uniform sampler2D diffuMap; // 貼圖的參數設定
@@ -38,7 +38,7 @@ void main()
 	vec4 diffuse = vec4(0.0, 0.0, 0.0, 1.0);
 	vec4 specular = vec4(0.0, 0.0, 0.0, 1.0);
 	vec4 LightingColor = vec4(0.0, 0.0, 0.0, 1.0);
-	for (int i = 0; i < LightNUM; i++)
+	for (int i = 0; i < iLightNUM; i++)
 	{
 		if (iLighting[i] != 1)
 		{
