@@ -7,7 +7,7 @@
 CObjReader::CObjReader(char* objfile)
 {
 	FILE* pfile;
-	char pLineHead[30];
+	char pLineHead[40];
 	int face[3][3];					//讀取用
 	int ivec, inormal, iuv, ifaces;	//點、法向量、貼圖、面數紀錄
 	ifaces = ivec = inormal = iuv = 0;
