@@ -41,17 +41,6 @@ void main()
 	vec4 diffuse = vec4(0.0, 0.0, 0.0, 1.0);
 	vec4 specular = vec4(0.0, 0.0, 0.0, 1.0);
 	vec4 LightingColor = vec4(0.0, 0.0, 0.0, 1.0);
-	vec4 ambient;
-	vec3 vN;
-	vec3 vL;
-	float fLdotN;
-	vec3 vV;
-	vec3 vRefL;
-	float RdotV ;
-	float fLdotLDir= 0.0f;
-	vec3 lDN[LIGHT_NUM_MAX];
-
-
 	for (int i = 0; i < iLightNUM; i++)
 	{
 		if (iLighting[i] != 1)
@@ -65,76 +54,42 @@ void main()
 		{
 
 			//V 1. 計算 Ambient color : Ia = AmbientProduct = Ka * Material.ambient * La =
-			ambient = AmbientProduct[0]; // m_sMaterial.ka * m_sMaterial.ambient * vLightI;
+			vec4 ambient = AmbientProduct[0]; // m_sMaterial.ka * m_sMaterial.ambient * vLightI;
 
 			// 單位化傳入的 Normal Dir
-			vN = normalize(v3N);
+			vec3 vN = normalize(v3N);
 
 			//V 2. 單位化傳入的 Light Dir
-			vL = normalize(v3L[i]); // normalize light vector
+			vec3 vL = normalize(v3L[i]); // normalize light vector
 
 			//V 5. 計算 L dot N
-			fLdotN = vL.x * vN.x + vL.y * vN.y + vL.z * vN.z;
+			float fLdotN = vL.x * vN.x + vL.y * vN.y + vL.z * vN.z;
+			if (fLdotN >= Cutoff[i])
+			{ // 該點被光源照到才需要計算
 
-			if(Cutoff[i]==0.0f){ //環境光
-			
-				if (fLdotN >= Cutoff[i]){ // 該點被光源照到才需要計算
+				//V Diffuse Color : Id = Kd * Material.diffuse * Ld * (L dot N)
+				if(Cutoff[i] > 0.0f) //spot light
+					diffuse += pow(fLdotN , 40) * DiffuseProduct[i];
+				else
+					diffuse += fLdotN * DiffuseProduct[i]  ;
 
-						//V Diffuse Color : Id = Kd * Material.diffuse * Ld * (L dot N)
-						
-						diffuse += fLdotN * DiffuseProduct[i]  ;
+				// Specular color
+				// Method 1: Phone Model
+				// 計算 View Vector
+				// 單位化傳入的 v3E , View Direction
+				vec3 vV = normalize(v3E);
 
-						// Specular color
-						// Method 1: Phone Model
-						// 計算 View Vector
-						// 單位化傳入的 v3E , View Direction
-						vV = normalize(v3E);
+				//計算 Light 的 反射角 vRefL = 2 * fLdotN * vN - L
+				// 同時利用 normalize 轉成單位向量
+				vec3 vRefL = normalize(2.0f * (fLdotN)*vN - vL);
 
-						//計算 Light 的 反射角 vRefL = 2 * fLdotN * vN - L
-						// 同時利用 normalize 轉成單位向量
-						vRefL = normalize(2.0f * (fLdotN)*vN - vL);
+				//   計算  vReflectedL dot View
+				float RdotV = vRefL.x * vV.x + vRefL.y * vV.y + vRefL.z * vV.z;
 
-						//   計算  vReflectedL dot View
-						RdotV = vRefL.x * vV.x + vRefL.y * vV.y + vRefL.z * vV.z;
-
-						//V Specular Color : Is = Ks * Material.specular * Ls * (R dot V)^Shininess;
-						if (RdotV > 0)
-							specular += SpecularProduct[i] * pow(RdotV, fShininess);
-					}
-			
-			
+				//V Specular Color : Is = Ks * Material.specular * Ls * (R dot V)^Shininess;
+				if (RdotV > 0)
+					specular += SpecularProduct[i] * pow(RdotV, fShininess);
 			}
-
-			else if(Cutoff[i] > 0.0f){ //聚光燈
-				lDN[i] = normalize(lD[i]);
-				fLdotLDir = -(vL.x*lDN[i].x + vL.y*lDN[i].y + vL.z*lDN[i].z);
-				if (fLdotN >= Cutoff[i]){ // 該點被光源照到才需要計算
-
-						//V Diffuse Color : Id = Kd * Material.diffuse * Ld * (L dot N)
-						
-						diffuse += pow(fLdotN , 40) * DiffuseProduct[i];
-						
-						// Specular color
-						// Method 1: Phone Model
-						// 計算 View Vector
-						// 單位化傳入的 v3E , View Direction
-						vV = normalize(v3E);
-
-						//計算 Light 的 反射角 vRefL = 2 * fLdotN * vN - L
-						// 同時利用 normalize 轉成單位向量
-						vRefL = normalize(2.0f * (fLdotN)*vN - vL);
-
-						//   計算  vReflectedL dot View
-						RdotV = vRefL.x * vV.x + vRefL.y * vV.y + vRefL.z * vV.z;
-
-						//V Specular Color : Is = Ks * Material.specular * Ls * (R dot V)^Shininess;
-						if (RdotV > 0)
-							specular += SpecularProduct[i] * pow(RdotV, fShininess);
-					}
-			
-			
-			}
-			
 			
 
 			LightingColor = ambient + diffuse + specular; // 計算顏色 ambient + diffuse + specular;

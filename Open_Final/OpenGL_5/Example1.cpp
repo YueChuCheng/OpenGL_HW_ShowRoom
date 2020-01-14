@@ -3,7 +3,7 @@
 #include "Common/CQuad.h"
 #include "Common/CSmoothQuad.h"
 #include "Common/CObjReader.h"
-//#include "Common/C2DBTN.h"
+#include "Common/C2DBTN.h"
 #include "Common/CSoildCube.h"
 //#include "Common/test.h"
 #include "Common/CCamera.h"
@@ -18,31 +18,50 @@
 #define VP_HALFHEIGHT 20.0f
 #define GRID_SIZE 40 // must be an even number
 
+//test
+bool bGoFree = true; //無限制走動
 
 
-GLuint g_uiFTexID_Room1[7]; //貼圖
+//UI介面
+CQuad* CQ_uiBtn[4];
+
+
+
+//遊戲變數
+bool bfinish = false; //結束第一關遊戲
+
+
+GLuint g_uiFTexID_Room1[28]; //貼圖
 GLuint g_uiLightTexID_Room1; //light map 貼圖
 GLuint g_uiNormalTexID_Room1; //normal map 貼圖
 GLuint g_uiSphereCubeMap; //enviroment map 貼圖
 
 
 GLuint g_uiFTexID_Room2[12]; //貼圖
-
 GLuint g_uiFTexID_Room3[3]; //貼圖
 GLuint g_uiNormalTexID_Room3; //normal map 貼圖
-
 GLuint g_uiFTexID_Room4[4]; //貼圖
-
 GLuint g_uiFTexID_Room5[2]; //貼圖
-
 GLuint g_uiFTexID_Room6; //貼圖
+
+
+//skybox
+//Room2 Wall
+CQuad* CSFloor_skybox;
+CQuad* CSCeiling_skybox;
+CQuad* CQRightWall_skybox;
+CQuad* CQLeftWall_skybox;
+CQuad* CQBackWall_skybox;
+CQuad* CQFrontWall_skybox;
+
+
 
 							  
 //model
-CObjReader* g_tank; //坦克車
-CObjReader* g_Target; //標靶
-CObjReader* g_gun; //槍
-CObjReader* g_cat; //貓
+//CObjReader* g_tank; //坦克車
+//CObjReader* g_Target; //標靶
+//CObjReader* g_gun; //槍
+//CObjReader* g_cat; //貓
 CObjReader* g_balcony; //陽台
 CObjReader* g_track; //卡車
 
@@ -60,7 +79,9 @@ CQuad* CQBackWall_Room1;
 //Room1 decorate
 CSolidSphere* CSSphere; //environment map
 CQuad* CSCube_glass; //test glass texture
-CSolidCube* CSDoor1; //door
+CQuad* CQDoor1_Room1; //door
+CQuad* CQDoor2_Room1; //door
+
 
 //Room2 Wall
 CQuad* CSFloor_Room2;
@@ -122,13 +143,14 @@ CQuad* CQFrontWall_Room6;
 CQuad* CQBackWall_Room6;
 
 //Room6 decorate
-CSolidCube* CSDoor6; //door
+CQuad* CQDoor1_Room6; //door
+CQuad* CQDoor2_Room6; //door
 
 
 GLfloat g_fRadius = 120.0; //視覺範圍
 GLfloat g_fTheta = 60.0f * DegreesToRadians;
 GLfloat g_fPhi = 45.0f * DegreesToRadians;
-GLfloat g_fCameraMoveX = 0.f;				// for camera movment
+GLfloat g_fCameraMoveX = 41.f;				// for camera movment
 GLfloat g_fCameraMoveY = 7.0f;				// for camera movment
 GLfloat g_fCameraMoveZ = 0.0f;				// for camera movment
 mat4	g_matMoveDir;		// 鏡頭移動方向
@@ -248,7 +270,7 @@ LightSource  Light_center_Room5 = {
 LightSource  Light_center_Room6 = {
 
 	color4(g_fLightR, g_fLightG, g_fLightB, 1.0f), // ambient 
-	color4(g_fLightR, g_fLightG, g_fLightB, 1.0f), // diffuse
+	color4(1.5f, 1.5f, 1.5f, 1.0f), // diffuse
 	color4(g_fLightR, g_fLightG, g_fLightB, 1.0f), // specular
 	point4(_fLightRadius + 40, 15.0f, 0.0f, 1.0f),   // position
 	point4(0.0f, 0.0f, 0.0f, 1.0f),   // halfVector
@@ -282,14 +304,14 @@ LightSource  _Light1 = {
 LightSource  _Light2 = {
 
 	color4(0.0, 0.0, 0.0, 1.0f), // ambient 
-	color4(0.0, 10.0, 0.0, 1.0f), // diffuse
+	color4(10.0, 0.0, 0.0, 1.0f), // diffuse
 	color4(0.0, 0.0, 0.0, 1.0f), // specular
-	point4(-10.4, 17.0, 6.0f, 1.0f),   // position
+	point4(-10.4, 17.0, -6.0f, 1.0f),   // position
 	point4(0.0f, 0.0f, 0.0f, 1.0f),   // halfVector
 	vec3(10.0f, 0.0f, 10.0f),		  //spotTarget
 	vec3(-10.4, 0.0, 6.0f),			  //spotDirection
 	1.0f	,	// spotExponent(parameter e); cos^(e)(phi) 
-	1.0f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
+	0.95f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
 	1.0f	,	// spotCosCutoff; // (range: [1.0,0.0],-1.0), 照明方向與被照明點之間的角度取 cos 後, cut off 的值
 	1	,	// constantAttenuation	(a + bd + cd^2)^-1 中的 a, d 為光源到被照明點的距離
 	0	,	// linearAttenuation	    (a + bd + cd^2)^-1 中的 b
@@ -306,7 +328,7 @@ LightSource  _Light3 = {
 	vec3(10.0f, 0.0f, 6.0f),		  //spotTarget
 	vec3(10.0f, 0.0f, 6.0f),			  //spotDirection
 	1.0f	,	// spotExponent(parameter e); cos^(e)(phi) 
-	1.0f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
+	0.95f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
 	1.0f	,	// spotCosCutoff; // (range: [1.0,0.0],-1.0), 照明方向與被照明點之間的角度取 cos 後, cut off 的值
 	1	,	// constantAttenuation	(a + bd + cd^2)^-1 中的 a, d 為光源到被照明點的距離
 	0	,	// linearAttenuation	    (a + bd + cd^2)^-1 中的 b
@@ -315,7 +337,7 @@ LightSource  _Light3 = {
 
 LightSource Light_resulte_Room1[LIGHT_NUM_MAX] = { //最後燈光結果
 
-	Light_center_Room1, _Light1 ,  _Light2 ,  _Light3
+	Light_center_Room1, _Light3 ,  _Light2 ,  _Light1
 };
 
 LightSource Light_resulte_Room2[LIGHT_NUM_MAX] = { //最後燈光結果
@@ -437,15 +459,31 @@ void init_Room1() {
 	CQBackWall_Room1->setKaKdKsShini(0, 0.8f, 0.5f, 1);
 
 
-	vT.x = 0.0f; vT.y = 13.0f; vT.z = 21.0f;
+	vT.x = 0.0f; vT.y = 10.0f; vT.z = 19.5f;
 	mxT = Translate(vT);
-	CSDoor1 = new CSolidCube;
-	CSDoor1->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.0f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	CSDoor1->setShadingMode(GOURAUD_SHADING);
-	CSDoor1->setShader();
-	CSDoor1->setColor(vec4(0.6f));
-	CSDoor1->setTRSMatrix(mxT * RotateX(-90.0f) * Scale(12.0f, 4.0f, 28.0f));
-	CSDoor1->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+	CQDoor1_Room1 = new CQuad;
+	CQDoor1_Room1->SetTextureLayer(DIFFUSE_MAP);
+	CQDoor1_Room1->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.0f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CQDoor1_Room1->setShadingMode(GOURAUD_SHADING);
+	CQDoor1_Room1->setShader();
+	CQDoor1_Room1->setColor(vec4(0.6f));
+	CQDoor1_Room1->setTRSMatrix(mxT * RotateX(-90.0f) * Scale(13.0f, 4.0f, 13.0f));
+	CQDoor1_Room1->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+
+
+
+	vT.x = 19.5f; vT.y = 10.0f; vT.z = 0.5f;
+	mxT = Translate(vT);
+	CQDoor2_Room1 = new CQuad;
+	CQDoor2_Room1->SetTextureLayer(DIFFUSE_MAP);
+	CQDoor2_Room1->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.0f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CQDoor2_Room1->setShadingMode(GOURAUD_SHADING);
+	CQDoor2_Room1->setShader();
+	CQDoor2_Room1->setColor(vec4(0.6f));
+	CQDoor2_Room1->setTRSMatrix(mxT* RotateY(90.0f)* RotateX(-90.0f)* Scale(13.0f, 4.0f, 13.0f));
+	CQDoor2_Room1->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+
+	
 
 }
 
@@ -869,9 +907,8 @@ void init_Room6() {
 	vT.x = 61.0f; vT.y = 20.0f; vT.z = 0;
 	mxT = Translate(vT);
 	CQRightWall_Room6 = new CQuad;
-	CQRightWall_Room6->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CQRightWall_Room6->setMaterials(vec4(0), vec4(0.85f, 0.85f, 0.85f, 0.5f), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	CQRightWall_Room6->setShadingMode(GOURAUD_SHADING);
-	CQRightWall_Room6->SetTextureLayer(DIFFUSE_MAP);
 	CQRightWall_Room6->setShader();
 	CQRightWall_Room6->setColor(vec4(0.6f));
 	CQRightWall_Room6->setTRSMatrix(mxT * RotateZ(90.0f) * Scale(40.0f, 1, 40.0f));
@@ -890,7 +927,7 @@ void init_Room6() {
 	CQFrontWall_Room6->setKaKdKsShini(0, 0.8f, 0.5f, 1);
 
 
-	vT.x = 41.0f; vT.y = 20.0f; vT.z = -20.0f;
+	vT.x = 33.5f; vT.y = 20.0f; vT.z = -20.0f;
 	mxT = Translate(vT);
 	CQBackWall_Room6 = new CQuad;
 	CQBackWall_Room6->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
@@ -898,22 +935,136 @@ void init_Room6() {
 	CQBackWall_Room6->SetTextureLayer(DIFFUSE_MAP);
 	CQBackWall_Room6->setShader();
 	CQBackWall_Room6->setColor(vec4(0.6f));
-	CQBackWall_Room6->setTRSMatrix(mxT * RotateX(90.0f) * Scale(40.0f, 1, 40.0f));
+	CQBackWall_Room6->setTRSMatrix(mxT * RotateX(90.0f) * Scale(25.0f, 1, 40.0f));
 	CQBackWall_Room6->setKaKdKsShini(0, 0.8f, 0.5f, 1);
 
-	vT.x = 20.5f; vT.y = 13.0f; vT.z = 0.5f;
-	mxT = Translate(vT);
-	CSDoor6 = new CSolidCube;
-	CSDoor6->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.0f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	CSDoor6->setShadingMode(GOURAUD_SHADING);
-	CSDoor6->setShader();
-	CSDoor6->setColor(vec4(0.6f));
-	CSDoor6->setTRSMatrix(mxT * RotateX(-90.0f) * Scale(4.0f, 12.0f, 28.0f));
-	CSDoor6->setKaKdKsShini(0, 0.8f, 0.5f, 1);
 	
+	
+	vT.x = 21.5f; vT.y = 10.0f; vT.z = 0.5f;
+	mxT = Translate(vT);
+	CQDoor1_Room6 = new CQuad;
+	CQDoor1_Room6->SetTextureLayer(DIFFUSE_MAP);
+	CQDoor1_Room6->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.0f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CQDoor1_Room6->setShadingMode(GOURAUD_SHADING);
+	CQDoor1_Room6->setShader();
+	CQDoor1_Room6->setColor(vec4(0.6f));
+	CQDoor1_Room6->setTRSMatrix(mxT * RotateY(90.0f) * RotateX(90.0f) * Scale(13.0f, 4.0f, 13.0f));
+	CQDoor1_Room6->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+
+
+
+	vT.x = 41.0f; vT.y = 10.0f; vT.z = 19.5f;
+	mxT = Translate(vT);
+	CQDoor2_Room6 = new CQuad;
+	CQDoor2_Room6->SetTextureLayer(DIFFUSE_MAP);
+	CQDoor2_Room6->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.0f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CQDoor2_Room6->setShadingMode(GOURAUD_SHADING);
+	CQDoor2_Room6->setShader();
+	CQDoor2_Room6->setColor(vec4(0.6f));
+	CQDoor2_Room6->setTRSMatrix(mxT * RotateX(-90.0f) * Scale(13.0f, 4.0f, 13.0f));
+	CQDoor2_Room6->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+
 }
 
 
+void init_UI(void) {
+	mat4 mxT, mxS;
+	vec4 vT, vColor;
+	
+	/*vT.x = 0.0f; vT.y = -0.5f; vT.z = 0.0f;
+	mxT = Translate(vT);
+	CQ_uiBtn[0] = new CQuad;
+	CQ_uiBtn[0]->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CQ_uiBtn[0]->setShadingMode(GOURAUD_SHADING);
+	CQ_uiBtn[0]->SetTextureLayer(DIFFUSE_MAP);
+	CQ_uiBtn[0]->setShader();
+	CQ_uiBtn[0]->setColor(vec4(0.6f));
+	CQ_uiBtn[0]->setTRSMatrix(RotateY(90) * mxT  * Scale(2.0f, 0.1f, 2.0f));
+	CQ_uiBtn[0]->setKaKdKsShini(0, 0.8f, 0.5f, 1);*/
+
+}
+
+
+void init_skybox() {
+	mat4 mxT, mxS;
+	vec4 vT, vColor;
+
+	vT.x = 0.0f; vT.y = 0.0f; vT.z = 41.0f;
+	mxT = Translate(vT);
+	CSFloor_skybox = new CQuad;
+	CSFloor_skybox->SetTextureLayer(DIFFUSE_MAP);
+	CSFloor_skybox->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CSFloor_skybox->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+	CSFloor_skybox->setShadingMode(GOURAUD_SHADING);
+	CSFloor_skybox->setColor(vec4(0.6f));
+	CSFloor_skybox->setShader();
+	CSFloor_skybox->setTRSMatrix(mxT * RotateY(90.0f) * Scale(40.0f, 1, 40.0f));
+
+	vT.x = 0.0f; vT.y = 40.0f; vT.z = 41.0f;
+	mxT = Translate(vT);
+	vec3 vceilingNormal = vec3(0.0f, -1.0f, 0.0f);
+	CSCeiling_skybox = new CQuad;
+	CSCeiling_skybox->SetTextureLayer(DIFFUSE_MAP);
+	CSCeiling_skybox->setNormal(vceilingNormal);
+	CSCeiling_skybox->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CSCeiling_skybox->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+	CSCeiling_skybox->setTRSMatrix(mxT * RotateY(180.0f) * Scale(40.0f, 1, 40.0f));
+	CSCeiling_skybox->setShadingMode(GOURAUD_SHADING);
+	CSCeiling_skybox->setShader();
+
+
+
+	vT.x = -20.0f; vT.y = 20.0f; vT.z = 41.0f;
+	mxT = Translate(vT);
+	CQLeftWall_skybox = new CQuad;
+	CQLeftWall_skybox->SetTextureLayer(DIFFUSE_MAP);
+	CQLeftWall_skybox->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CQLeftWall_skybox->setShadingMode(GOURAUD_SHADING);
+	CQLeftWall_skybox->setShader();
+	CQLeftWall_skybox->setColor(vec4(0.6f));
+	CQLeftWall_skybox->setTRSMatrix(mxT * RotateX(90.0f) * RotateZ(-90.0f) * Scale(40.0f, 1, 40.0f));
+	CQLeftWall_skybox->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+
+
+
+	vT.x = 20.0f; vT.y = 20.0f; vT.z = 41.0f;
+	mxT = Translate(vT);
+	CQRightWall_skybox = new CQuad;
+	CQRightWall_skybox->SetTextureLayer(DIFFUSE_MAP);
+	CQRightWall_skybox->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CQRightWall_skybox->setShadingMode(GOURAUD_SHADING);
+	CQRightWall_skybox->setShader();
+	CQRightWall_skybox->setColor(vec4(0.6f));
+	CQRightWall_skybox->setTRSMatrix(mxT * RotateX(90.0f) * RotateZ(90.0f) * Scale(40.0f, 1, 40.0f));
+	CQRightWall_skybox->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+
+
+	vT.x = 0.0f; vT.y = 20.0f; vT.z = 61.0f;
+	mxT = Translate(vT);
+	CQFrontWall_skybox = new CQuad;
+	CQFrontWall_skybox->SetTextureLayer(DIFFUSE_MAP);
+	CQFrontWall_skybox->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CQFrontWall_skybox->setShadingMode(GOURAUD_SHADING);
+	CQFrontWall_skybox->setShader();
+	CQFrontWall_skybox->setColor(vec4(0.6f));
+	CQFrontWall_skybox->setTRSMatrix(mxT * RotateZ(180.0f) * RotateX(-90.0f) * Scale(40.0f, 1, 40.0f));
+	CQFrontWall_skybox->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+
+
+	vT.x = 0.0f; vT.y = 20.0f; vT.z = 21.0f;
+	mxT = Translate(vT);
+	CQBackWall_skybox = new CQuad;
+	CQBackWall_skybox->SetTextureLayer(DIFFUSE_MAP);
+	CQBackWall_skybox->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CQBackWall_skybox->setShadingMode(GOURAUD_SHADING);
+	CQBackWall_skybox->setShader();
+	CQBackWall_skybox->setColor(vec4(0.6f));
+	CQBackWall_skybox->setTRSMatrix(mxT * RotateX(90.0f) * Scale(40.0f, 1, 40.0f));
+	CQBackWall_skybox->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+
+
+
+}
 
 
 void init( void )
@@ -931,6 +1082,28 @@ void init( void )
 	g_uiFTexID_Room1[4] = texturepool->AddTexture("texture/Room1/brick_ceiling.png");
 	g_uiFTexID_Room1[5] = texturepool->AddTexture("texture/Model_texture/track.png");
 	g_uiFTexID_Room1[6] = texturepool->AddTexture("texture/Model_texture/track_normal.png");
+	g_uiFTexID_Room1[7] = texturepool->AddTexture("texture/Door/1.png");
+	g_uiFTexID_Room1[8] = texturepool->AddTexture("texture/Door/2.png");
+	g_uiFTexID_Room1[9] = texturepool->AddTexture("texture/Door/3.png");
+	g_uiFTexID_Room1[10] = texturepool->AddTexture("texture/Door/4.png");
+	g_uiFTexID_Room1[11] = texturepool->AddTexture("texture/Door/5.png");
+	g_uiFTexID_Room1[12] = texturepool->AddTexture("texture/Door/6.png");
+	g_uiFTexID_Room1[13] = texturepool->AddTexture("texture/Door/7.png");
+	g_uiFTexID_Room1[14] = texturepool->AddTexture("texture/Door/8.png");
+	g_uiFTexID_Room1[15] = texturepool->AddTexture("texture/Door/9.png");
+	g_uiFTexID_Room1[16] = texturepool->AddTexture("texture/Door/10.png");
+	g_uiFTexID_Room1[17] = texturepool->AddTexture("texture/Door/11.png");
+	g_uiFTexID_Room1[18] = texturepool->AddTexture("texture/Door/12.png");
+	g_uiFTexID_Room1[19] = texturepool->AddTexture("texture/Door/13.png");
+	g_uiFTexID_Room1[20] = texturepool->AddTexture("texture/Door/14.png");
+	g_uiFTexID_Room1[21] = texturepool->AddTexture("texture/Door/15.png");
+	g_uiFTexID_Room1[22] = texturepool->AddTexture("texture/Door/16.png");
+	g_uiFTexID_Room1[23] = texturepool->AddTexture("texture/Door/17.png");
+	g_uiFTexID_Room1[24] = texturepool->AddTexture("texture/Door/18.png");
+	g_uiFTexID_Room1[25] = texturepool->AddTexture("texture/Door/19.png");
+	g_uiFTexID_Room1[26] = texturepool->AddTexture("texture/Door/20.png");
+	g_uiFTexID_Room1[27] = texturepool->AddTexture("texture/Door/21.png");
+
 
 
 	g_uiFTexID_Room2[0] = texturepool->AddTexture("texture/Room2/PX.png");
@@ -1008,7 +1181,7 @@ void init( void )
 	
 
 
-	g_tank = new CObjReader("Model/test.obj");
+	/*g_tank = new CObjReader("Model/test.obj");
 	g_tank->SetTextureLayer(DIFFUSE_MAP); 
 	g_tank->setShader();
 	g_tank->_vT.x = 41.0f; g_tank->_vT.y = 0.0f; g_tank->_vT.z = 82.0f;
@@ -1019,11 +1192,11 @@ void init( void )
 	g_tank->setShadingMode(GOURAUD_SHADING);
 	g_tank->setMaterials(vec4(0), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	g_tank->setKaKdKsShini(0.25f, 0.8f, 0.2f, 2);
-	g_tank->SetIlightNUM(2);
+	g_tank->SetIlightNUM(2);*/
 
 
 	
-	g_gun = new CObjReader("Model/gun.obj");
+	/*g_gun = new CObjReader("Model/gun.obj");
 	g_gun->SetTextureLayer(DIFFUSE_MAP | NORMAL_MAP);
 	g_gun->setShaderName("vsNormalMapLighting.glsl", "fsNormalMapLighting.glsl");
 	g_gun->setShader();
@@ -1035,25 +1208,25 @@ void init( void )
 	g_gun->setShadingMode(GOURAUD_SHADING);
 	g_gun->setMaterials(vec4(0), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	g_gun->setKaKdKsShini(0.25f, 0.8f, 0.2f, 2);
-	g_gun->SetIlightNUM(2);
+	g_gun->SetIlightNUM(2);*/
 
-	g_Target = new CObjReader("Model/Target.obj");
-	g_Target->SetTextureLayer(DIFFUSE_MAP);
-	g_Target->setShader();
-	g_Target->_vT.x = 0.0f; g_Target->_vT.y = 0.0f; g_Target->_vT.z = 98.0f;
-	mxT = Translate(g_Target->_vT);
-	g_Target->_vS.x = g_Target->_vS.y = g_Target->_vS.z = 0.1f;
-	mxS = Scale(g_Target->_vS);
-	g_Target->setTRSMatrix(mxT* RotateX(-90)* RotateZ(180)* mxS);
-	g_Target->setShadingMode(GOURAUD_SHADING);
-	g_Target->setMaterials(vec4(0), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	g_Target->setKaKdKsShini(0.25f, 0.8f, 0.2f, 2);
-	g_Target->SetIlightNUM(2);
+	//g_Target = new CObjReader("Model/Target.obj");
+	//g_Target->SetTextureLayer(DIFFUSE_MAP);
+	//g_Target->setShader();
+	//g_Target->_vT.x = 0.0f; //g_Target->_vT.y = 0.0f; //g_Target->_vT.z = 98.0f;
+	//mxT = Translate(//g_Target->_vT);
+	//g_Target->_vS.x = //g_Target->_vS.y = //g_Target->_vS.z = 0.1f;
+	//mxS = Scale(//g_Target->_vS);
+	//g_Target->setTRSMatrix(mxT* RotateX(-90)* RotateZ(180)* mxS);
+	//g_Target->setShadingMode(GOURAUD_SHADING);
+	//g_Target->setMaterials(vec4(0), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	//g_Target->setKaKdKsShini(0.25f, 0.8f, 0.2f, 2);
+	//g_Target->SetIlightNUM(2);
 
 
 	
 
-	g_cat = new CObjReader("Model/cat.obj");
+	/*g_cat = new CObjReader("Model/cat.obj");
 	g_cat->SetTextureLayer(DIFFUSE_MAP);
 	g_cat->setShader();
 	g_cat->_vT.x = 41.0f; g_cat->_vT.y = 0.0f; g_cat->_vT.z = 41.0f;
@@ -1064,34 +1237,35 @@ void init( void )
 	g_cat->setShadingMode(GOURAUD_SHADING);
 	g_cat->setMaterials(vec4(0), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	g_cat->setKaKdKsShini(0.25f, 0.8f, 0.2f, 2);
-	g_cat->SetIlightNUM(2);
+	g_cat->SetIlightNUM(2);*/
 
 	
 	g_balcony = new CObjReader("Model/balcony.obj");
 	g_balcony->SetTextureLayer(DIFFUSE_MAP);
 	g_balcony->setShader();
-	g_balcony->_vT.x = 41.0f; g_balcony->_vT.y = 0.0f; g_balcony->_vT.z = 0.0f;
+	g_balcony->_vT.x = 53.5f; g_balcony->_vT.y = -3.0f; g_balcony->_vT.z = -20.0f;
 	mxT = Translate(g_balcony->_vT);
-	g_balcony->_vS.x = g_balcony->_vS.y = g_balcony->_vS.z = 0.008f;
+	g_balcony->_vS.x = g_balcony->_vS.y = g_balcony->_vS.z = 0.009f;
 	mxS = Scale(g_balcony->_vS);
-	g_balcony->setTRSMatrix(mxT * mxS);
+	g_balcony->setTRSMatrix(mxT * RotateY(180) * mxS);
 	g_balcony->setShadingMode(GOURAUD_SHADING);
 	g_balcony->setMaterials(vec4(0), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	g_balcony->setKaKdKsShini(0.25f, 0.8f, 0.2f, 2);
 	g_balcony->SetIlightNUM(2);
 
-	g_track = new CObjReader("Model/track.obj");
-	g_track->SetTextureLayer(DIFFUSE_MAP | NORMAL_MAP);
+	
+	g_track = new CObjReader("Model/test.obj");
+	g_track->SetTextureLayer(DIFFUSE_MAP );
 	g_track->setShader();
-	g_track->_vT.x = 0.0f; g_track->_vT.y = 5.0f; g_track->_vT.z = 5.0f;
+	g_track->_vT.x = 10.4f; g_track->_vT.y = 0.0f; g_track->_vT.z = 6.0f;
 	mxT = Translate(g_track->_vT);
-	g_track->_vS.x = g_track->_vS.y = g_track->_vS.z = 0.5f;
+	g_track->_vS.x = g_track->_vS.y = g_track->_vS.z = 1.0f;
 	mxS = Scale(g_track->_vS);
 	g_track->setTRSMatrix(mxT* mxS);
 	g_track->setShadingMode(GOURAUD_SHADING);
 	g_track->setMaterials(vec4(0), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	g_track->setKaKdKsShini(0.25f, 0.8f, 0.2f, 2);
-	g_track->SetIlightNUM(2);
+	g_track->SetIlightNUM(3);
 
 	g_Earth = new CSolidSphere();
 	g_Earth->SetTextureLayer(DIFFUSE_MAP);
@@ -1132,7 +1306,8 @@ void init( void )
 	
 
 	
-
+	init_UI();
+	init_skybox();
 	init_Room1();
 	init_Room2();
 	init_Room3();
@@ -1143,15 +1318,15 @@ void init( void )
 	bool bPDirty;
 	mat4 mpx = camera->getProjectionMatrix(bPDirty);
 	
-	CSSphere->setProjectionMatrix(mpx);
-	g_tank->setProjectionMatrix(mpx);
-	g_Target->setProjectionMatrix(mpx);
-	CSCube_glass->setProjectionMatrix(mpx);
-	g_Sun->setProjectionMatrix(mpx);
-	g_Earth->setProjectionMatrix(mpx);
-	g_Moon->setProjectionMatrix(mpx);
-	g_gun->setProjectionMatrix(mpx);
-	g_cat->setProjectionMatrix(mpx);
+	//CSSphere->setProjectionMatrix(mpx);
+	//g_tank->setProjectionMatrix(mpx);
+	////g_Target->setProjectionMatrix(mpx);
+	//CSCube_glass->setProjectionMatrix(mpx);
+	//g_Sun->setProjectionMatrix(mpx);
+	//g_Earth->setProjectionMatrix(mpx);
+	//g_Moon->setProjectionMatrix(mpx);
+	//g_gun->setProjectionMatrix(mpx);
+	//g_cat->setProjectionMatrix(mpx);
 	g_balcony->setProjectionMatrix(mpx);
 	g_track->setProjectionMatrix(mpx);
 
@@ -1162,7 +1337,9 @@ void init( void )
 	CQBackWall_Room1->setProjectionMatrix(mpx);
 	CSFloor_Room1->setProjectionMatrix(mpx);
 	CSCeiling_Room1->setProjectionMatrix(mpx);
-	CSDoor1->setProjectionMatrix(mpx);
+	CQDoor1_Room1->setProjectionMatrix(mpx);
+	CQDoor2_Room1->setProjectionMatrix(mpx);
+	
 
 	CQRightWall_Room2->setProjectionMatrix(mpx);
 	CQLeftWall_Room2->setProjectionMatrix(mpx);
@@ -1202,11 +1379,14 @@ void init( void )
 	CQBackWall_Room6->setProjectionMatrix(mpx);
 	CSFloor_Room6->setProjectionMatrix(mpx);
 	CSCeiling_Room6->setProjectionMatrix(mpx);
-	CSDoor6->setProjectionMatrix(mpx);
+	CQDoor1_Room6->setProjectionMatrix(mpx);
+	CQDoor2_Room6->setProjectionMatrix(mpx);
 	
 }
 
 //----------------------------------------------------------------------------
+
+int door_txCount = 7; //texture張數
 void GL_Display( void )
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the window
@@ -1219,16 +1399,16 @@ void GL_Display( void )
 	glBindTexture(GL_TEXTURE_CUBE_MAP, g_uiSphereCubeMap);
 	CSSphere->draw();*/
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room4[2]);
+
+	
+	/*glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[2]);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room4[3]);
-	g_gun->draw();
+	g_gun->draw();*/
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[5]);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[6]);
+	/*glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[2]);
 	g_track->draw();
 
 
@@ -1248,26 +1428,30 @@ void GL_Display( void )
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[1]);
 	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, g_uiLightTexID_Room1);
+	if (bfinish ==false)
+		glBindTexture(GL_TEXTURE_2D, 0);
+	else
+		glBindTexture(GL_TEXTURE_2D, g_uiLightTexID_Room1);
+	
 	CSFloor_Room1->draw();
 	
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[4]);
-	CSCeiling_Room1->draw();
+	CSCeiling_Room1->draw();*/
 
-	glActiveTexture(GL_TEXTURE0);
-	CSDoor1->draw();
+	
 
-	glActiveTexture(GL_TEXTURE0);
+	/*glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[2]);
-	g_tank->draw();
+	g_tank->draw();*/
 
-	glActiveTexture(GL_TEXTURE0);
+	/*glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room3[1]);
-	g_Target->draw();
+	g_Target->draw();*/
 
-	glActiveTexture(GL_TEXTURE0);
+
+	/*glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room2[0]);
 	CQBackWall_Room2->draw();
 	glActiveTexture(GL_TEXTURE0);
@@ -1330,17 +1514,17 @@ void GL_Display( void )
 	CSDoor5->draw();
 
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room5[1]);
-	g_cat->draw();
+	g_cat->draw();*/
 
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room6);
-	CQRightWall_Room6->draw();
+	
 	CQLeftWall_Room6->draw();
 	CQFrontWall_Room6->draw();
 	CQBackWall_Room6->draw();
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room4[1]);
 	CSFloor_Room6->draw();
 	CSCeiling_Room6->draw();
-	CSDoor6->draw();
+	
 	
 	g_balcony->draw();
 
@@ -1352,7 +1536,25 @@ void GL_Display( void )
 	//CSCube_glass->draw();
 	//glDisable(GL_BLEND);	// 關閉 Blending
 	//glDepthMask(GL_TRUE);	// 開啟對 Z-Buffer 的寫入操作
+
+	
+
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //blend GL_ONE_MINUS_SRC_ALPHA ：(1,1,1,1)-(sa , sa , sa , sa)
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[door_txCount]);
+	//CQDoor1_Room1->draw();
+	//CQDoor2_Room1->draw();
+	CQDoor1_Room6->draw();
+	CQDoor2_Room6->draw();
+	glActiveTexture(GL_TEXTURE0);
+	glDepthMask(GL_FALSE);
 	glBindTexture(GL_TEXTURE_2D, 0);
+	CQRightWall_Room6->draw();
+	glDisable(GL_BLEND);	// 關閉 Blending
+	glDepthMask(GL_TRUE);	// 開啟對 Z-Buffer 的寫入操作
+
+
+	
 	
 	glutSwapBuffers();	// 交換 Frame Buffer
 }
@@ -1375,8 +1577,30 @@ void UpdateLightPosition(float dt)
 }
 //----------------------------------------------------------------------------
 
+float door_delta; //計算幾秒換一次門
 void onFrameMove(float delta)
 {
+	
+
+
+	//計算0.2秒換一次門的貼圖
+	door_delta += delta;
+	if (door_delta>0.03f) //0.2秒換圖
+	{
+		door_txCount++;
+		if (door_txCount == 28)
+			door_txCount = 7;
+			door_delta = 0.0f;
+	}
+
+
+	if ((Light_resulte_Room1[1].position.x < Light_resulte_Room1[2].position.x + 0.25f && Light_resulte_Room1[1].position.x > Light_resulte_Room1[2].position.x - 0.25f )&& (Light_resulte_Room1[1].position.z < Light_resulte_Room1[2].position.z + 0.25f && Light_resulte_Room1[1].position.z > Light_resulte_Room1[2].position.z - 0.25f)) { //燈光於相同範圍則結束遊戲
+
+		bfinish = true;
+
+	}
+
+
 
 	g_at = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi) + g_fCameraMoveX,
 		g_fRadius * cos(g_fTheta) + g_fCameraMoveY,
@@ -1401,16 +1625,16 @@ void onFrameMove(float delta)
 
 		float fAngle; //旋轉角度
 		vec4 cameraPosition = camera->getViewPosition();
-		g_tank->setViewMatrix(mvx);
+		/*g_tank->setViewMatrix(mvx);
 		fAngle = g_tank->billboardCylindricalBegin(g_tank->_vT.x, g_tank->_vT.y, g_tank->_vT.z, cameraPosition.x, cameraPosition.y, cameraPosition.z);
-		g_tank->setTRSMatrix(Translate(g_tank->_vT) * RotateY(fAngle) * Scale(g_tank->_vS));
+		g_tank->setTRSMatrix(Translate(g_tank->_vT) * RotateY(fAngle) * Scale(g_tank->_vS));*/
 		
-		g_Target->setViewMatrix(mvx);
-		g_Sun->setViewMatrix(mvx);
+		//g_Target->setViewMatrix(mvx);
+		/*g_Sun->setViewMatrix(mvx);
 		g_Earth->setViewMatrix(mvx);
 		g_Moon->setViewMatrix(mvx);
 		g_gun->setViewMatrix(mvx);
-		g_cat->setViewMatrix(mvx);
+		g_cat->setViewMatrix(mvx);*/
 		g_balcony->setViewMatrix(mvx);
 		g_track->setViewMatrix(mvx);
 
@@ -1420,7 +1644,9 @@ void onFrameMove(float delta)
 		CQBackWall_Room1->setViewMatrix(mvx);
 		CSCeiling_Room1->setViewMatrix(mvx);
 		CSFloor_Room1->setViewMatrix(mvx);
-		CSDoor1->setViewMatrix(mvx);
+		CQDoor1_Room1->setViewMatrix(mvx);
+		CQDoor2_Room1->setViewMatrix(mvx);
+		
 
 		CQRightWall_Room2->setViewMatrix(mvx);
 		CQLeftWall_Room2->setViewMatrix(mvx);
@@ -1461,7 +1687,8 @@ void onFrameMove(float delta)
 		CQBackWall_Room6->setViewMatrix(mvx);
 		CSFloor_Room6->setViewMatrix(mvx);
 		CSCeiling_Room6->setViewMatrix(mvx);
-		CSDoor6->setViewMatrix(mvx);
+		CQDoor1_Room6->setViewMatrix(mvx);
+		CQDoor2_Room6->setViewMatrix(mvx);
 
 	}
 
@@ -1473,10 +1700,10 @@ void onFrameMove(float delta)
 
 	
 
-	g_tank->update(delta, Light_resulte_Room4);
+	/*g_tank->update(delta, Light_resulte_Room4);
 	CSCube_glass->update(delta, Light_resulte_Room1);
 	g_gun->update(delta, Light_resulte_Room1);
-	g_cat->update(delta, Light_resulte_Room5);
+	g_cat->update(delta, Light_resulte_Room5);*/
 	g_balcony->update(delta, Light_resulte_Room1);
 	g_track->update(delta, Light_resulte_Room1);
 
@@ -1486,7 +1713,9 @@ void onFrameMove(float delta)
 	CQLeftWall_Room1->update(delta, Light_resulte_Room1);
 	CQFrontWall_Room1->update(delta, Light_resulte_Room1);
 	CQBackWall_Room1->update(delta, Light_resulte_Room1);
-	CSDoor1->update(delta, Light_resulte_Room1);
+	CQDoor1_Room1->update(delta, Light_resulte_Room1);
+	CQDoor2_Room1->update(delta, Light_resulte_Room1);
+
 
 	g_Sun->update(delta, Light_resulte_Room2);
 	g_Earth->update(delta, Light_resulte_Room2);
@@ -1501,7 +1730,7 @@ void onFrameMove(float delta)
 	CSDoor2->update(delta, Light_resulte_Room2);
 
 
-	g_Target->update(delta, Light_resulte_Room3);
+	//g_Target->update(delta, Light_resulte_Room3);
 	CQRightWall_Room3->update(delta, Light_resulte_Room3);
 	CQLeftWall_Room3->update(delta, Light_resulte_Room3);
 	CQFrontWall_Room3->update(delta, Light_resulte_Room3);
@@ -1533,7 +1762,8 @@ void onFrameMove(float delta)
 	CQBackWall_Room6->update(delta, Light_resulte_Room6);
 	CSFloor_Room6->update(delta, Light_resulte_Room6);
 	CSCeiling_Room6->update(delta, Light_resulte_Room6);
-	CSDoor6->update(delta, Light_resulte_Room6);
+	CQDoor1_Room6->update(delta, Light_resulte_Room6);
+	CQDoor2_Room6->update(delta, Light_resulte_Room6);
 
 	GL_Display();
 }
@@ -1543,6 +1773,11 @@ void onFrameMove(float delta)
 void Win_Keyboard( unsigned char key, int x, int y )
 {
     switch ( key ) {
+
+	case'F':
+	case'f':
+		bGoFree = !bGoFree;
+		break;
 	case 65://A
 	case 97://a
 		//燈光旋轉
@@ -1596,20 +1831,54 @@ void Win_Keyboard( unsigned char key, int x, int y )
 		printf("( %f , %f , %f )\n", eye.x, eye.y, eye.z);
 		break;
 
+    //遙控器車
+	
+		case '8': //上
+			if (!bfinish) {
+				Light_resulte_Room1[1].position.z += 1.0f;
+				g_track->_vT.z += 1.0f;
+				g_track->setTRSMatrix(Translate(g_track->_vT));
+			}
+			break;
+		case '5': //下
+			if (!bfinish) {
+				Light_resulte_Room1[1].position.z -= 1.0f;
+				g_track->_vT.z -= 1.0f;
+				g_track->setTRSMatrix(Translate(g_track->_vT));
+			}
+			break;
+		case '4'://左
+			if (!bfinish) {
+				Light_resulte_Room1[1].position.x += 1.0f;
+				g_track->_vT.x += 1.0f;
+				g_track->setTRSMatrix(Translate(g_track->_vT));
+			}
+			break;
+		case '6'://右
+			if (!bfinish) {
+				Light_resulte_Room1[1].position.x -= 1.0f;
+				g_track->_vT.x -= 1.0f;
+				g_track->setTRSMatrix(Translate(g_track->_vT));
+			}
+			break;
+	
     case 033:
 		glutIdleFunc(NULL);
 
 		delete CSSphere;
-		delete g_tank;
+		/*delete g_tank;
 		delete CSCube_glass;
 		delete g_Target;
 		delete g_Sun;
 		delete g_Earth;
 		delete g_Moon;
 		delete g_gun;
-		delete g_cat;
+		delete g_cat;*/
 		delete g_balcony;
 		delete g_track;
+		for (int i = 0; i < 4; i++)
+			delete CQ_uiBtn[i];
+
 
 		delete CSFloor_Room1;
 		delete CSCeiling_Room1;
@@ -1617,7 +1886,9 @@ void Win_Keyboard( unsigned char key, int x, int y )
 		delete CQLeftWall_Room1;
 		delete CQFrontWall_Room1;
 		delete CQBackWall_Room1;
-		delete CSDoor1;
+		delete CQDoor1_Room1;
+		delete CQDoor2_Room1;
+
 		
 		delete CSCeiling_Room2;
 		delete CSFloor_Room2;
@@ -1657,7 +1928,8 @@ void Win_Keyboard( unsigned char key, int x, int y )
 		delete CQLeftWall_Room6;
 		delete CQFrontWall_Room6;
 		delete CQBackWall_Room6;
-		delete CSDoor6;
+		delete CQDoor1_Room6;
+		delete CQDoor2_Room6;
 		CCamera::getInstance()->destroyInstance();
 		CTexturePool::getInstance()->destroyInstance();
         exit( EXIT_SUCCESS );
@@ -1675,14 +1947,13 @@ inline void ScreenToUICoordinate(int x, int y, vec2& pt) {
 //----------------------------------------------------------------------------
 void Win_Mouse(int button, int state, int x, int y) {
 	
-
-
+	
 
 }
 //----------------------------------------------------------------------------
 
 
-bool bInRoom[12] = { false };  //哪間房間
+bool bInRoom[13] = { false };  //哪間房間
 float Room1_x_big = 18.5f;
 float Room1_x_small = -18.5;
 float Room1_y_big = 18.5f;
@@ -1750,11 +2021,16 @@ float c6_x_small = 15.0f;
 float c6_y_big = 12.0f;
 float c6_y_small = -5.0f;
 
+float c7_x_big = 59.0f;
+float c7_x_small = 49.0f;
+float c7_y_big = -15.0f;
+float c7_y_small = -24.5f;
+
 
 
 
 void reset_bInRoom() { //將bInRoom歸零以便重新判斷
-	for (int i = 0; i < 12; i++)
+	for (int i = 0; i < 13; i++)
 	{
 		bInRoom[i] = false;
 	}
@@ -1792,6 +2068,12 @@ void detectWhichPart() { //判斷目前位在哪個房間
 	else if ((g_fCameraMoveX <= c6_x_big && g_fCameraMoveX >= c6_x_small && g_fCameraMoveZ <= c6_y_big && g_fCameraMoveZ >= c6_y_small)) { //c6
 		bInRoom[11] = true;
 		printf("im in c6\n");
+	}
+
+
+	else if ((g_fCameraMoveX <= c7_x_big && g_fCameraMoveX >= c7_x_small && g_fCameraMoveZ <= c7_y_big && g_fCameraMoveZ >= c7_y_small)) { //c7
+		bInRoom[12] = true;
+		printf("im in c7\n");
 	}
 
 
@@ -2835,8 +3117,90 @@ void Win_SpecialKeyboard(int key, int x, int y) {
 
 	}
 
+	else if (bInRoom[12]) { //若位於c7 時的範圍
+	switch (key)
+	{
+	case GLUT_KEY_UP:
+		g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
+		g_MoveDir = normalize(g_MoveDir);
+		g_matMoveDir = Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
 
-	else //無範圍限制
+		if (g_fCameraMoveX <= c7_x_big && g_fCameraMoveX >= c7_x_small)
+			g_fCameraMoveX += (g_matMoveDir._m[0][3] * 3.0f);
+		if (g_fCameraMoveZ <= c7_y_big && g_fCameraMoveZ >= c7_y_small)
+			g_fCameraMoveZ += (g_matMoveDir._m[2][3] * 3.0f);
+
+		//避免穿牆
+		if (g_fCameraMoveX >= c7_x_big) g_fCameraMoveX = c7_x_big;
+		else if (g_fCameraMoveX < c7_x_small) g_fCameraMoveX = c7_x_small;
+		if (g_fCameraMoveZ >= c7_y_big) g_fCameraMoveZ = c7_y_big;
+		else if (g_fCameraMoveZ <= c7_y_small) g_fCameraMoveZ = c7_y_small;
+		printf("%f , %f\n", g_fCameraMoveX, g_fCameraMoveZ);
+		break;
+	case GLUT_KEY_DOWN:
+		g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
+		g_MoveDir = normalize(g_MoveDir);
+		g_matMoveDir = Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
+
+		//if (g_fCameraMoveX <= 18.5f && g_fCameraMoveX >= -18.5f)
+		g_fCameraMoveX -= (g_matMoveDir._m[0][3] * 3.0f);
+		//if (g_fCameraMoveZ <= 18.5f && g_fCameraMoveZ >= -18.5f)
+		g_fCameraMoveZ -= (g_matMoveDir._m[2][3] * 3.0f);
+
+		//避免穿牆
+		/*if (g_fCameraMoveX > 18.5) g_fCameraMoveX = 18.5f;
+		else if (g_fCameraMoveX < -18.5) g_fCameraMoveX = -18.5f;
+		if (g_fCameraMoveZ > 18.5) g_fCameraMoveZ = 18.5f;
+		else if (g_fCameraMoveZ < -18.5) g_fCameraMoveZ = -18.5f;*/
+		printf("%f , %f\n", g_fCameraMoveX, g_fCameraMoveZ);
+
+		break;
+	case GLUT_KEY_LEFT:
+		g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
+		g_MoveDir = normalize(g_MoveDir);
+		g_matMoveDir = RotateY(90.f) * Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
+
+		if (g_fCameraMoveX <= c7_x_big && g_fCameraMoveX >= c7_x_small)
+			g_fCameraMoveX += (g_matMoveDir._m[0][3] * 3.0f);
+		/*if (g_fCameraMoveZ <= 18.5f && g_fCameraMoveZ >= -18.5f)
+			g_fCameraMoveZ += (g_matMoveDir._m[2][3] * 3.0f);*/
+
+			//避免穿牆
+		if (g_fCameraMoveX >= c7_x_big) g_fCameraMoveX = c7_x_big;
+		else if (g_fCameraMoveX <= c7_x_small) g_fCameraMoveX = c7_x_small;
+		/*if (g_fCameraMoveZ > 18.5) g_fCameraMoveZ = 18.5f;
+		else if (g_fCameraMoveZ < -18.5) g_fCameraMoveZ = -18.5f;*/
+		printf("%f , %f\n", g_fCameraMoveX, g_fCameraMoveZ);
+
+		break;
+	case GLUT_KEY_RIGHT:
+		g_MoveDir = vec4(g_fRadius * sin(g_fTheta) * sin(g_fPhi), 0.f, g_fRadius * sin(g_fTheta) * cos(g_fPhi), 1.f);
+		g_MoveDir = normalize(g_MoveDir);
+		g_matMoveDir = RotateY(90.f) * Translate(g_MoveDir.x, 0.f, g_MoveDir.z);
+
+		if (g_fCameraMoveX <= c7_x_big && g_fCameraMoveX >= c7_x_small)
+			g_fCameraMoveX -= (g_matMoveDir._m[0][3] * 3.0f);
+		/*if (g_fCameraMoveZ <= 18.5f && g_fCameraMoveZ >= -18.5f)
+			g_fCameraMoveZ -= (g_matMoveDir._m[2][3] * 3.0f);*/
+
+			//避免穿牆
+		if (g_fCameraMoveX >= 3.0) g_fCameraMoveX = c7_x_big;
+		else if (g_fCameraMoveX <= c7_x_small) g_fCameraMoveX = c7_x_small;
+		/*if (g_fCameraMoveZ > 18.5) g_fCameraMoveZ = 18.5f;
+		else if (g_fCameraMoveZ < -18.5) g_fCameraMoveZ = -18.5f;*/
+		printf("%f , %f\n", g_fCameraMoveX, g_fCameraMoveZ);
+		break;
+
+
+
+	default:
+		break;
+	}
+
+	}
+
+
+	if(bGoFree) //無範圍限制
 	{
 		
 		switch (key)
