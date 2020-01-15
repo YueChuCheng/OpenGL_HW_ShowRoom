@@ -63,11 +63,11 @@ CSolidSphere* CSSphere; //environment map
 
 							  
 //model
-//CObjReader* g_tank; //坦克車
+CObjReader* g_tank; //坦克車
 CObjReader* g_Target; //標靶
 CObjReader* g_gun; //槍
 CSolidSphere* g_bullet; //子彈
-//CObjReader* g_cat; //貓
+CObjReader* g_cat; //貓
 CObjReader* g_balcony; //陽台
 CObjReader* g_track; //卡車
 CQuad* bulletMark[20]; //子彈痕
@@ -85,7 +85,6 @@ CQuad* CQFrontWall_Room1;
 CQuad* CQBackWall_Room1;
 
 //Room1 decorate
-CQuad* CSCube_glass; //test glass texture
 CQuad* CQDoor1_Room1; //door
 CQuad* CQDoor2_Room1; //door
 
@@ -99,7 +98,8 @@ CQuad* CQBackWall_Room2;
 CQuad* CQFrontWall_Room2;
 
 //Room2 decorate
-CSolidCube* CSDoor2; //door
+CQuad* CQDoor1_Room2; //door
+CQuad* CQDoor2_Room2; //door
 CSolidSphere* g_Earth; //地球
 CSolidSphere* g_Sun; //太陽
 CSolidSphere* g_Moon; //月亮
@@ -127,8 +127,8 @@ CQuad* CQBackWall_Room4;
 CQuad* CQFrontWall_Room4;
 
 //Room4 decorate
-CSolidCube* CSDoor4; //door
-
+CQuad* CQDoor1_Room4; //door
+CQuad* CQDoor2_Room4; //door
 
 //Room5 Wall
 CQuad* CSFloor_Room5;
@@ -139,7 +139,8 @@ CQuad* CQBackWall_Room5;
 CQuad* CQFrontWall_Room5;
 
 //Room5 decorate
-CSolidCube* CSDoor5; //door
+CQuad* CQDoor1_Room5; //door
+CQuad* CQDoor2_Room5; //door
 
 //Room6 Wall
 CQuad* CSFloor_Room6;
@@ -158,7 +159,7 @@ CQuad* CQDoor2_Room6; //door
 GLfloat g_fRadius = 120.0; //視覺範圍
 GLfloat g_fTheta = 60.0f * DegreesToRadians;
 GLfloat g_fPhi = 45.0f * DegreesToRadians;
-GLfloat g_fCameraMoveX = 0.f;				// for camera movment
+GLfloat g_fCameraMoveX = 41.f;				// for camera movment
 GLfloat g_fCameraMoveY = 7.0f;				// for camera movment
 GLfloat g_fCameraMoveZ = 82.0f;				// for camera movment
 mat4	g_matMoveDir;		// 鏡頭移動方向
@@ -210,7 +211,7 @@ LightSource  Light_center_Room2 = {
 	color4(g_fLightR, g_fLightG, g_fLightB, 1.0f), // ambient 
 	color4(1.8, 1.8, 1.8, 1.0f), // diffuse
 	color4(g_fLightR, g_fLightG, g_fLightB, 1.0f), // specular
-	point4(_fLightRadius, 15.0f, 40.0f, 1.0f),   // position
+	point4(0.0f, 23.0f, 41.0f, 1.0f),   // position
 	point4(0.0f, 0.0f, 0.0f, 1.0f),   // halfVector
 	vec3(0.0f, 0.0f, 0.0f),		  //spotTarget
 	vec3(_fLightRadius, 0.0f, 0.0f),			  //spotDirection
@@ -260,14 +261,14 @@ LightSource  Light_center_Room4 = {
 LightSource  Light_center_Room5 = {
 
 	color4(g_fLightR, g_fLightG, g_fLightB, 1.0f), // ambient 
-	color4(1.8, 1.8, 1.8, 1.0f), // diffuse
+	color4(g_fLightR, g_fLightG, g_fLightB, 1.0f), // diffuse
 	color4(g_fLightR, g_fLightG, g_fLightB, 1.0f), // specular
 	point4(_fLightRadius + 40 , 15.0f, 40.0f, 1.0f),   // position
 	point4(0.0f, 0.0f, 0.0f, 1.0f),   // halfVector
 	vec3(0.0f, 0.0f, 0.0f),		  //spotTarget
 	vec3(_fLightRadius, 0.0f, 0.0f),			  //spotDirection
 	1.0f	,	// spotExponent(parameter e); cos^(e)(phi) 
-	-0.0f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
+	0.0f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
 	1.0f	,	// spotCosCutoff; // (range: [1.0,0.0],-1.0), 照明方向與被照明點之間的角度取 cos 後, cut off 的值
 	1	,	// constantAttenuation	(a + bd + cd^2)^-1 中的 a, d 為光源到被照明點的距離
 	0	,	// linearAttenuation	    (a + bd + cd^2)^-1 中的 b
@@ -529,9 +530,10 @@ void init_Room2() {
 	vT.x = 0.0f; vT.y = 0.0f; vT.z = 41.0f;
 	mxT = Translate(vT);
 	CSFloor_Room2 = new CQuad;
+	CSFloor_Room2->setShaderName("vsSkyBox.glsl", "fsSkyBox.glsl");
 	CSFloor_Room2->SetTextureLayer(DIFFUSE_MAP);
 	CSFloor_Room2->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	CSFloor_Room2->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+	CSFloor_Room2->setKaKdKsShini(0.8f, 0.8f, 0.5f, 1);
 	CSFloor_Room2->setShadingMode(GOURAUD_SHADING);
 	CSFloor_Room2->setColor(vec4(0.6f));
 	CSFloor_Room2->setShader();
@@ -541,10 +543,11 @@ void init_Room2() {
 	mxT = Translate(vT);
 	vec3 vceilingNormal = vec3(0.0f, -1.0f, 0.0f);
 	CSCeiling_Room2 = new CQuad;
+	CSCeiling_Room2->setShaderName("vsSkyBox.glsl", "fsSkyBox.glsl");
 	CSCeiling_Room2->SetTextureLayer(DIFFUSE_MAP);
 	CSCeiling_Room2->setNormal(vceilingNormal);
 	CSCeiling_Room2->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	CSCeiling_Room2->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+	CSCeiling_Room2->setKaKdKsShini(0.8f, 0.8f, 0.5f, 1);
 	CSCeiling_Room2->setTRSMatrix(mxT * RotateY(180.0f) * Scale(40.0f, 1, 40.0f));
 	CSCeiling_Room2->setShadingMode(GOURAUD_SHADING);
 	CSCeiling_Room2->setShader();
@@ -554,62 +557,82 @@ void init_Room2() {
 	vT.x = -20.0f; vT.y = 20.0f; vT.z = 41.0f;
 	mxT = Translate(vT);
 	CQLeftWall_Room2 = new CQuad;
+	CQLeftWall_Room2->setShaderName("vsSkyBox.glsl", "fsSkyBox.glsl");
 	CQLeftWall_Room2->SetTextureLayer(DIFFUSE_MAP);
 	CQLeftWall_Room2->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	CQLeftWall_Room2->setShadingMode(GOURAUD_SHADING);
 	CQLeftWall_Room2->setShader();
 	CQLeftWall_Room2->setColor(vec4(0.6f));
 	CQLeftWall_Room2->setTRSMatrix(mxT  * RotateX(90.0f) * RotateZ(-90.0f) * Scale(40.0f, 1, 40.0f));
-	CQLeftWall_Room2->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+	CQLeftWall_Room2->setKaKdKsShini(0.8f, 0.8f, 0.5f, 1);
 	
 
 
 	vT.x = 20.0f; vT.y = 20.0f; vT.z = 41.0f;
 	mxT = Translate(vT);
 	CQRightWall_Room2 = new CQuad;
+	CQRightWall_Room2->setShaderName("vsSkyBox.glsl", "fsSkyBox.glsl");
 	CQRightWall_Room2->SetTextureLayer(DIFFUSE_MAP);
 	CQRightWall_Room2->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	CQRightWall_Room2->setShadingMode(GOURAUD_SHADING);
 	CQRightWall_Room2->setShader();
 	CQRightWall_Room2->setColor(vec4(0.6f));
 	CQRightWall_Room2->setTRSMatrix(mxT * RotateX(90.0f) * RotateZ(90.0f) * Scale(40.0f, 1, 40.0f));
-	CQRightWall_Room2->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+	CQRightWall_Room2->setKaKdKsShini(0.8f, 0.8f, 0.5f, 1);
 
 
 	vT.x = 0.0f; vT.y = 20.0f; vT.z = 61.0f;
 	mxT = Translate(vT);
 	CQFrontWall_Room2 = new CQuad;
+	CQFrontWall_Room2->setShaderName("vsSkyBox.glsl", "fsSkyBox.glsl");
 	CQFrontWall_Room2->SetTextureLayer(DIFFUSE_MAP);
 	CQFrontWall_Room2->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	CQFrontWall_Room2->setShadingMode(GOURAUD_SHADING);
 	CQFrontWall_Room2->setShader();
 	CQFrontWall_Room2->setColor(vec4(0.6f));
 	CQFrontWall_Room2->setTRSMatrix(mxT * RotateZ(180.0f) * RotateX(-90.0f) * Scale(40.0f, 1, 40.0f));
-	CQFrontWall_Room2->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+	CQFrontWall_Room2->setKaKdKsShini(0.8f, 0.8f, 0.5f, 1);
 
 
 	vT.x = 0.0f; vT.y = 20.0f; vT.z = 21.0f;
 	mxT = Translate(vT);
 	CQBackWall_Room2 = new CQuad;
+	CQBackWall_Room2->setShaderName("vsSkyBox.glsl", "fsSkyBox.glsl");
 	CQBackWall_Room2->SetTextureLayer(DIFFUSE_MAP);
 	CQBackWall_Room2->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	CQBackWall_Room2->setShadingMode(GOURAUD_SHADING);
 	CQBackWall_Room2->setShader();
 	CQBackWall_Room2->setColor(vec4(0.6f));
 	CQBackWall_Room2->setTRSMatrix(mxT * RotateX(90.0f) * Scale(40.0f, 1, 40.0f));
-	CQBackWall_Room2->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+	CQBackWall_Room2->setKaKdKsShini(0.8f, 0.8f, 0.5f, 1);
 
 
 	
-	vT.x = 0.0f; vT.y = 13.0f; vT.z = 62.0f;
+	vT.x = 0.0f; vT.y = 10.0f; vT.z = 21.5f;
 	mxT = Translate(vT);
-	CSDoor2 = new CSolidCube;
-	CSDoor2->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.0f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	CSDoor2->setShadingMode(GOURAUD_SHADING);
-	CSDoor2->setShader();
-	CSDoor2->setColor(vec4(0.6f));
-	CSDoor2->setTRSMatrix(mxT * RotateX(-90.0f) * Scale(12.0f, 4.0f, 28.0f));
-	CSDoor2->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+	CQDoor1_Room2 = new CQuad;
+	CQDoor1_Room2->SetTextureLayer(DIFFUSE_MAP);
+	CQDoor1_Room2->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.0f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CQDoor1_Room2->setShadingMode(GOURAUD_SHADING);
+	CQDoor1_Room2->setShader();
+	CQDoor1_Room2->setColor(vec4(0.6f));
+	CQDoor1_Room2->setTRSMatrix(mxT * RotateX(90.0f) * Scale(13.0f, 4.0f, 13.0f));
+	CQDoor1_Room2->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+
+
+	vT.x = 0.0f; vT.y = 10.0f; vT.z = 59.5f;
+	mxT = Translate(vT);
+	CQDoor2_Room2 = new CQuad;
+	CQDoor2_Room2->SetTextureLayer(DIFFUSE_MAP);
+	CQDoor2_Room2->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.0f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CQDoor2_Room2->setShadingMode(GOURAUD_SHADING);
+	CQDoor2_Room2->setShader();
+	CQDoor2_Room2->setColor(vec4(0.6f));
+	CQDoor2_Room2->setTRSMatrix(mxT * RotateX(-90.0f) * Scale(13.0f, 4.0f, 13.0f));
+	CQDoor2_Room2->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+
+
+	
 
 
 }
@@ -771,9 +794,8 @@ void init_Room4() {
 	vT.x = 61.0f; vT.y = 20.0f; vT.z = 82.0f;
 	mxT = Translate(vT);
 	CQRightWall_Room4 = new CQuad;
-	CQRightWall_Room4->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CQRightWall_Room4->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 0.5), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	CQRightWall_Room4->setShadingMode(GOURAUD_SHADING);
-	CQRightWall_Room4->SetTextureLayer(DIFFUSE_MAP);
 	CQRightWall_Room4->setShader();
 	CQRightWall_Room4->setColor(vec4(0.6f));
 	CQRightWall_Room4->setTRSMatrix(mxT * RotateX(90.0f) * RotateZ(90.0f) * Scale(40.0f, 1, 40.0f));
@@ -804,15 +826,29 @@ void init_Room4() {
 	CQBackWall_Room4->setKaKdKsShini(0, 0.8f, 0.5f, 1);
 
 
-	vT.x = 41.0f; vT.y = 13.0f; vT.z = 62.0f;
+	vT.x = 21.5f; vT.y = 10.0f; vT.z = 82.0f;
 	mxT = Translate(vT);
-	CSDoor4 = new CSolidCube;
-	CSDoor4->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.0f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	CSDoor4->setShadingMode(GOURAUD_SHADING);
-	CSDoor4->setShader();
-	CSDoor4->setColor(vec4(0.6f));
-	CSDoor4->setTRSMatrix(mxT * RotateX(-90.0f) * Scale(12.0f, 4.0f, 28.0f));
-	CSDoor4->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+	CQDoor1_Room4 = new CQuad;
+	CQDoor1_Room4->setMaterials(vec4(0.4f, 0.4f, 0.4f, 1.0f), vec4(0.0f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CQDoor1_Room4->SetTextureLayer(DIFFUSE_MAP);
+	CQDoor1_Room4->setShadingMode(GOURAUD_SHADING);
+	CQDoor1_Room4->setShader();
+	CQDoor1_Room4->setColor(vec4(0.6f));
+	CQDoor1_Room4->setTRSMatrix(mxT * RotateZ(-90.0f) * Scale(13.0f, 1.0f, 13.0f));
+	CQDoor1_Room4->setKaKdKsShini(0.8f, 1.5f, 0.5f, 1);
+	
+	vT.x = 41.0f; vT.y = 10.0f; vT.z = 62.5f;
+	mxT = Translate(vT);
+	CQDoor2_Room4 = new CQuad;
+	CQDoor2_Room4->setMaterials(vec4(0.4f, 0.4f, 0.4f, 1.0f), vec4(0.0f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CQDoor2_Room4->SetTextureLayer(DIFFUSE_MAP);
+	CQDoor2_Room4->setShadingMode(GOURAUD_SHADING);
+	CQDoor2_Room4->setShader();
+	CQDoor2_Room4->setColor(vec4(0.6f));
+	CQDoor2_Room4->setTRSMatrix(mxT * RotateX(90.0f) * Scale(13.0f, 1.0f, 13.0f));
+	CQDoor2_Room4->setKaKdKsShini(0.8f, 1.5f, 0.5f, 1);
+
+
 	
 
 }
@@ -897,15 +933,31 @@ void init_Room5() {
 
 
 
-	vT.x = 41.0f; vT.y = 13.0f; vT.z = 21.0f;
+	vT.x = 41.0f; vT.y = 10.0f; vT.z = 22.5f;
 	mxT = Translate(vT);
-	CSDoor5 = new CSolidCube;
-	CSDoor5->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.0f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	CSDoor5->setShadingMode(GOURAUD_SHADING);
-	CSDoor5->setShader();
-	CSDoor5->setColor(vec4(0.6f));
-	CSDoor5->setTRSMatrix(mxT * RotateX(-90.0f) * Scale(12.0f, 4.0f, 28.0f));
-	CSDoor5->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+	CQDoor1_Room5 = new CQuad;
+	CQDoor1_Room5->setMaterials(vec4(0.4f, 0.4f, 0.4f, 1.0f), vec4(0.0f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CQDoor1_Room5->SetTextureLayer(DIFFUSE_MAP);
+	CQDoor1_Room5->setShadingMode(GOURAUD_SHADING);
+	CQDoor1_Room5->setShader();
+	CQDoor1_Room5->setColor(vec4(0.6f));
+	CQDoor1_Room5->setTRSMatrix(mxT * RotateX(90.0f) * Scale(13.0f, 1.0f, 13.0f));
+	CQDoor1_Room5->setKaKdKsShini(0.8f, 1.5f, 0.5f, 1);
+
+
+	vT.x = 41.0f; vT.y = 10.0f; vT.z = 60.5f;
+	mxT = Translate(vT);
+	CQDoor2_Room5 = new CQuad;
+	CQDoor2_Room5->setMaterials(vec4(0.4f, 0.4f, 0.4f, 1.0f), vec4(0.0f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CQDoor2_Room5->SetTextureLayer(DIFFUSE_MAP);
+	CQDoor2_Room5->setShadingMode(GOURAUD_SHADING);
+	CQDoor2_Room5->setShader();
+	CQDoor2_Room5->setColor(vec4(0.6f));
+	CQDoor2_Room5->setTRSMatrix(mxT * RotateX(-90.0f) * Scale(13.0f, 1.0f, 13.0f));
+	CQDoor2_Room5->setKaKdKsShini(0.8f, 1.5f, 0.5f, 1);
+
+
+
 }
 
 
@@ -1217,19 +1269,6 @@ void init( void )
 	mat4 mxT, mxS;
 	vec4 vColor ;
 
-	//test glass 
-	CSCube_glass = new CQuad;
-	CSCube_glass->setShader();
-	CSCube_glass->SetTextureLayer(DIFFUSE_MAP);  // 使用 
-	CSCube_glass->SetCubeMapTexName(1);
-	CSCube_glass->_vT.x = 0.0f; CSCube_glass->_vT.y = 3.0f; CSCube_glass->_vT.z = 6.0f;
-	mxT = Translate(CSCube_glass->_vT);
-	CSCube_glass->_vS.x = CSCube_glass->_vS.y = CSCube_glass->_vS.z = 3.0f;
-	mxS = Scale(CSCube_glass->_vS);
-	CSCube_glass->setTRSMatrix(mxT *RotateZ(90.0f)* mxS);
-	CSCube_glass->setShadingMode(GOURAUD_SHADING);
-	CSCube_glass->setMaterials(vec4(0), vec4(0.85f, 0.85f, 0.85f, 0.5f), vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	CSCube_glass->setKaKdKsShini(0.25f, 0.8f, 0.2f, 2);
 
 	//彈痕
 	for (int i = 0; i < 20; i++)
@@ -1241,7 +1280,7 @@ void init( void )
 		bulletMark[i]->_vT.x = 0.0f; bulletMark[i]->_vT.y = 3.0f; bulletMark[i]->_vT.z = 82.0f;
 		mxT = Translate(bulletMark[i]->_vT);
 		bulletMark[i]->_vS.x = bulletMark[i]->_vS.y = bulletMark[i]->_vS.z = 0.5f;
-		mxS = Scale(CSCube_glass->_vS);
+		mxS = Scale(bulletMark[i]->_vS);
 		bulletMark[i]->_vR = 90.0f;
 		bulletMark[i]->setTRSMatrix(mxT * RotateX(bulletMark[i]->_vR) * mxS);
 		bulletMark[i]->setShadingMode(GOURAUD_SHADING);
@@ -1270,7 +1309,7 @@ void init( void )
 	
 
 
-	/*g_tank = new CObjReader("Model/test.obj");
+	g_tank = new CObjReader("Model/test.obj");
 	g_tank->SetTextureLayer(DIFFUSE_MAP); 
 	g_tank->setShader();
 	g_tank->_vT.x = 41.0f; g_tank->_vT.y = 0.0f; g_tank->_vT.z = 82.0f;
@@ -1281,7 +1320,7 @@ void init( void )
 	g_tank->setShadingMode(GOURAUD_SHADING);
 	g_tank->setMaterials(vec4(0), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	g_tank->setKaKdKsShini(0.25f, 0.8f, 0.2f, 2);
-	g_tank->SetIlightNUM(2);*/
+	g_tank->SetIlightNUM(2);
 
 
 	
@@ -1316,7 +1355,7 @@ void init( void )
 
 	
 
-	/*g_cat = new CObjReader("Model/cat.obj");
+	g_cat = new CObjReader("Model/cat.obj");
 	g_cat->SetTextureLayer(DIFFUSE_MAP);
 	g_cat->setShader();
 	g_cat->_vT.x = 41.0f; g_cat->_vT.y = 0.0f; g_cat->_vT.z = 41.0f;
@@ -1327,7 +1366,7 @@ void init( void )
 	g_cat->setShadingMode(GOURAUD_SHADING);
 	g_cat->setMaterials(vec4(0), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	g_cat->setKaKdKsShini(0.25f, 0.8f, 0.2f, 2);
-	g_cat->SetIlightNUM(2);*/
+	g_cat->SetIlightNUM(2);
 
 	
 	g_balcony = new CObjReader("Model/balcony.obj");
@@ -1357,42 +1396,42 @@ void init( void )
 	g_track->setKaKdKsShini(0.25f, 0.8f, 0.2f, 2);
 	g_track->SetIlightNUM(3);
 
-	g_Earth = new CSolidSphere();
+	g_Earth = new CSolidSphere(1.0f, 24.0f, 12.0f);
 	g_Earth->SetTextureLayer(DIFFUSE_MAP);
 	g_Earth->setShader();
-	g_Earth->_vT.x = 0.0f; g_Earth->_vT.y = 5.0f; g_Earth->_vT.z = 42.0f;
+	g_Earth->_vT.x = 10.0f; g_Earth->_vT.y = 23.0f; g_Earth->_vT.z = 41.0f;
 	mxT = Translate(g_Earth->_vT);
 	g_Earth->_vS.x = g_Earth->_vS.y = g_Earth->_vS.z = 3.0f;
 	mxS = Scale(g_Earth->_vS);
 	g_Earth->setTRSMatrix(mxT * mxS);
 	g_Earth->setShadingMode(GOURAUD_SHADING);
-	g_Earth->setMaterials(vec4(0), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	g_Earth->setKaKdKsShini(0.25f, 0.8f, 0.2f, 2);
+	g_Earth->setMaterials(vec4(1.0f, 1.0f, 1.0f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	g_Earth->setKaKdKsShini(0.5f, 0.8f, 1.3f, 2);
 
-	g_Sun = new CSolidSphere();
+	g_Sun = new CSolidSphere(1.0f, 24.0f, 12.0f);
 	g_Sun->SetTextureLayer(DIFFUSE_MAP);
 	g_Sun->setShader();
-	g_Sun->_vT.x = 0.0f; g_Sun->_vT.y = 5.0f; g_Sun->_vT.z = 48.0f;
+	g_Sun->_vT.x = 0.0f; g_Sun->_vT.y = 23.0f; g_Sun->_vT.z = 41.0f;
 	mxT = Translate(g_Sun->_vT);
-	g_Sun->_vS.x = g_Sun->_vS.y = g_Sun->_vS.z = 3.0f;
+	g_Sun->_vS.x = g_Sun->_vS.y = g_Sun->_vS.z = 4.0f;
 	mxS = Scale(g_Sun->_vS);
 	g_Sun->setTRSMatrix(mxT* mxS);
 	g_Sun->setShadingMode(GOURAUD_SHADING);
-	g_Sun->setMaterials(vec4(0), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	g_Sun->setKaKdKsShini(0.25f, 0.8f, 0.2f, 2);
+	g_Sun->setMaterials(vec4(1.0f , 1.0f, 1.0f, 1.0f ), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	g_Sun->setKaKdKsShini(2.0f, 0.8f, 2.0f, 2);
 
 
-	g_Moon = new CSolidSphere();
+	g_Moon = new CSolidSphere(1.0f, 24.0f, 12.0f);
 	g_Moon->SetTextureLayer(DIFFUSE_MAP);
 	g_Moon->setShader();
-	g_Moon->_vT.x = 0.0f; g_Moon->_vT.y = 5.0f; g_Moon->_vT.z = 30.0f;
+	g_Moon->_vT.x = 16.0f; g_Moon->_vT.y = 0.0f; g_Moon->_vT.z = 41.0f;
 	mxT = Translate(g_Moon->_vT);
-	g_Moon->_vS.x = g_Moon->_vS.y = g_Moon->_vS.z = 3.0f;
+	g_Moon->_vS.x = g_Moon->_vS.y = g_Moon->_vS.z = 1.0f;
 	mxS = Scale(g_Moon->_vS);
 	g_Moon->setTRSMatrix(mxT* mxS);
 	g_Moon->setShadingMode(GOURAUD_SHADING);
-	g_Moon->setMaterials(vec4(0), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	g_Moon->setKaKdKsShini(0.25f, 0.8f, 0.2f, 2);
+	g_Moon->setMaterials(vec4(1.0f, 1.0f, 1.0f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	g_Moon->setKaKdKsShini(0.5f, 0.8f, 0.2f, 2);
 	
 
 	g_bullet = new CSolidSphere(1.0f, 24.0f, 12.0f);
@@ -1425,14 +1464,13 @@ void init( void )
 
 	g_bullet->setProjectionMatrix(mpx);
 	CSSphere->setProjectionMatrix(mpx);
-	//g_tank->setProjectionMatrix(mpx);
+	g_tank->setProjectionMatrix(mpx);
 	g_Target->setProjectionMatrix(mpx);
-	//CSCube_glass->setProjectionMatrix(mpx);
-	//g_Sun->setProjectionMatrix(mpx);
-	//g_Earth->setProjectionMatrix(mpx);
-	//g_Moon->setProjectionMatrix(mpx);
+	g_Sun->setProjectionMatrix(mpx);
+	g_Earth->setProjectionMatrix(mpx);
+	g_Moon->setProjectionMatrix(mpx);
 	g_gun->setProjectionMatrix(mpx);
-	//g_cat->setProjectionMatrix(mpx);
+	g_cat->setProjectionMatrix(mpx);
 	g_balcony->setProjectionMatrix(mpx);
 	g_track->setProjectionMatrix(mpx);
 
@@ -1461,7 +1499,8 @@ void init( void )
 	CQBackWall_Room2->setProjectionMatrix(mpx);
 	CSFloor_Room2->setProjectionMatrix(mpx);
 	CSCeiling_Room2->setProjectionMatrix(mpx);
-	CSDoor2->setProjectionMatrix(mpx);
+	CQDoor1_Room2->setProjectionMatrix(mpx);
+	CQDoor2_Room2->setProjectionMatrix(mpx);
 
 	CQRightWall_Room3->setProjectionMatrix(mpx);
 	CQLeftWall_Room3->setProjectionMatrix(mpx);
@@ -1478,7 +1517,8 @@ void init( void )
 	CQBackWall_Room4->setProjectionMatrix(mpx);
 	CSFloor_Room4->setProjectionMatrix(mpx);
 	CSCeiling_Room4->setProjectionMatrix(mpx);
-	CSDoor4->setProjectionMatrix(mpx);
+	CQDoor1_Room4->setProjectionMatrix(mpx);
+	CQDoor2_Room4->setProjectionMatrix(mpx);
 
 	CQRightWall_Room5->setProjectionMatrix(mpx);
 	CQLeftWall_Room5->setProjectionMatrix(mpx);
@@ -1486,7 +1526,8 @@ void init( void )
 	CQBackWall_Room5->setProjectionMatrix(mpx);
 	CSFloor_Room5->setProjectionMatrix(mpx);
 	CSCeiling_Room5->setProjectionMatrix(mpx);
-	CSDoor5->setProjectionMatrix(mpx);
+	CQDoor1_Room5->setProjectionMatrix(mpx);
+	CQDoor2_Room5->setProjectionMatrix(mpx);
 
 	CQRightWall_Room6->setProjectionMatrix(mpx);
 	CQLeftWall_Room6->setProjectionMatrix(mpx);
@@ -1546,7 +1587,7 @@ void GL_Display( void )
 
 
 	
-	/*glActiveTexture(GL_TEXTURE0);
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[2]);
 	g_track->draw();
 
@@ -1577,20 +1618,20 @@ void GL_Display( void )
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[4]);
-	CSCeiling_Room1->draw();*/
+	CSCeiling_Room1->draw();
 
 	
 
-	/*glActiveTexture(GL_TEXTURE0);
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[2]);
-	g_tank->draw();*/
+	g_tank->draw();
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room3[1]);
 	g_Target->draw();
 
 
-	/*glActiveTexture(GL_TEXTURE0);
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room2[0]);
 	CQBackWall_Room2->draw();
 	glActiveTexture(GL_TEXTURE0);
@@ -1608,7 +1649,7 @@ void GL_Display( void )
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room2[5]);
 	CSFloor_Room2->draw();
-	CSDoor2->draw();
+	
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room2[8]);
@@ -1618,7 +1659,7 @@ void GL_Display( void )
 	g_Earth->draw();
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room2[7]);
-	g_Moon->draw();*/
+	g_Moon->draw();
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room3[0]);
@@ -1630,16 +1671,17 @@ void GL_Display( void )
 	CSCeiling_Room3->draw();
 	
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room4[0]);
-	CQRightWall_Room4->draw();
 	CQLeftWall_Room4->draw();
 	CQFrontWall_Room4->draw();
 	CQBackWall_Room4->draw();
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room4[1]);
 	CSFloor_Room4->draw();
 	CSCeiling_Room4->draw();
-	CSDoor4->draw();
 
-	/*glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room5[0]);
+
+
+
+	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room5[0]);
 	CQRightWall_Room5->draw();
 	CQLeftWall_Room5->draw();
 	CQFrontWall_Room5->draw();
@@ -1647,10 +1689,10 @@ void GL_Display( void )
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room4[1]);
 	CSFloor_Room5->draw();
 	CSCeiling_Room5->draw();
-	CSDoor5->draw();
+
 
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room5[1]);
-	g_cat->draw();*/
+	g_cat->draw();
 	
 
 	glActiveTexture(GL_TEXTURE0);
@@ -1663,16 +1705,7 @@ void GL_Display( void )
 	CSCeiling_Room6->draw();
 	g_balcony->draw();
 
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //blend GL_ONE_MINUS_SRC_ALPHA ：(1,1,1,1)-(sa , sa , sa , sa)
-	//glEnable(GL_BLEND);  // 設定2D Texure Mapping 有作用
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //blend GL_ONE_MINUS_SRC_ALPHA ：(1,1,1,1)-(sa , sa , sa , sa)
-	//glDepthMask(GL_FALSE);
-	//glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[1]);
-	//CSCube_glass->draw();
-	//glDisable(GL_BLEND);	// 關閉 Blending
-	//glDepthMask(GL_TRUE);	// 開啟對 Z-Buffer 的寫入操作
 
-	
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //blend GL_ONE_MINUS_SRC_ALPHA ：(1,1,1,1)-(sa , sa , sa , sa)
 	glEnable(GL_BLEND);  // 設定2D Texure Mapping 有作用
@@ -1686,13 +1719,21 @@ void GL_Display( void )
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[door_txCount]);
 	CQDoor1_Room1->draw();
 	CQDoor2_Room1->draw();
+	CQDoor1_Room2->draw();
+	CQDoor2_Room2->draw();
 	CQDoor1_Room3->draw();
 	CQDoor2_Room3->draw();
+	CQDoor1_Room4->draw();
+	CQDoor2_Room4->draw();
+	CQDoor1_Room5->draw();
+	CQDoor2_Room5->draw();
 	CQDoor1_Room6->draw();
 	CQDoor2_Room6->draw();
 	glActiveTexture(GL_TEXTURE0);
 	glDepthMask(GL_FALSE);
+
 	glBindTexture(GL_TEXTURE_2D, 0);
+	CQRightWall_Room4->draw();
 	CQRightWall_Room6->draw();
 	glDisable(GL_BLEND);	// 關閉 Blending
 	glDepthMask(GL_TRUE);	// 開啟對 Z-Buffer 的寫入操作
@@ -1724,13 +1765,14 @@ void setBulletMark(float x , float y , float z) { //設定子彈痕出現的位置
 
 	bulletMark[iBulletMarkNUM]->_vT.x = x;
 	bulletMark[iBulletMarkNUM]->_vT.y = y;
-	bulletMark[iBulletMarkNUM]->_vT.z = z;
+	bulletMark[iBulletMarkNUM]->_vT.z = 97.2;
 	bulletMark[iBulletMarkNUM]->setTRSMatrix(Translate(bulletMark[iBulletMarkNUM]->_vT) * RotateX(bulletMark[iBulletMarkNUM]->_vR) * Scale(bulletMark[iBulletMarkNUM]->_vS));
 
 	if(iBulletMarkNUM < 19) //不得超過規定彈孔數
 		iBulletMarkNUM++; //子彈痕加一
 	printf("%d \n ", iBulletMarkNUM);
 
+	bBulletFly = true; //子彈開始移動
 	bPrintBulletMark = true; //已創造子彈痕
 }
 
@@ -1769,21 +1811,70 @@ void onLunchBullet(float delta) { //偵測子彈訊息、子彈軌跡更新
 	if (bBulletFly) { //更新子彈位置
 
 
-		if ((g_bullet->_vT.x < 4 && g_bullet->_vT.x > -4) && (g_bullet->_vT.z < 100 && g_bullet->_vT.z > 97) && bPrintBulletMark==false) { //碰撞偵測 且尚未出現子彈痕
-			setBulletMark(g_bullet->_vT.x , g_bullet->_vT.y , g_bullet->_vT.z); //創造子彈痕
-		}
+	
 
-		else
+		if (g_bullet->_vT.x < 300 && g_bullet->_vT.x < 300 && g_bullet->_vT.z < 300)
 		{
 			g_bullet->_vT.x += fBullet_x * 30 * delta;
 			g_bullet->_vT.y += fBullet_y * 30 * delta;
 			g_bullet->_vT.z += fBullet_z * 30 * delta;
 			g_bullet->setTRSMatrix(Translate(g_bullet->_vT) * Scale(g_bullet->_vS));
 		}
+
+
+		if ((g_bullet->_vT.x < 4.0 && g_bullet->_vT.x > -4.0) && (g_bullet->_vT.z < 100 && g_bullet->_vT.z > 97) && bPrintBulletMark == false) { //碰撞偵測 且尚未出現子彈痕
+			setBulletMark(g_bullet->_vT.x, g_bullet->_vT.y, g_bullet->_vT.z); //創造子彈痕
+		}
 	
 	}
 
 	
+}
+
+float fEarth = 0.0f; //地球計秒
+float fEarthTheta = 0.0f; //地球計角度
+float fEarthSelfRotateTheta = 0.0f; //自轉角度
+
+float fMoon = 0.0f; //月球計秒
+float fMoonTheta = 0.0f; //月球計角度
+
+void onPlanetRotate(float delta) { //地日月轉動
+	mat4 mxT;
+
+	fEarth += delta;
+	fEarthTheta = fEarth * (float)M_PI_2 * 0.25; 
+
+	fMoon += delta;
+	fMoonTheta = fMoon * (float)M_PI_2; 
+
+	if (fEarthTheta >= (float)M_PI * 2.0f) {
+		fEarthTheta -= (float)M_PI * 2.0f;
+		fEarth -= 16.0f;
+	}
+
+	if (fMoonTheta >= (float)M_PI * 2.0f) {
+		fMoonTheta -= (float)M_PI * 2.0f;
+		fMoon -= 4.0f;
+	}
+
+	fEarthSelfRotateTheta+=0.3;
+
+	if (fEarthSelfRotateTheta>=360) {
+
+		fEarthSelfRotateTheta -= 360;
+
+	}
+	
+	g_Earth->_vT.x = 10 * cosf(fEarthTheta) ;
+	g_Earth->_vT.z = 10 * sinf(fEarthTheta) + 41.0f;
+	g_Earth->setTRSMatrix(Translate(g_Earth->_vT ) * RotateY(fEarthSelfRotateTheta) *  Scale(g_Earth->_vS));
+
+
+	g_Moon->_vT.x = 5 * cosf(fMoonTheta) ;
+	g_Moon->_vT.z = 5 * sinf(fMoonTheta) ;
+	g_Moon->setTRSMatrix(Translate(g_Earth->_vT) * Translate(g_Moon->_vT) * Scale(g_Moon->_vS));
+
+
 }
 
 
@@ -1792,7 +1883,7 @@ void onFrameMove(float delta)
 {
 
 	onLunchBullet(delta);
-	
+	onPlanetRotate(delta);
 
 
 	//計算0.2秒換一次門的貼圖
@@ -1832,7 +1923,7 @@ void onFrameMove(float delta)
 
 		CSSphere->SetViewPosition(camera->getViewPosition());
 		CSSphere->setViewMatrix(mvx);
-		CSCube_glass->setViewMatrix(mvx);
+	
 		
 		for (int i = 0; i < 20; i++)
 		{
@@ -1841,15 +1932,15 @@ void onFrameMove(float delta)
 
 		float fAngle; //旋轉角度
 		vec4 cameraPosition = camera->getViewPosition();
-		/*g_tank->setViewMatrix(mvx);
+		g_tank->setViewMatrix(mvx);
 		fAngle = g_tank->billboardCylindricalBegin(g_tank->_vT.x, g_tank->_vT.y, g_tank->_vT.z, cameraPosition.x, cameraPosition.y, cameraPosition.z);
-		g_tank->setTRSMatrix(Translate(g_tank->_vT) * RotateY(fAngle) * Scale(g_tank->_vS));*/
+		g_tank->setTRSMatrix(Translate(g_tank->_vT) * RotateY(fAngle) * Scale(g_tank->_vS));
 		
 		g_Target->setViewMatrix(mvx);
-		/*g_Sun->setViewMatrix(mvx);
+		g_Sun->setViewMatrix(mvx);
 		g_Earth->setViewMatrix(mvx);
 		g_Moon->setViewMatrix(mvx);	
-		g_cat->setViewMatrix(mvx);*/
+		g_cat->setViewMatrix(mvx);
 
 		g_bullet->setViewMatrix(mvx);
 		g_balcony->setViewMatrix(mvx);
@@ -1878,7 +1969,8 @@ void onFrameMove(float delta)
 		CQBackWall_Room2->setViewMatrix(mvx);
 		CSFloor_Room2->setViewMatrix(mvx);
 		CSCeiling_Room2->setViewMatrix(mvx);
-		CSDoor2->setViewMatrix(mvx);
+		CQDoor1_Room2->setViewMatrix(mvx);
+		CQDoor2_Room2->setViewMatrix(mvx);
 
 		CQRightWall_Room3->setViewMatrix(mvx);
 		CQLeftWall_Room3->setViewMatrix(mvx);
@@ -1895,7 +1987,8 @@ void onFrameMove(float delta)
 		CQBackWall_Room4->setViewMatrix(mvx);
 		CSFloor_Room4->setViewMatrix(mvx);
 		CSCeiling_Room4->setViewMatrix(mvx);
-		CSDoor4->setViewMatrix(mvx);
+		CQDoor1_Room4->setViewMatrix(mvx);
+		CQDoor2_Room4->setViewMatrix(mvx);
 
 		CQRightWall_Room5->setViewMatrix(mvx);
 		CQLeftWall_Room5->setViewMatrix(mvx);
@@ -1903,7 +1996,8 @@ void onFrameMove(float delta)
 		CQBackWall_Room5->setViewMatrix(mvx);
 		CSFloor_Room5->setViewMatrix(mvx);
 		CSCeiling_Room5->setViewMatrix(mvx);
-		CSDoor5->setViewMatrix(mvx);
+		CQDoor1_Room5->setViewMatrix(mvx);
+		CQDoor2_Room5->setViewMatrix(mvx);
 
 
 		CQRightWall_Room6->setViewMatrix(mvx);
@@ -1925,9 +2019,8 @@ void onFrameMove(float delta)
 
 	
 
-	/*g_tank->update(delta, Light_resulte_Room4);
-	CSCube_glass->update(delta, Light_resulte_Room1);
-	g_cat->update(delta, Light_resulte_Room5);*/
+	g_tank->update(delta, Light_resulte_Room4);
+	g_cat->update(delta, Light_resulte_Room5);
 
 	for (int i = 0; i < 20; i++)
 	{
@@ -1967,7 +2060,8 @@ void onFrameMove(float delta)
 	CQBackWall_Room2->update(delta, Light_resulte_Room2);
 	CSFloor_Room2->update(delta, Light_resulte_Room2);
 	CSCeiling_Room2->update(delta, Light_resulte_Room2);
-	CSDoor2->update(delta, Light_resulte_Room2);
+	CQDoor1_Room2->update(delta, Light_resulte_Room2);
+	CQDoor2_Room2->update(delta, Light_resulte_Room2);
 
 
 	g_Target->update(delta, Light_resulte_Room3);
@@ -1986,7 +2080,8 @@ void onFrameMove(float delta)
 	CQBackWall_Room4->update(delta, Light_resulte_Room4);
 	CSFloor_Room4->update(delta, Light_resulte_Room4);
 	CSCeiling_Room4->update(delta, Light_resulte_Room4);
-	CSDoor4->update(delta, Light_resulte_Room4);
+	CQDoor1_Room4->update(delta, Light_resulte_Room4);
+	CQDoor2_Room4->update(delta, Light_resulte_Room4);
 
 	CQRightWall_Room5->update(delta, Light_resulte_Room5);
 	CQLeftWall_Room5->update(delta, Light_resulte_Room5);
@@ -1994,7 +2089,8 @@ void onFrameMove(float delta)
 	CQBackWall_Room5->update(delta, Light_resulte_Room5);
 	CSFloor_Room5->update(delta, Light_resulte_Room5);
 	CSCeiling_Room5->update(delta, Light_resulte_Room5);
-	CSDoor5->update(delta, Light_resulte_Room5);
+	CQDoor1_Room5->update(delta, Light_resulte_Room5);
+	CQDoor2_Room5->update(delta, Light_resulte_Room5);
 
 
 	CQRightWall_Room6->update(delta, Light_resulte_Room6);
@@ -2112,12 +2208,12 @@ void Win_Keyboard( unsigned char key, int x, int y )
 		}
 		delete CSSphere;
 		delete g_Target;
-		/*delete g_tank;
-		delete CSCube_glass;		
+		delete g_tank;
+		
 		delete g_Sun;
 		delete g_Earth;
 		delete g_Moon;	
-		delete g_cat;*/
+		delete g_cat;
 		delete g_bullet;
 		delete g_gun;
 		delete g_balcony;
@@ -2148,7 +2244,8 @@ void Win_Keyboard( unsigned char key, int x, int y )
 		delete CQLeftWall_Room2;
 		delete CQFrontWall_Room2;
 		delete CQBackWall_Room2;
-		delete CSDoor2;
+		delete CQDoor1_Room2;
+		delete CQDoor2_Room2;
 
 		delete CSCeiling_Room3;
 		delete CSFloor_Room3;
@@ -2165,7 +2262,8 @@ void Win_Keyboard( unsigned char key, int x, int y )
 		delete CQLeftWall_Room4;
 		delete CQFrontWall_Room4;
 		delete CQBackWall_Room4;
-		delete CSDoor4;
+		delete CQDoor1_Room4;
+		delete CQDoor2_Room4;
 
 		delete CSCeiling_Room5;
 		delete CSFloor_Room5;
@@ -2173,7 +2271,8 @@ void Win_Keyboard( unsigned char key, int x, int y )
 		delete CQLeftWall_Room5;
 		delete CQFrontWall_Room5;
 		delete CQBackWall_Room5;
-		delete CSDoor5;
+		delete CQDoor1_Room5;
+		delete CQDoor2_Room5;
 
 		delete CSCeiling_Room6;
 		delete CSFloor_Room6;
