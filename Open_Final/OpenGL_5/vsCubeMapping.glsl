@@ -46,4 +46,6 @@ void main()
 
 	vec3 E = (ViewPos-vPosInWord).xyz;
 	ReflView = reflect(E, N);
+	ReflView.z *= -1; //¶K¹Ï¤ÏÂà
+
 }

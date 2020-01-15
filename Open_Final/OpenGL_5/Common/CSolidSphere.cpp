@@ -175,11 +175,11 @@ void CSolidSphere::update(float dt, const LightSource& lights)
 
 void CSolidSphere::update(float dt)
 {
-	/*if (m_bViewUpdated || m_bTRSUpdated) { // Model View 的相關矩陣內容有更動
-		m_mxMVFinal = m_mxView * m_mxTRS;
-		m_mxITMV = InverseTransposeMatrix(m_mxMVFinal);
-		m_bViewUpdated = m_bTRSUpdated = false;
-	}*/
+	if (_viewUpdated || _TRSUpdated) { // Model View 的相關矩陣內容有更動
+		_mxMVFinal = _mxView * _mxTRS;
+		_mxITMV = InverseTransposeMatrix(_mxMVFinal);
+		_viewUpdated = _TRSUpdated = false;
+	}
 }
 
 void CSolidSphere::draw()

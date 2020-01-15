@@ -46,15 +46,14 @@ GLuint g_uiFTexID_Room6; //貼圖
 
 
 //skybox
-//Room2 Wall
 CQuad* CSFloor_skybox;
 CQuad* CSCeiling_skybox;
 CQuad* CQRightWall_skybox;
 CQuad* CQLeftWall_skybox;
 CQuad* CQBackWall_skybox;
 CQuad* CQFrontWall_skybox;
-
-
+GLuint g_uiFTexID_skybox[6]; //貼圖
+CSolidSphere* CSSphere; //environment map
 
 							  
 //model
@@ -77,7 +76,6 @@ CQuad* CQFrontWall_Room1;
 CQuad* CQBackWall_Room1;
 
 //Room1 decorate
-CSolidSphere* CSSphere; //environment map
 CQuad* CSCube_glass; //test glass texture
 CQuad* CQDoor1_Room1; //door
 CQuad* CQDoor2_Room1; //door
@@ -335,6 +333,24 @@ LightSource  _Light3 = {
 	0		// quadraticAttenuation (a + bd + cd^2)^-1 中的 c
 };
 
+
+LightSource  Light_environment = {
+
+	color4(g_fLightR, g_fLightG, g_fLightB, 1.0f), // ambient 
+	color4(1.9f, 1.9f, 1.9f, 1.0f), // diffuse
+	color4(g_fLightR, g_fLightG, g_fLightB, 1.0f), // specular
+	point4(40.0f, 5.0f, -500.0f, 1.0f),   // position
+	point4(0.0f, 0.0f, 0.0f, 1.0f),   // halfVector
+	vec3(0.0f, 0.0f, 0.0f),		  //spotTarget
+	vec3(_fLightRadius, 0.0f, 0.0f),			  //spotDirection
+	1.0f	,	// spotExponent(parameter e); cos^(e)(phi) 
+	0.0f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
+	1.0f	,	// spotCosCutoff; // (range: [1.0,0.0],-1.0), 照明方向與被照明點之間的角度取 cos 後, cut off 的值
+	1	,	// constantAttenuation	(a + bd + cd^2)^-1 中的 a, d 為光源到被照明點的距離
+	0	,	// linearAttenuation	    (a + bd + cd^2)^-1 中的 b
+	0		// quadraticAttenuation (a + bd + cd^2)^-1 中的 c
+};
+
 LightSource Light_resulte_Room1[LIGHT_NUM_MAX] = { //最後燈光結果
 
 	Light_center_Room1, _Light3 ,  _Light2 ,  _Light1
@@ -365,6 +381,13 @@ LightSource Light_resulte_Room6[LIGHT_NUM_MAX] = { //最後燈光結果
 
 	Light_center_Room6, _Light1 ,  _Light2 ,  _Light3
 };
+
+LightSource Light_resulte_enviroment[LIGHT_NUM_MAX] = { //最後燈光結果
+
+	Light_environment, Light_center_Room6 ,  _Light2 ,  _Light3
+};
+
+
 
 
 // 函式的原型宣告
@@ -986,81 +1009,95 @@ void init_UI(void) {
 
 
 void init_skybox() {
+
+
+	float skysize = 500; //天空大小
+	float transform_x = 41.0f;
+	float transform_y = -(skysize/2);
+	vec4 ambient(100.0f, 100.0f, 100.0f );
+	vec4 specular(0.0f, 0.0f, 0.0f);
+
 	mat4 mxT, mxS;
 	vec4 vT, vColor;
 
-	vT.x = 0.0f; vT.y = 0.0f; vT.z = 41.0f;
+	vT.x = 0.0f + transform_x; vT.y = 0.0f + transform_y; vT.z = 0.0f;
 	mxT = Translate(vT);
 	CSFloor_skybox = new CQuad;
+	CSFloor_skybox->setShaderName("vsSkyBox.glsl", "fsSkyBox.glsl");
 	CSFloor_skybox->SetTextureLayer(DIFFUSE_MAP);
-	CSFloor_skybox->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	CSFloor_skybox->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+	CSFloor_skybox->setMaterials(ambient, vec4(0.85f, 0.85f, 0.85f, 1), specular);
+	CSFloor_skybox->setKaKdKsShini(0, 0.8, 0, 0);
 	CSFloor_skybox->setShadingMode(GOURAUD_SHADING);
 	CSFloor_skybox->setColor(vec4(0.6f));
 	CSFloor_skybox->setShader();
-	CSFloor_skybox->setTRSMatrix(mxT * RotateY(90.0f) * Scale(40.0f, 1, 40.0f));
+	CSFloor_skybox->setTRSMatrix(mxT * RotateY(90.0f) * Scale(skysize, 1, skysize));
 
-	vT.x = 0.0f; vT.y = 40.0f; vT.z = 41.0f;
+	vT.x = 0.0f + transform_x; vT.y = skysize + transform_y; vT.z = 0.0f;
 	mxT = Translate(vT);
 	vec3 vceilingNormal = vec3(0.0f, -1.0f, 0.0f);
 	CSCeiling_skybox = new CQuad;
+	CSCeiling_skybox->setShaderName("vsSkyBox.glsl", "fsSkyBox.glsl");
 	CSCeiling_skybox->SetTextureLayer(DIFFUSE_MAP);
 	CSCeiling_skybox->setNormal(vceilingNormal);
-	CSCeiling_skybox->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	CSCeiling_skybox->setKaKdKsShini(0, 0.8f, 0.5f, 1);
-	CSCeiling_skybox->setTRSMatrix(mxT * RotateY(180.0f) * Scale(40.0f, 1, 40.0f));
+	CSCeiling_skybox->setMaterials(ambient, vec4(0.85f, 0.85f, 0.85f, 1), specular);
+	CSCeiling_skybox->setKaKdKsShini(0, 0.8, 0, 0);
+	CSCeiling_skybox->setTRSMatrix(mxT * RotateY(90.0f) * RotateX(180.0f) * Scale(skysize, 1, skysize));
 	CSCeiling_skybox->setShadingMode(GOURAUD_SHADING);
 	CSCeiling_skybox->setShader();
 
 
 
-	vT.x = -20.0f; vT.y = 20.0f; vT.z = 41.0f;
+	vT.x = -(skysize / 2) + transform_x; vT.y = (skysize/2) + transform_y; vT.z =0.0f;
 	mxT = Translate(vT);
 	CQLeftWall_skybox = new CQuad;
+	CQLeftWall_skybox->setShaderName("vsSkyBox.glsl", "fsSkyBox.glsl");
 	CQLeftWall_skybox->SetTextureLayer(DIFFUSE_MAP);
-	CQLeftWall_skybox->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CQLeftWall_skybox->setMaterials(ambient, vec4(0.85f, 0.85f, 0.85f, 1), specular);
 	CQLeftWall_skybox->setShadingMode(GOURAUD_SHADING);
 	CQLeftWall_skybox->setShader();
 	CQLeftWall_skybox->setColor(vec4(0.6f));
-	CQLeftWall_skybox->setTRSMatrix(mxT * RotateX(90.0f) * RotateZ(-90.0f) * Scale(40.0f, 1, 40.0f));
-	CQLeftWall_skybox->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+	CQLeftWall_skybox->setTRSMatrix(mxT * RotateX(90.0f) * RotateZ(-90.0f) * Scale(skysize, 1, skysize));
+	CQLeftWall_skybox->setKaKdKsShini(0, 0.8, 0, 0);
 
 
 
-	vT.x = 20.0f; vT.y = 20.0f; vT.z = 41.0f;
+	vT.x = (skysize / 2) + transform_x; vT.y = (skysize / 2) + transform_y; vT.z = 0.0f;
 	mxT = Translate(vT);
 	CQRightWall_skybox = new CQuad;
+	CQRightWall_skybox->setShaderName("vsSkyBox.glsl", "fsSkyBox.glsl");
 	CQRightWall_skybox->SetTextureLayer(DIFFUSE_MAP);
-	CQRightWall_skybox->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CQRightWall_skybox->setMaterials(ambient, vec4(0.85f, 0.85f, 0.85f, 1), specular);
 	CQRightWall_skybox->setShadingMode(GOURAUD_SHADING);
 	CQRightWall_skybox->setShader();
 	CQRightWall_skybox->setColor(vec4(0.6f));
-	CQRightWall_skybox->setTRSMatrix(mxT * RotateX(90.0f) * RotateZ(90.0f) * Scale(40.0f, 1, 40.0f));
-	CQRightWall_skybox->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+	CQRightWall_skybox->setTRSMatrix(mxT * RotateX(90.0f) * RotateZ(90.0f) * Scale(skysize, 1, skysize));
+	CQRightWall_skybox->setKaKdKsShini(0, 0.8, 0, 0);
 
 
-	vT.x = 0.0f; vT.y = 20.0f; vT.z = 61.0f;
+	vT.x = 0.0f + transform_x; vT.y = (skysize / 2) + transform_y; vT.z = (skysize / 2);
 	mxT = Translate(vT);
 	CQFrontWall_skybox = new CQuad;
+	CQFrontWall_skybox->setShaderName("vsSkyBox.glsl", "fsSkyBox.glsl");
 	CQFrontWall_skybox->SetTextureLayer(DIFFUSE_MAP);
-	CQFrontWall_skybox->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CQFrontWall_skybox->setMaterials(ambient, vec4(0.85f, 0.85f, 0.85f, 1), specular);
 	CQFrontWall_skybox->setShadingMode(GOURAUD_SHADING);
 	CQFrontWall_skybox->setShader();
 	CQFrontWall_skybox->setColor(vec4(0.6f));
-	CQFrontWall_skybox->setTRSMatrix(mxT * RotateZ(180.0f) * RotateX(-90.0f) * Scale(40.0f, 1, 40.0f));
-	CQFrontWall_skybox->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+	CQFrontWall_skybox->setTRSMatrix(mxT * RotateZ(180.0f) * RotateX(-90.0f) * Scale(skysize, 1, skysize));
+	CQFrontWall_skybox->setKaKdKsShini(0, 0.8, 0, 0);
 
 
-	vT.x = 0.0f; vT.y = 20.0f; vT.z = 21.0f;
+	vT.x = 0.0f + transform_x; vT.y = (skysize / 2) + transform_y; vT.z = -(skysize / 2);
 	mxT = Translate(vT);
 	CQBackWall_skybox = new CQuad;
+	CQBackWall_skybox->setShaderName("vsSkyBox.glsl", "fsSkyBox.glsl");
 	CQBackWall_skybox->SetTextureLayer(DIFFUSE_MAP);
-	CQBackWall_skybox->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CQBackWall_skybox->setMaterials(ambient, vec4(0.85f, 0.85f, 0.85f, 1), specular);
 	CQBackWall_skybox->setShadingMode(GOURAUD_SHADING);
 	CQBackWall_skybox->setShader();
 	CQBackWall_skybox->setColor(vec4(0.6f));
-	CQBackWall_skybox->setTRSMatrix(mxT * RotateX(90.0f) * Scale(40.0f, 1, 40.0f));
-	CQBackWall_skybox->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+	CQBackWall_skybox->setTRSMatrix(mxT * RotateX(90.0f) * Scale(skysize, 1, skysize));
+	CQBackWall_skybox->setKaKdKsShini(0, 0.8, 0, 0);
 
 
 
@@ -1116,7 +1153,12 @@ void init( void )
 	g_uiFTexID_Room2[7] = texturepool->AddTexture("texture/Model_texture/Moon.png");
 	g_uiFTexID_Room2[8] = texturepool->AddTexture("texture/Model_texture/sun.png");
 
-
+	g_uiFTexID_skybox[0] = texturepool->AddTexture("texture/SkyBox/Skybox_PX.png");
+	g_uiFTexID_skybox[1] = texturepool->AddTexture("texture/SkyBox/Skybox_PZ.png");
+	g_uiFTexID_skybox[2] = texturepool->AddTexture("texture/SkyBox/Skybox_NX.png");
+	g_uiFTexID_skybox[3] = texturepool->AddTexture("texture/SkyBox/Skybox_NZ.png");
+	g_uiFTexID_skybox[4] = texturepool->AddTexture("texture/SkyBox/Skybox_PY.png");
+	g_uiFTexID_skybox[5] = texturepool->AddTexture("texture/SkyBox/Skybox_NY.png");
 
 	g_uiFTexID_Room3[0] = texturepool->AddTexture("texture/Room3/brick_wall.png");
 	g_uiFTexID_Room3[1] = texturepool->AddTexture("texture/Model_texture/TT.png");
@@ -1163,20 +1205,20 @@ void init( void )
 
 	
 	CSSphere = new CSolidSphere(1.0f, 24.0f, 12.0f);
-	CSSphere->SetTextureLayer(DIFFUSE_MAP);  // 使用 
+	//CSSphere->SetTextureLayer(DIFFUSE_MAP);  // 使用 
 	CSSphere->SetCubeMapTexName(1);
 	CSSphere->SetViewPosition(eye);
 	CSSphere->setShaderName("vsCubeMapping.glsl", "fsCubeMapping.glsl");
 	CSSphere->setShader();
-	CSSphere->_vT.x = 0.0f; CSSphere->_vT.y = 3.0f; CSSphere->_vT.z = 41.0f;
+	CSSphere->_vT.x = 53.0f; CSSphere->_vT.y = 5.0f; CSSphere->_vT.z = -21.5f;
 	CSSphere->_vS.x = 1.5f; CSSphere->_vS.y = 1.5f; CSSphere->_vS.z = 1.5f;
 	mxT = Translate(CSSphere->_vT);
-	mxT._m[0][0] = 2.0f; mxT._m[1][1] = 2.0f; mxT._m[2][2] = 2.0f;
-	CSSphere->setTRSMatrix(mxT * RotateX(90.0f) * Scale(CSSphere->_vS));
+	mxT._m[0][0] = 1.0f; mxT._m[1][1] = 1.0f; mxT._m[2][2] = 1.0f;
+	CSSphere->setTRSMatrix(mxT* RotateY(180.0f)* RotateX(90.0f) * Scale(CSSphere->_vS));
 	CSSphere->setShadingMode(GOURAUD_SHADING);
 	// 設定貼圖
-	CSSphere->setMaterials(vec4(0), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	CSSphere->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+	CSSphere->setMaterials(vec4(1.0,1.0,1.0,1.0), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CSSphere->setKaKdKsShini(0.0f, 1.0f, 0.8f, 1);
 	CSSphere->setColor(vec4(0.9f, 0.9f, 0.9f, 1.0f));
 	
 
@@ -1318,7 +1360,7 @@ void init( void )
 	bool bPDirty;
 	mat4 mpx = camera->getProjectionMatrix(bPDirty);
 	
-	//CSSphere->setProjectionMatrix(mpx);
+	CSSphere->setProjectionMatrix(mpx);
 	//g_tank->setProjectionMatrix(mpx);
 	////g_Target->setProjectionMatrix(mpx);
 	//CSCube_glass->setProjectionMatrix(mpx);
@@ -1329,6 +1371,14 @@ void init( void )
 	//g_cat->setProjectionMatrix(mpx);
 	g_balcony->setProjectionMatrix(mpx);
 	g_track->setProjectionMatrix(mpx);
+
+	CQRightWall_skybox->setProjectionMatrix(mpx);
+	CQLeftWall_skybox->setProjectionMatrix(mpx);
+	CQFrontWall_skybox->setProjectionMatrix(mpx);
+	CQBackWall_skybox->setProjectionMatrix(mpx);
+	CSFloor_skybox->setProjectionMatrix(mpx);
+	CSCeiling_skybox->setProjectionMatrix(mpx);
+
 
 
 	CQRightWall_Room1->setProjectionMatrix(mpx);
@@ -1393,11 +1443,33 @@ void GL_Display( void )
 	glEnable(GL_BLEND);  // 設定2D Texure Mapping 有作用
 	
 
-	/*glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[1]);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_skybox[0]);
+	CQBackWall_skybox->draw();
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_skybox[1]);
+	CQLeftWall_skybox->draw();
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_skybox[2]);
+	CQFrontWall_skybox->draw();
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_skybox[3]);
+	CQRightWall_skybox->draw();
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_skybox[4]);
+	CSCeiling_skybox->draw();
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_skybox[5]);
+	CSFloor_skybox->draw();
+
+
+
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, 0);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, g_uiSphereCubeMap);
-	CSSphere->draw();*/
+	CSSphere->draw();
 
 
 	
@@ -1515,9 +1587,8 @@ void GL_Display( void )
 
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room5[1]);
 	g_cat->draw();*/
-
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room6);
-	
 	CQLeftWall_Room6->draw();
 	CQFrontWall_Room6->draw();
 	CQBackWall_Room6->draw();
@@ -1637,6 +1708,13 @@ void onFrameMove(float delta)
 		g_cat->setViewMatrix(mvx);*/
 		g_balcony->setViewMatrix(mvx);
 		g_track->setViewMatrix(mvx);
+		CQRightWall_skybox->setViewMatrix(mvx);
+		CQLeftWall_skybox->setViewMatrix(mvx);
+		CQFrontWall_skybox->setViewMatrix(mvx);
+		CQBackWall_skybox->setViewMatrix(mvx);
+		CSFloor_skybox->setViewMatrix(mvx);
+		CSCeiling_skybox->setViewMatrix(mvx);
+		
 
 		CQRightWall_Room1->setViewMatrix(mvx);
 		CQLeftWall_Room1->setViewMatrix(mvx);
@@ -1707,6 +1785,14 @@ void onFrameMove(float delta)
 	g_balcony->update(delta, Light_resulte_Room1);
 	g_track->update(delta, Light_resulte_Room1);
 
+	CQRightWall_skybox->update(delta, Light_resulte_Room6);
+	CQLeftWall_skybox->update(delta, Light_resulte_Room6);
+	CQFrontWall_skybox->update(delta, Light_resulte_Room6);
+	CQBackWall_skybox->update(delta, Light_resulte_Room6);
+	CSFloor_skybox->update(delta, Light_resulte_Room6);
+	CSCeiling_skybox->update(delta, Light_resulte_Room6);
+
+
 	CSFloor_Room1->update(delta, Light_resulte_Room1);
 	CSCeiling_Room1->update(delta, Light_resulte_Room1);
 	CQRightWall_Room1->update(delta, Light_resulte_Room1);
@@ -1720,7 +1806,7 @@ void onFrameMove(float delta)
 	g_Sun->update(delta, Light_resulte_Room2);
 	g_Earth->update(delta, Light_resulte_Room2);
 	g_Moon->update(delta, Light_resulte_Room2);
-	CSSphere->update(delta, Light_resulte_Room2);
+	CSSphere->update(delta, Light_resulte_enviroment);
 	CQRightWall_Room2->update(delta, Light_resulte_Room2);
 	CQLeftWall_Room2->update(delta, Light_resulte_Room2);
 	CQFrontWall_Room2->update(delta, Light_resulte_Room2);
@@ -1876,6 +1962,12 @@ void Win_Keyboard( unsigned char key, int x, int y )
 		delete g_cat;*/
 		delete g_balcony;
 		delete g_track;
+		delete CSCeiling_skybox;
+		delete CSFloor_skybox;
+		delete CQRightWall_skybox;
+		delete CQLeftWall_skybox;
+		delete CQFrontWall_skybox;
+		delete CQBackWall_skybox;
 		for (int i = 0; i < 4; i++)
 			delete CQ_uiBtn[i];
 
