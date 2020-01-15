@@ -110,6 +110,7 @@ public:
 	float _fBillboardingAngle; //Billboarding 旋轉角度
 	vec3 _vS; //紀錄大小
 	vec4 _vT; //紀錄位移量
+	float _vR; //紀錄旋轉量
 	float _fRotateAngle; //r紀錄旋轉角度
 
 
