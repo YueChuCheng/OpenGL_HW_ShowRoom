@@ -1,28 +1,28 @@
 ﻿  Example1.cpp
-D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(221,28): warning C4305: '引數': 從 'double' 轉換為 'GLfloat'，是由較大的類型轉換為較小的類型，可能導致資料遺失
-D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(327,33): warning C4305: '引數': 從 'double' 轉換為 'GLfloat'，是由較大的類型轉換為較小的類型，可能導致資料遺失
-D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(330,23): warning C4305: '引數': 從 'double' 轉換為 'GLfloat'，是由較大的類型轉換為較小的類型，可能導致資料遺失
-D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(344,31): warning C4305: '引數': 從 'double' 轉換為 'GLfloat'，是由較大的類型轉換為較小的類型，可能導致資料遺失
-D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(982,96): warning C4305: '引數': 從 'double' 轉換為 'GLfloat'，是由較大的類型轉換為較小的類型，可能導致資料遺失
-D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(1240,45): warning C4305: '引數': 從 'double' 轉換為 'float'，是由較大的類型轉換為較小的類型，可能導致資料遺失
-D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(1254,47): warning C4305: '引數': 從 'double' 轉換為 'float'，是由較大的類型轉換為較小的類型，可能導致資料遺失
-D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(1271,48): warning C4305: '引數': 從 'double' 轉換為 'float'，是由較大的類型轉換為較小的類型，可能導致資料遺失
-D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(1285,49): warning C4305: '引數': 從 'double' 轉換為 'float'，是由較大的類型轉換為較小的類型，可能導致資料遺失
-D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(1298,49): warning C4305: '引數': 從 'double' 轉換為 'float'，是由較大的類型轉換為較小的類型，可能導致資料遺失
-D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(1311,48): warning C4305: '引數': 從 'double' 轉換為 'float'，是由較大的類型轉換為較小的類型，可能導致資料遺失
-D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(1433,43): warning C4244: '引數': 將 'float' 轉換為 'const int'，由於類型不同，可能導致資料遺失
-D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(1433,36): warning C4244: '引數': 將 'float' 轉換為 'const int'，由於類型不同，可能導致資料遺失
-D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(1571,42): warning C4244: '引數': 將 'float' 轉換為 'const int'，由於類型不同，可能導致資料遺失
-D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(1571,35): warning C4244: '引數': 將 'float' 轉換為 'const int'，由於類型不同，可能導致資料遺失
-D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(1583,40): warning C4244: '引數': 將 'float' 轉換為 'const int'，由於類型不同，可能導致資料遺失
-D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(1583,33): warning C4244: '引數': 將 'float' 轉換為 'const int'，由於類型不同，可能導致資料遺失
-D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(1596,41): warning C4244: '引數': 將 'float' 轉換為 'const int'，由於類型不同，可能導致資料遺失
-D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(1596,34): warning C4244: '引數': 將 'float' 轉換為 'const int'，由於類型不同，可能導致資料遺失
-D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(1609,43): warning C4244: '引數': 將 'float' 轉換為 'const int'，由於類型不同，可能導致資料遺失
-D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(1609,36): warning C4244: '引數': 將 'float' 轉換為 'const int'，由於類型不同，可能導致資料遺失
-D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(1973,42): warning C4305: '=': 從 'double' 轉換為 'GLfloat'，是由較大的類型轉換為較小的類型，可能導致資料遺失
-D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(2071,40): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
-D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(2086,31): warning C4305: '+=': 從 'double' 轉換為 'float'，是由較大的類型轉換為較小的類型，可能導致資料遺失
+D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(227,28): warning C4305: '引數': 從 'double' 轉換為 'GLfloat'，是由較大的類型轉換為較小的類型，可能導致資料遺失
+D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(333,33): warning C4305: '引數': 從 'double' 轉換為 'GLfloat'，是由較大的類型轉換為較小的類型，可能導致資料遺失
+D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(336,23): warning C4305: '引數': 從 'double' 轉換為 'GLfloat'，是由較大的類型轉換為較小的類型，可能導致資料遺失
+D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(350,31): warning C4305: '引數': 從 'double' 轉換為 'GLfloat'，是由較大的類型轉換為較小的類型，可能導致資料遺失
+D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(988,96): warning C4305: '引數': 從 'double' 轉換為 'GLfloat'，是由較大的類型轉換為較小的類型，可能導致資料遺失
+D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(1246,45): warning C4305: '引數': 從 'double' 轉換為 'float'，是由較大的類型轉換為較小的類型，可能導致資料遺失
+D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(1260,47): warning C4305: '引數': 從 'double' 轉換為 'float'，是由較大的類型轉換為較小的類型，可能導致資料遺失
+D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(1277,48): warning C4305: '引數': 從 'double' 轉換為 'float'，是由較大的類型轉換為較小的類型，可能導致資料遺失
+D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(1291,49): warning C4305: '引數': 從 'double' 轉換為 'float'，是由較大的類型轉換為較小的類型，可能導致資料遺失
+D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(1304,49): warning C4305: '引數': 從 'double' 轉換為 'float'，是由較大的類型轉換為較小的類型，可能導致資料遺失
+D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(1317,48): warning C4305: '引數': 從 'double' 轉換為 'float'，是由較大的類型轉換為較小的類型，可能導致資料遺失
+D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(1524,43): warning C4244: '引數': 將 'float' 轉換為 'const int'，由於類型不同，可能導致資料遺失
+D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(1524,36): warning C4244: '引數': 將 'float' 轉換為 'const int'，由於類型不同，可能導致資料遺失
+D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(1651,42): warning C4244: '引數': 將 'float' 轉換為 'const int'，由於類型不同，可能導致資料遺失
+D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(1651,35): warning C4244: '引數': 將 'float' 轉換為 'const int'，由於類型不同，可能導致資料遺失
+D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(1663,40): warning C4244: '引數': 將 'float' 轉換為 'const int'，由於類型不同，可能導致資料遺失
+D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(1663,33): warning C4244: '引數': 將 'float' 轉換為 'const int'，由於類型不同，可能導致資料遺失
+D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(1676,41): warning C4244: '引數': 將 'float' 轉換為 'const int'，由於類型不同，可能導致資料遺失
+D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(1676,34): warning C4244: '引數': 將 'float' 轉換為 'const int'，由於類型不同，可能導致資料遺失
+D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(1689,43): warning C4244: '引數': 將 'float' 轉換為 'const int'，由於類型不同，可能導致資料遺失
+D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(1689,36): warning C4244: '引數': 將 'float' 轉換為 'const int'，由於類型不同，可能導致資料遺失
+D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(2084,42): warning C4305: '=': 從 'double' 轉換為 'GLfloat'，是由較大的類型轉換為較小的類型，可能導致資料遺失
+D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(2193,40): warning C4244: '=': 將 'double' 轉換為 'float'，由於類型不同，可能導致資料遺失
+D:\OpenGL_HW_ShowRoom\OpenGL_HW\Open_Final\OpenGL_5\Example1.cpp(2208,31): warning C4305: '+=': 從 'double' 轉換為 'float'，是由較大的類型轉換為較小的類型，可能導致資料遺失
   SOIL.lib(SOIL.obj) : 找到 MSIL .netmodule 或以 /GL 編譯的模組。請以 /LTCG 重新啟動連結，將 /LTCG 加入連結命令列以提升連結器效能
 LINK : warning LNK4075: 忽略 '/INCREMENTAL'，由於 '/LTCG' 規格
 LINK : warning LNK4098: 預設的程式庫 'MSVCRT' 與其他使用的程式庫衝突，請使用 /NODEFAULTLIB:library
