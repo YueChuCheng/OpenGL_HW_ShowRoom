@@ -41,7 +41,9 @@ bool bPrintSmoke = false; //顯示煙霧
 bool bPrintTank = true; //顯示煙霧
 int iHurtTank = 0; //打中坦克車的次數
 bool bHurtTank = false; //tank中彈
-
+bool bPrintRope = true; //顯示繩子
+bool bIronDrop = false; //iron墜落
+bool bRabbitDie = false; //兔兔死亡
 
 //子彈方向
 float fBullet_x = 0.0f; 
@@ -59,7 +61,7 @@ GLuint g_uiFTexID_Room2[12]; //貼圖
 GLuint g_uiFTexID_Room3[3]; //貼圖
 GLuint g_uiNormalTexID_Room3; //normal map 貼圖
 GLuint g_uiFTexID_Room4[11]; //貼圖
-GLuint g_uiFTexID_Room5[17]; //貼圖
+GLuint g_uiFTexID_Room5[19]; //貼圖
 GLuint g_uiFTexID_Room6; //貼圖
 GLuint g_uiBulletMark; //彈痕
 
@@ -85,6 +87,7 @@ CQuad* bulletMark[20]; //子彈痕
 int iBulletMarkNUM = 0; //子彈痕出現的數量
 bool bPrintBulletMark = false; //子彈痕出現
 CQuad* CQcapoo[3]; //capoo
+CObjReader* iron; //熨斗
 
 
 
@@ -156,6 +159,8 @@ CQuad* CQFrontWall_Room5;
 //Room5 decorate
 CQuad* CQDoor1_Room5; //door
 CQuad* CQDoor2_Room5; //door
+CSolidCube* CQRope; //rope
+
 
 //Room6 Wall
 CQuad* CSFloor_Room6;
@@ -174,9 +179,9 @@ CQuad* CQDoor2_Room6; //door
 GLfloat g_fRadius = 120.0; //視覺範圍
 GLfloat g_fTheta = 60.0f * DegreesToRadians;
 GLfloat g_fPhi = 45.0f * DegreesToRadians;
-GLfloat g_fCameraMoveX = 41.0f;				// for camera movment
+GLfloat g_fCameraMoveX = 0.0f;				// for camera movment
 GLfloat g_fCameraMoveY = 7.0f;				// for camera movment
-GLfloat g_fCameraMoveZ = 41.0f;				// for camera movment
+GLfloat g_fCameraMoveZ = 0.0f;				// for camera movment
 mat4	g_matMoveDir;		// 鏡頭移動方向
 point4  g_MoveDir;
 point4  g_at;				// 鏡頭觀看方向
@@ -1416,6 +1421,8 @@ void init( void )
 	g_uiFTexID_Room5[14] = texturepool->AddTexture("texture/capoo/12.png");
 	g_uiFTexID_Room5[15] = texturepool->AddTexture("texture/capoo/13.png");
 	g_uiFTexID_Room5[16] = texturepool->AddTexture("texture/capoo/14.png");
+	g_uiFTexID_Room5[17] = texturepool->AddTexture("texture/Model_texture/iron.png");
+	g_uiFTexID_Room5[18] = texturepool->AddTexture("texture/capoo/die.png");
 
 	g_uiFTexID_Room6 = texturepool->AddTexture("texture/Room6/wallpaper_leaf.png");
 
@@ -1479,30 +1486,30 @@ void init( void )
 	CQcapoo[0]->setShader();
 	CQcapoo[0]->SetTextureLayer(DIFFUSE_MAP);  // 使用 
 	CQcapoo[0]->SetCubeMapTexName(1);
-	CQcapoo[0]->_vT.x = 38.0f; CQcapoo[0]->_vT.y = 2.3f; CQcapoo[0]->_vT.z = 32.0f;
+	CQcapoo[0]->_vT.x = 30.0f; CQcapoo[0]->_vT.y = 2.3f; CQcapoo[0]->_vT.z = 37.0f;
 	mxT = Translate(CQcapoo[0]->_vT);
 	CQcapoo[0]->_vS.x = CQcapoo[0]->_vS.y = CQcapoo[0]->_vS.z = 4.0f;
 	mxS = Scale(CQcapoo[0]->_vS);
 	CQcapoo[0]->_vR = 90.0f;
-	CQcapoo[0]->setTRSMatrix(mxT * RotateX(CQcapoo[0]->_vR) * mxS);
+	CQcapoo[0]->setTRSMatrix(mxT * RotateY(CQcapoo[0]->_vR) * RotateX(CQcapoo[0]->_vR) * mxS);
 	CQcapoo[0]->setShadingMode(GOURAUD_SHADING);
 	CQcapoo[0]->setMaterials(vec4(1.8f, 1.8f, 1.8f, 1.8f), vec4(0.85f, 0.85f, 0.85f, 1.0f), vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	CQcapoo[0]->setKaKdKsShini(0.5f, 1.5f, 0.2f, 2);
+	CQcapoo[0]->setKaKdKsShini(0.0f, 1.5f, 0.2f, 2);
 
 
 	CQcapoo[1] = new CQuad;
 	CQcapoo[1]->setShader();
 	CQcapoo[1]->SetTextureLayer(DIFFUSE_MAP);  // 使用 
 	CQcapoo[1]->SetCubeMapTexName(1);
-	CQcapoo[1]->_vT.x = 41.0f; CQcapoo[1]->_vT.y = 3.0f; CQcapoo[1]->_vT.z = 32.0f;
+	CQcapoo[1]->_vT.x = 30.0f; CQcapoo[1]->_vT.y = 3.0f; CQcapoo[1]->_vT.z = 41.0f;
 	mxT = Translate(CQcapoo[1]->_vT);
 	CQcapoo[1]->_vS.x = CQcapoo[1]->_vS.y = CQcapoo[1]->_vS.z = 7.0f;
 	mxS = Scale(CQcapoo[1]->_vS);
 	CQcapoo[1]->_vR = 90.0f;
-	CQcapoo[1]->setTRSMatrix(mxT * RotateX(CQcapoo[1]->_vR) * mxS);
+	CQcapoo[1]->setTRSMatrix(mxT * RotateY(CQcapoo[1]->_vR) * RotateX(CQcapoo[1]->_vR) * mxS);
 	CQcapoo[1]->setShadingMode(GOURAUD_SHADING);
 	CQcapoo[1]->setMaterials(vec4(1.8f, 1.8f, 1.8f, 1.8f), vec4(0.85f, 0.85f, 0.85f, 1.0f), vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	CQcapoo[1]->setKaKdKsShini(0.5f, 1.5f, 0.2f, 2);
+	CQcapoo[1]->setKaKdKsShini(0.0f, 1.5f, 0.2f, 2);
 
 
 
@@ -1510,15 +1517,15 @@ void init( void )
 	CQcapoo[2]->setShader();
 	CQcapoo[2]->SetTextureLayer(DIFFUSE_MAP);  // 使用 
 	CQcapoo[2]->SetCubeMapTexName(1);
-	CQcapoo[2]->_vT.x = 44.0f; CQcapoo[2]->_vT.y = 2.3f; CQcapoo[2]->_vT.z = 32.0f;
+	CQcapoo[2]->_vT.x = 30.0f; CQcapoo[2]->_vT.y = 2.3f; CQcapoo[2]->_vT.z = 45.0f;
 	mxT = Translate(CQcapoo[2]->_vT);
 	CQcapoo[2]->_vS.x = CQcapoo[2]->_vS.y = CQcapoo[2]->_vS.z = 5.0f;
 	mxS = Scale(CQcapoo[2]->_vS);
 	CQcapoo[2]->_vR = 90.0f;
-	CQcapoo[2]->setTRSMatrix(mxT * RotateX(CQcapoo[2]->_vR) * mxS);
+	CQcapoo[2]->setTRSMatrix(mxT * RotateY(CQcapoo[2]->_vR) * RotateX(CQcapoo[2]->_vR) * mxS);
 	CQcapoo[2]->setShadingMode(GOURAUD_SHADING);
 	CQcapoo[2]->setMaterials(vec4(1.8f, 1.8f, 1.8f, 1.8f), vec4(0.85f, 0.85f, 0.85f, 1.0f), vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	CQcapoo[2]->setKaKdKsShini(0.5f, 1.5f, 0.2f, 2);
+	CQcapoo[2]->setKaKdKsShini(0.0f, 1.5f, 0.2f, 2);
 
 	
 	CSSphere = new CSolidSphere(1.0f, 24.0f, 12.0f);
@@ -1648,6 +1655,34 @@ void init( void )
 	g_track->setKaKdKsShini(0.25f, 0.8f, 0.2f, 2);
 	g_track->SetIlightNUM(3);
 
+
+	iron = new CObjReader("Model/iron.obj");
+	iron->SetTextureLayer(DIFFUSE_MAP);
+	iron->setShader();
+	iron->_vT.x = 30.0f; iron->_vT.y = 25.0f; iron->_vT.z = 41.0f;
+	mxT = Translate(iron->_vT);
+	iron->_vS.x = iron->_vS.y = iron->_vS.z = 0.3f;
+	mxS = Scale(iron->_vS);
+	iron->_vR = -90;
+	iron->setTRSMatrix(mxT* RotateY(iron->_vR)*RotateX(iron->_vR)* mxS);
+	iron->setShadingMode(GOURAUD_SHADING);
+	iron->setMaterials(vec4(0.5f, 0.5f, 0.5f, 0.15f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	iron->setKaKdKsShini(1.5f, 0.8f, 0.2f, 2);
+
+
+	CQRope = new CSolidCube();
+	CQRope->setShader();
+	CQRope->_vT.x = 30.0f; CQRope->_vT.y = 35.0f; CQRope->_vT.z = 41.0f;
+	mxT = Translate(CQRope->_vT);
+	CQRope->_vS.x = 0.2f; CQRope->_vS.y = 10.0f; CQRope->_vS.z = 0.2f;
+	mxS = Scale(CQRope->_vS);
+	CQRope->setTRSMatrix(mxT* mxS);
+	CQRope->setShadingMode(GOURAUD_SHADING);
+	CQRope->setMaterials(vec4(1.5f, 1.5f, 1.5f, 1.5f), vec4(0.85f, 0.0f, 0.0f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CQRope->setKaKdKsShini(0.0f, 1.5f, 0.2f, 2);
+
+
+
 	g_Earth = new CSolidSphere(1.0f, 24.0f, 12.0f);
 	g_Earth->SetTextureLayer(DIFFUSE_MAP);
 	g_Earth->setShader();
@@ -1696,6 +1731,8 @@ void init( void )
 	g_bullet->setShadingMode(GOURAUD_SHADING);
 	g_bullet->setMaterials(vec4(0), vec4(0.0f , 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	g_bullet->setKaKdKsShini(0.25f, 0.8f, 0.2f, 2);
+
+	
 	
 	init_UI();
 	init_skybox();
@@ -1726,6 +1763,8 @@ void init( void )
 		CQcapoo[i]->setProjectionMatrix(mpx);
 	}
 	
+	CQRope->setProjectionMatrix(mpx);
+	iron->setProjectionMatrix(mpx); 
 	CQTip->setProjectionMatrix(mpx);
 	g_bullet->setProjectionMatrix(mpx);
 	CSSphere->setProjectionMatrix(mpx);
@@ -1980,8 +2019,11 @@ void GL_Display( void )
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room4[1]);
 	CSFloor_Room5->draw();
 	CSCeiling_Room5->draw();
+	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room5[17]);
+	iron->draw();
 
-
+	if(bPrintRope)
+		CQRope->draw();
 	
 
 	glActiveTexture(GL_TEXTURE0);
@@ -2040,9 +2082,17 @@ void GL_Display( void )
 
 	for (int i = 0; i < 3; i++)
 	{
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room5[capoo_txCount]);
-		CQcapoo[i]->draw();
+		if (!bRabbitDie) {
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room5[capoo_txCount]);
+			CQcapoo[i]->draw();
+		}
+
+		else {
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room5[18]);
+			CQcapoo[i]->draw();
+		}
 	}
 	
 
@@ -2166,6 +2216,11 @@ void onLunchBullet(float delta) { //偵測子彈訊息、子彈軌跡更新
 
 		if ((g_bullet->_vT.x < 4.0 && g_bullet->_vT.x > -4.0) && (g_bullet->_vT.z < 45 && g_bullet->_vT.z > 37) && (g_bullet->_vT.y < 27 && g_bullet->_vT.y > 19) && bPrintBulletMark == false && (bInRoom[2] || bInRoom[1])) { //碰撞偵測 且尚未出現子彈痕 且位於第二個房間
 			bSunOnFire = true;
+		}
+
+		if ((g_bullet->_vT.x < 30.4 && g_bullet->_vT.x > 29.6) && (g_bullet->_vT.z < 41.4 && g_bullet->_vT.z > 40.6) && (g_bullet->_vT.y < 40 && g_bullet->_vT.y > 20) && bPrintBulletMark == false && (bInRoom[8] || bInRoom[7])) { //碰撞偵測 且尚未出現子彈痕 且位於第五個房間
+			bPrintRope = false;
+			bIronDrop = true;
 		}
 	
 	}
@@ -2303,6 +2358,28 @@ inline void Room3_Detect() {
 
 }
 
+inline void Room5_Detect(float delta) {
+	if(bIronDrop){
+		if (iron->_vT.y > 0.2f) {
+			iron->_vT.y -= delta * 5.0f * 9.8f * iron->_vT.y * 0.2;
+			iron->setTRSMatrix(Translate(iron->_vT) * RotateY(iron->_vR) * RotateX(iron->_vR) * Scale(iron->_vS));
+		}
+		else {
+			bRabbitDie = true;
+			for (int i = 0; i < 3; i++)
+			{
+				CQcapoo[i]->_vT.y = 0.1f;
+				CQcapoo[i]->_vT.x = 33.0f;
+				CQcapoo[i]->setTRSMatrix(Translate(CQcapoo[i]->_vT) * RotateY(-1 * CQcapoo[i]->_vR ) * Scale(CQcapoo[i]->_vS));
+			}
+			
+
+		}
+
+	}
+	
+}
+
 float capoo_delta; //計算幾秒換一次門
 float door_delta; //計算幾秒換一次門
 float smoke_delta; //計算幾秒換一次門
@@ -2314,6 +2391,7 @@ void onFrameMove(float delta)
 	Room1_Detect();
 	Room2_Detect();
 	Room3_Detect();
+	Room5_Detect(delta);
 
 	//計算0.2秒換一次門的貼圖
 	door_delta += delta;
@@ -2395,8 +2473,8 @@ void onFrameMove(float delta)
 			CQcapoo[i]->setViewMatrix(mvx);
 		}
 		
-	
-
+		CQRope->setViewMatrix(mvx);
+		iron->setViewMatrix(mvx);
 		g_bullet->setViewMatrix(mvx);
 		g_balcony->setViewMatrix(mvx);
 		g_track->setViewMatrix(mvx);
@@ -2558,6 +2636,8 @@ void onFrameMove(float delta)
 	CSCeiling_Room5->update(delta, Light_resulte_Room5);
 	CQDoor1_Room5->update(delta, Light_resulte_Room5);
 	CQDoor2_Room5->update(delta, Light_resulte_Room5);
+	iron->update(delta, Light_resulte_Room5);
+	CQRope->update(delta, Light_resulte_Room5);
 
 	for (int i = 0; i < 3; i++)
 	{
@@ -2684,6 +2764,8 @@ void Win_Keyboard( unsigned char key, int x, int y )
 			delete g_Target[i];
 		delete g_tank;
 		
+		delete CQRope;
+		delete iron;
 		delete g_Sun;
 		delete g_Earth;
 		delete g_Moon;	
