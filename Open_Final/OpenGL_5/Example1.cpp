@@ -28,16 +28,24 @@ CQuad* CQ_uiBtn[4];
 
 
 //遊戲變數
-bool bfinish = false; //結束第一關遊戲
+bool bfinish_Room1 = false; //結束第一關遊戲
 bool bFire = false; //開槍
 bool bBulletFly = false; //子彈持續改變位置
+bool bPrintUI = false; //顯示Room 1 的UI介面
+bool bPrintTip = true; //顯示Room 1 的UI介面
+bool bTookGun = false; //已拿到槍
+bool bShootTarget[3] = { false }; //已拿到槍
+bool bSunOnFire = false; //太陽被點亮
+bool bInRoom[13] = { false };  //哪間房間
+
+
 //子彈方向
 float fBullet_x = 0.0f; 
 float fBullet_y = 0.0f;
 float fBullet_z = 0.0f;
 
 
-GLuint g_uiFTexID_Room1[28]; //貼圖
+GLuint g_uiFTexID_Room1[33]; //貼圖
 GLuint g_uiLightTexID_Room1; //light map 貼圖
 GLuint g_uiNormalTexID_Room1; //normal map 貼圖
 GLuint g_uiSphereCubeMap; //enviroment map 貼圖
@@ -64,7 +72,7 @@ CSolidSphere* CSSphere; //environment map
 							  
 //model
 CObjReader* g_tank; //坦克車
-CObjReader* g_Target; //標靶
+CObjReader* g_Target[3]; //標靶
 CObjReader* g_gun; //槍
 CSolidSphere* g_bullet; //子彈
 CObjReader* g_cat; //貓
@@ -87,6 +95,7 @@ CQuad* CQBackWall_Room1;
 //Room1 decorate
 CQuad* CQDoor1_Room1; //door
 CQuad* CQDoor2_Room1; //door
+CQuad* CQTip; //Tip
 
 
 //Room2 Wall
@@ -159,9 +168,9 @@ CQuad* CQDoor2_Room6; //door
 GLfloat g_fRadius = 120.0; //視覺範圍
 GLfloat g_fTheta = 60.0f * DegreesToRadians;
 GLfloat g_fPhi = 45.0f * DegreesToRadians;
-GLfloat g_fCameraMoveX = 41.f;				// for camera movment
+GLfloat g_fCameraMoveX = 0.0f;				// for camera movment
 GLfloat g_fCameraMoveY = 7.0f;				// for camera movment
-GLfloat g_fCameraMoveZ = 82.0f;				// for camera movment
+GLfloat g_fCameraMoveZ = 0.0f;				// for camera movment
 mat4	g_matMoveDir;		// 鏡頭移動方向
 point4  g_MoveDir;
 point4  g_at;				// 鏡頭觀看方向
@@ -216,7 +225,7 @@ LightSource  Light_center_Room2 = {
 	vec3(0.0f, 0.0f, 0.0f),		  //spotTarget
 	vec3(_fLightRadius, 0.0f, 0.0f),			  //spotDirection
 	1.0f	,	// spotExponent(parameter e); cos^(e)(phi) 
-	-0.0f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
+	0.0f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
 	1.0f	,	// spotCosCutoff; // (range: [1.0,0.0],-1.0), 照明方向與被照明點之間的角度取 cos 後, cut off 的值
 	1	,	// constantAttenuation	(a + bd + cd^2)^-1 中的 a, d 為光源到被照明點的距離
 	0	,	// linearAttenuation	    (a + bd + cd^2)^-1 中的 b
@@ -345,6 +354,60 @@ LightSource  _Light3 = {
 };
 
 
+LightSource  _TargetLight1 = {
+
+	color4(0.0, 0.0, 0.0, 1.0f), // ambient 
+	color4(0.0, 10.0, 10.0, 1.0f), // diffuse
+	color4(0.0, 0.0, 0.0, 1.0f), // specular
+	point4(-11, 17.0, 100.0f, 1.0f),   // position
+	point4(0.0f, 0.0f, 0.0f, 1.0f),   // halfVector
+	vec3(10.0f, 0.0f, 6.0f),		  //spotTarget
+	vec3(10.0f, 0.0f, 6.0f),			  //spotDirection
+	1.0f	,	// spotExponent(parameter e); cos^(e)(phi) 
+	0.95f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
+	1.0f	,	// spotCosCutoff; // (range: [1.0,0.0],-1.0), 照明方向與被照明點之間的角度取 cos 後, cut off 的值
+	1	,	// constantAttenuation	(a + bd + cd^2)^-1 中的 a, d 為光源到被照明點的距離
+	0	,	// linearAttenuation	    (a + bd + cd^2)^-1 中的 b
+	0		// quadraticAttenuation (a + bd + cd^2)^-1 中的 c
+};
+
+
+LightSource  _TargetLight2 = {
+
+	color4(0.0, 0.0, 0.0, 1.0f), // ambient 
+	color4(0.0, 10.0, 10.0, 1.0f), // diffuse
+	color4(0.0, 0.0, 0.0, 1.0f), // specular
+	point4(0.0, 17.0, 100.0f, 1.0f),   // position
+	point4(0.0f, 0.0f, 0.0f, 1.0f),   // halfVector
+	vec3(10.0f, 0.0f, 6.0f),		  //spotTarget
+	vec3(10.0f, 0.0f, 6.0f),			  //spotDirection
+	1.0f	,	// spotExponent(parameter e); cos^(e)(phi) 
+	0.95f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
+	1.0f	,	// spotCosCutoff; // (range: [1.0,0.0],-1.0), 照明方向與被照明點之間的角度取 cos 後, cut off 的值
+	1	,	// constantAttenuation	(a + bd + cd^2)^-1 中的 a, d 為光源到被照明點的距離
+	0	,	// linearAttenuation	    (a + bd + cd^2)^-1 中的 b
+	0		// quadraticAttenuation (a + bd + cd^2)^-1 中的 c
+};
+
+
+LightSource  _TargetLight3 = {
+
+	color4(0.0, 0.0, 0.0, 1.0f), // ambient 
+	color4(0.0, 10.0, 10.0, 1.0f), // diffuse
+	color4(0.0, 0.0, 0.0, 1.0f), // specular
+	point4(11.0, 17.0, 100.0f, 1.0f),   // position
+	point4(0.0f, 0.0f, 0.0f, 1.0f),   // halfVector
+	vec3(10.0f, 0.0f, 6.0f),		  //spotTarget
+	vec3(10.0f, 0.0f, 6.0f),			  //spotDirection
+	1.0f	,	// spotExponent(parameter e); cos^(e)(phi) 
+	0.95f,	// spotCutoff;	// (range: [0.0, 90.0], 180.0)  spot 的照明範圍
+	1.0f	,	// spotCosCutoff; // (range: [1.0,0.0],-1.0), 照明方向與被照明點之間的角度取 cos 後, cut off 的值
+	1	,	// constantAttenuation	(a + bd + cd^2)^-1 中的 a, d 為光源到被照明點的距離
+	0	,	// linearAttenuation	    (a + bd + cd^2)^-1 中的 b
+	0		// quadraticAttenuation (a + bd + cd^2)^-1 中的 c
+};
+
+
 LightSource  Light_environment = {
 
 	color4(g_fLightR, g_fLightG, g_fLightB, 1.0f), // ambient 
@@ -374,7 +437,7 @@ LightSource Light_resulte_Room2[LIGHT_NUM_MAX] = { //最後燈光結果
 
 LightSource Light_resulte_Room3[LIGHT_NUM_MAX] = { //最後燈光結果
 
-	Light_center_Room3, _Light1 ,  _Light2 ,  _Light3
+	Light_center_Room3, _TargetLight1 ,  _TargetLight2 ,  _TargetLight3
 };
 
 LightSource Light_resulte_Room4[LIGHT_NUM_MAX] = { //最後燈光結果
@@ -396,6 +459,22 @@ LightSource Light_resulte_Room6[LIGHT_NUM_MAX] = { //最後燈光結果
 LightSource Light_resulte_enviroment[LIGHT_NUM_MAX] = { //最後燈光結果
 
 	Light_environment, Light_center_Room6 ,  _Light2 ,  _Light3
+};
+
+
+LightSource Light_resulte_Target1[LIGHT_NUM_MAX] = { //最後燈光結果
+
+	Light_center_Room3, _TargetLight1 ,  _Light2 ,  _Light3
+};
+
+LightSource Light_resulte_Target2[LIGHT_NUM_MAX] = { //最後燈光結果
+
+	Light_center_Room3, _TargetLight2 ,  _Light2 ,  _Light3
+};
+
+LightSource Light_resulte_Target3[LIGHT_NUM_MAX] = { //最後燈光結果
+
+	Light_center_Room3, _TargetLight3 ,  _Light2 ,  _Light3
 };
 
 
@@ -645,6 +724,7 @@ void init_Room3() {
 	vT.x = 0.0f; vT.y = 0.0f; vT.z = 82.0f;
 	mxT = Translate(vT);
 	CSFloor_Room3 = new CQuad;
+	CSFloor_Room3->SetIlightNUM(4);
 	CSFloor_Room3->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	CSFloor_Room3->setKaKdKsShini(0, 0.8f, 0.5f, 1);
 	CSFloor_Room3->setShadingMode(GOURAUD_SHADING);
@@ -899,9 +979,8 @@ void init_Room5() {
 	vT.x = 61.0f; vT.y = 20.0f; vT.z = 41.0f;
 	mxT = Translate(vT);
 	CQRightWall_Room5 = new CQuad;
-	CQRightWall_Room5->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CQRightWall_Room5->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 0.7), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	CQRightWall_Room5->setShadingMode(GOURAUD_SHADING);
-	CQRightWall_Room5->SetTextureLayer(DIFFUSE_MAP);
 	CQRightWall_Room5->setShader();
 	CQRightWall_Room5->setColor(vec4(0.6f));
 	CQRightWall_Room5->setTRSMatrix(mxT * RotateZ(90.0f) * Scale(40.0f, 1, 40.0f));
@@ -1067,21 +1146,75 @@ void init_Room6() {
 
 }
 
-
 void init_UI(void) {
 	mat4 mxT, mxS;
 	vec4 vT, vColor;
 	
-	/*vT.x = 0.0f; vT.y = -0.5f; vT.z = 0.0f;
+	//上
+	vT.x = 1.5f; vT.y = -1.4f; vT.z = -4.0f;
 	mxT = Translate(vT);
 	CQ_uiBtn[0] = new CQuad;
+	CQ_uiBtn[0]->setShaderName("vsSkyBox.glsl", "fsSkyBox.glsl"); //色彩不被燈光影響
 	CQ_uiBtn[0]->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
 	CQ_uiBtn[0]->setShadingMode(GOURAUD_SHADING);
-	CQ_uiBtn[0]->SetTextureLayer(DIFFUSE_MAP);
+	//CQ_uiBtn[0]->SetTextureLayer(DIFFUSE_MAP);
 	CQ_uiBtn[0]->setShader();
 	CQ_uiBtn[0]->setColor(vec4(0.6f));
-	CQ_uiBtn[0]->setTRSMatrix(RotateY(90) * mxT  * Scale(2.0f, 0.1f, 2.0f));
-	CQ_uiBtn[0]->setKaKdKsShini(0, 0.8f, 0.5f, 1);*/
+	CQ_uiBtn[0]->setTRSMatrix( mxT *  RotateX(90) * Scale(0.5f, 2.0f, 0.5f));
+	CQ_uiBtn[0]->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+
+	//下
+	vT.x = 1.5f; vT.y = -2.0f; vT.z = -4.0f;
+	mxT = Translate(vT);
+	CQ_uiBtn[1] = new CQuad;
+	CQ_uiBtn[1]->setShaderName("vsSkyBox.glsl", "fsSkyBox.glsl"); //色彩不被燈光影響
+	CQ_uiBtn[1]->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CQ_uiBtn[1]->setShadingMode(GOURAUD_SHADING);
+	//CQ_uiBtn[0]->SetTextureLayer(DIFFUSE_MAP);
+	CQ_uiBtn[1]->setShader();
+	CQ_uiBtn[1]->setColor(vec4(0.6f));
+	CQ_uiBtn[1]->setTRSMatrix(mxT * RotateX(90) * Scale(0.5f, 2.0f, 0.5f));
+	CQ_uiBtn[1]->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+
+	//左
+	vT.x = 0.9f; vT.y = -2.0f; vT.z = -4.0f;
+	mxT = Translate(vT);
+	CQ_uiBtn[2] = new CQuad;
+	CQ_uiBtn[2]->setShaderName("vsSkyBox.glsl", "fsSkyBox.glsl"); //色彩不被燈光影響
+	CQ_uiBtn[2]->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CQ_uiBtn[2]->setShadingMode(GOURAUD_SHADING);
+	//CQ_uiBtn[0]->SetTextureLayer(DIFFUSE_MAP);
+	CQ_uiBtn[2]->setShader();
+	CQ_uiBtn[2]->setColor(vec4(0.6f));
+	CQ_uiBtn[2]->setTRSMatrix(mxT * RotateX(90) * Scale(0.5f, 2.0f, 0.5f));
+	CQ_uiBtn[2]->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+
+	//右
+	vT.x = 2.1f; vT.y = -2.0f; vT.z = -4.0f;
+	mxT = Translate(vT);
+	CQ_uiBtn[3] = new CQuad;
+	CQ_uiBtn[3]->setShaderName("vsSkyBox.glsl", "fsSkyBox.glsl"); //色彩不被燈光影響
+	CQ_uiBtn[3]->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CQ_uiBtn[3]->setShadingMode(GOURAUD_SHADING);
+	//CQ_uiBtn[0]->SetTextureLayer(DIFFUSE_MAP);
+	CQ_uiBtn[3]->setShader();
+	CQ_uiBtn[3]->setColor(vec4(0.6f));
+	CQ_uiBtn[3]->setTRSMatrix(mxT * RotateX(90) * Scale(0.5f, 2.0f, 0.5f));
+	CQ_uiBtn[3]->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+
+
+
+	vT.x = 0.0f; vT.y = 1.0f; vT.z = 0.0f;
+	mxT = Translate(vT);
+	CQTip = new CQuad;
+	CQTip->setMaterials(vec4(0.15f, 0.15f, 0.15f, 1.0f), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	CQTip->setShadingMode(GOURAUD_SHADING);
+	CQTip->SetTextureLayer(DIFFUSE_MAP);
+	CQTip->setShader();
+	CQTip->setColor(vec4(0.6f));
+	CQTip->setTRSMatrix(mxT  * Scale(4.0f, 2.0f, 4.0f));
+	CQTip->setKaKdKsShini(0, 0.8f, 0.5f, 1);
+
 
 }
 
@@ -1218,6 +1351,11 @@ void init( void )
 	g_uiFTexID_Room1[25] = texturepool->AddTexture("texture/Door/19.png");
 	g_uiFTexID_Room1[26] = texturepool->AddTexture("texture/Door/20.png");
 	g_uiFTexID_Room1[27] = texturepool->AddTexture("texture/Door/21.png");
+	g_uiFTexID_Room1[28] = texturepool->AddTexture("texture/Room1/top.png");
+	g_uiFTexID_Room1[29] = texturepool->AddTexture("texture/Room1/down.png");
+	g_uiFTexID_Room1[30] = texturepool->AddTexture("texture/Room1/left.png");
+	g_uiFTexID_Room1[31] = texturepool->AddTexture("texture/Room1/right.png");
+	g_uiFTexID_Room1[32] = texturepool->AddTexture("texture/Room1/tip.png");
 
 
 
@@ -1290,6 +1428,7 @@ void init( void )
 
 	
 
+
 	
 	CSSphere = new CSolidSphere(1.0f, 24.0f, 12.0f);
 	CSSphere->SetCubeMapTexName(1);
@@ -1339,19 +1478,52 @@ void init( void )
 	g_gun->setKaKdKsShini(1.5f, 0.8f, 0.2f, 2);
 
 
-	g_Target = new CObjReader("Model/Target.obj");
-	g_Target->SetTextureLayer(DIFFUSE_MAP);
-	g_Target->setShader();
-	g_Target->_vT.x = 0.0f; g_Target->_vT.y = 2.0f; g_Target->_vT.z = 100.0f;
-	mxT = Translate(g_Target->_vT);
-	g_Target->_vS.x = g_Target->_vS.y = g_Target->_vS.z = 0.1f;
-	mxS = Scale(g_Target->_vS);
-	g_Target->setTRSMatrix(mxT* RotateX(-110)* RotateZ(180)* mxS);
-	g_Target->setShadingMode(GOURAUD_SHADING);
-	g_Target->setMaterials(vec4(0), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	g_Target->setKaKdKsShini(0.25f, 0.8f, 0.2f, 2);
-	g_Target->SetIlightNUM(2);
 
+	
+	g_Target[0] = new CObjReader("Model/Target.obj");
+	g_Target[0]->SetIlightNUM(2);
+	g_Target[0]->SetTextureLayer(DIFFUSE_MAP);
+	g_Target[0]->setShader();
+	g_Target[0]->_vT.x = -11.0f; g_Target[0]->_vT.y = 2.0f; g_Target[0]->_vT.z = 100.0f;
+	mxT = Translate(g_Target[0]->_vT);
+	g_Target[0]->_vS.x = g_Target[0]->_vS.y = g_Target[0]->_vS.z = 0.1f;
+	mxS = Scale(g_Target[0]->_vS);
+	g_Target[0]->setTRSMatrix(mxT * RotateX(-110) * RotateZ(180) * mxS);
+	g_Target[0]->setShadingMode(GOURAUD_SHADING);
+	g_Target[0]->setMaterials(vec4(0), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	g_Target[0]->setKaKdKsShini(0.25f, 0.8f, 0.2f, 2);
+	g_Target[0]->SetIlightNUM(2);
+
+
+	g_Target[1] = new CObjReader("Model/Target.obj");
+	g_Target[1]->SetIlightNUM(2);
+	g_Target[1]->SetTextureLayer(DIFFUSE_MAP);
+	g_Target[1]->setShader();
+	g_Target[1]->_vT.x = 0.0f; g_Target[1]->_vT.y = 2.0f; g_Target[1]->_vT.z = 100.0f;
+	mxT = Translate(g_Target[1]->_vT);
+	g_Target[1]->_vS.x = g_Target[1]->_vS.y = g_Target[1]->_vS.z = 0.1f;
+	mxS = Scale(g_Target[1]->_vS);
+	g_Target[1]->setTRSMatrix(mxT * RotateX(-110) * RotateZ(180) * mxS);
+	g_Target[1]->setShadingMode(GOURAUD_SHADING);
+	g_Target[1]->setMaterials(vec4(0), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	g_Target[1]->setKaKdKsShini(0.25f, 0.8f, 0.2f, 2);
+	g_Target[1]->SetIlightNUM(2);
+
+
+
+	g_Target[2] = new CObjReader("Model/Target.obj");
+	g_Target[2]->SetIlightNUM(2);
+	g_Target[2]->SetTextureLayer(DIFFUSE_MAP);
+	g_Target[2]->setShader();
+	g_Target[2]->_vT.x = 11.0f; g_Target[2]->_vT.y = 2.0f; g_Target[2]->_vT.z = 100.0f;
+	mxT = Translate(g_Target[2]->_vT);
+	g_Target[2]->_vS.x = g_Target[2]->_vS.y = g_Target[2]->_vS.z = 0.1f;
+	mxS = Scale(g_Target[2]->_vS);
+	g_Target[2]->setTRSMatrix(mxT * RotateX(-110) * RotateZ(180) * mxS);
+	g_Target[2]->setShadingMode(GOURAUD_SHADING);
+	g_Target[2]->setMaterials(vec4(0), vec4(0.85f, 0.85f, 0.85f, 1), vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	g_Target[2]->setKaKdKsShini(0.25f, 0.8f, 0.2f, 2);
+	g_Target[2]->SetIlightNUM(2);
 
 	
 
@@ -1462,10 +1634,20 @@ void init( void )
 		bulletMark[i]->setProjectionMatrix(mpx);
 	}
 
+
+	//UI
+	for (int i = 0; i < 4; i++)
+	{
+		CQ_uiBtn[i]->setProjectionMatrix(mpx);
+	}
+
+
+	CQTip->setProjectionMatrix(mpx);
 	g_bullet->setProjectionMatrix(mpx);
 	CSSphere->setProjectionMatrix(mpx);
 	g_tank->setProjectionMatrix(mpx);
-	g_Target->setProjectionMatrix(mpx);
+	for (int i = 0; i < 3; i++)
+		g_Target[i]->setProjectionMatrix(mpx);
 	g_Sun->setProjectionMatrix(mpx);
 	g_Earth->setProjectionMatrix(mpx);
 	g_Moon->setProjectionMatrix(mpx);
@@ -1549,8 +1731,7 @@ void GL_Display( void )
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the window
 	//glEnable(GL_BLEND);  // 設定2D Texure Mapping 有作用
 
-	glBindTexture(GL_TEXTURE_2D, 0);
-	g_bullet->draw();
+	
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_skybox[0]);
@@ -1572,11 +1753,19 @@ void GL_Display( void )
 	CSFloor_skybox->draw();
 
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[2]);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room4[3]);
-	g_gun->draw();
+	if (bTookGun) { //已拿到槍才可顯示槍與子彈
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[2]);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room4[3]);
+		g_gun->draw();
+
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+		g_bullet->draw();
+	}
+	
 
 
 	glActiveTexture(GL_TEXTURE0);
@@ -1600,25 +1789,39 @@ void GL_Display( void )
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[0]);
 	CQFrontWall_Room1->draw();
 	CQBackWall_Room1->draw();
-
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[3]);
 	CQLeftWall_Room1->draw();
-
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[1]);
 	glActiveTexture(GL_TEXTURE1);
-	if (bfinish ==false)
+	if (bfinish_Room1 ==false)
 		glBindTexture(GL_TEXTURE_2D, 0);
 	else
 		glBindTexture(GL_TEXTURE_2D, g_uiLightTexID_Room1);
-	
 	CSFloor_Room1->draw();
-	
-
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[4]);
 	CSCeiling_Room1->draw();
+
+	if(bPrintTip){
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[32]);
+		CQTip->draw();
+	
+	}
+
+
+	if (bPrintUI)
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[28 + i]);
+			CQ_uiBtn[i]->draw();
+		}
+	}
+	
 
 	
 
@@ -1626,10 +1829,11 @@ void GL_Display( void )
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room1[2]);
 	g_tank->draw();
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room3[1]);
-	g_Target->draw();
-
+	for (int i = 0; i < 3; i++) {
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room3[1]);
+		g_Target[i]->draw();
+	}
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room2[0]);
@@ -1682,7 +1886,6 @@ void GL_Display( void )
 
 
 	glBindTexture(GL_TEXTURE_2D, g_uiFTexID_Room5[0]);
-	CQRightWall_Room5->draw();
 	CQLeftWall_Room5->draw();
 	CQFrontWall_Room5->draw();
 	CQBackWall_Room5->draw();
@@ -1704,6 +1907,7 @@ void GL_Display( void )
 	CSFloor_Room6->draw();
 	CSCeiling_Room6->draw();
 	g_balcony->draw();
+
 
 
 
@@ -1734,6 +1938,7 @@ void GL_Display( void )
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	CQRightWall_Room4->draw();
+	CQRightWall_Room5->draw();
 	CQRightWall_Room6->draw();
 	glDisable(GL_BLEND);	// 關閉 Blending
 	glDepthMask(GL_TRUE);	// 開啟對 Z-Buffer 的寫入操作
@@ -1779,7 +1984,7 @@ void setBulletMark(float x , float y , float z) { //設定子彈痕出現的位置
 
 
 void onLunchBullet(float delta) { //偵測子彈訊息、子彈軌跡更新
-	if (bFire) { //若重新開槍則計算子彈位置
+	if (bFire && bTookGun) { //若重新開槍則計算子彈位置 且須拿到槍
 
 		float fvLength; //計算向量長度
 
@@ -1822,8 +2027,23 @@ void onLunchBullet(float delta) { //偵測子彈訊息、子彈軌跡更新
 		}
 
 
-		if ((g_bullet->_vT.x < 4.0 && g_bullet->_vT.x > -4.0) && (g_bullet->_vT.z < 100 && g_bullet->_vT.z > 97) && bPrintBulletMark == false) { //碰撞偵測 且尚未出現子彈痕
+		if ((g_bullet->_vT.x < 4.0 && g_bullet->_vT.x > -4.0) && (g_bullet->_vT.z < 100 && g_bullet->_vT.z > 97) && bPrintBulletMark == false && (bInRoom[4]|| bInRoom[3])) { //碰撞偵測 且尚未出現子彈痕 且位於第三個房間
 			setBulletMark(g_bullet->_vT.x, g_bullet->_vT.y, g_bullet->_vT.z); //創造子彈痕
+			bShootTarget[1] = true;
+		}
+
+		else if ((g_bullet->_vT.x < 15.0 && g_bullet->_vT.x > 7.0) && (g_bullet->_vT.z < 100 && g_bullet->_vT.z > 97) && bPrintBulletMark == false && (bInRoom[4] || bInRoom[3])) { //碰撞偵測 且尚未出現子彈痕 且位於第三個房間
+			setBulletMark(g_bullet->_vT.x, g_bullet->_vT.y, g_bullet->_vT.z); //創造子彈痕
+			bShootTarget[2] = true;
+		}
+
+		else if ((g_bullet->_vT.x < -7.0 && g_bullet->_vT.x > -15.0) && (g_bullet->_vT.z < 100 && g_bullet->_vT.z > 97) && bPrintBulletMark == false && (bInRoom[4] || bInRoom[3])) { //碰撞偵測 且尚未出現子彈痕 且位於第三個房間
+			setBulletMark(g_bullet->_vT.x, g_bullet->_vT.y, g_bullet->_vT.z); //創造子彈痕
+			bShootTarget[0] = true;
+		}
+
+		if ((g_bullet->_vT.x < 4.0 && g_bullet->_vT.x > -4.0) && (g_bullet->_vT.z < 45 && g_bullet->_vT.z > 37) && (g_bullet->_vT.y < 27 && g_bullet->_vT.y > 19) && bPrintBulletMark == false && (bInRoom[2] || bInRoom[1])) { //碰撞偵測 且尚未出現子彈痕 且位於第二個房間
+			bSunOnFire = true;
 		}
 	
 	}
@@ -1839,44 +2059,127 @@ float fMoon = 0.0f; //月球計秒
 float fMoonTheta = 0.0f; //月球計角度
 
 void onPlanetRotate(float delta) { //地日月轉動
-	mat4 mxT;
 
-	fEarth += delta;
-	fEarthTheta = fEarth * (float)M_PI_2 * 0.25; 
+	if (bSunOnFire) {
 
-	fMoon += delta;
-	fMoonTheta = fMoon * (float)M_PI_2; 
+		Light_resulte_Room2[0].spotCutoff = 0.0f; //開燈
+		g_Sun->setKaKdKsShini(2.0f, 0.8f, 2.0f, 2);
 
-	if (fEarthTheta >= (float)M_PI * 2.0f) {
-		fEarthTheta -= (float)M_PI * 2.0f;
-		fEarth -= 16.0f;
+		mat4 mxT;
+
+		fEarth += delta;
+		fEarthTheta = fEarth * (float)M_PI_2 * 0.25;
+
+		fMoon += delta;
+		fMoonTheta = fMoon * (float)M_PI_2;
+
+		if (fEarthTheta >= (float)M_PI * 2.0f) {
+			fEarthTheta -= (float)M_PI * 2.0f;
+			fEarth -= 16.0f;
+		}
+
+		if (fMoonTheta >= (float)M_PI * 2.0f) {
+			fMoonTheta -= (float)M_PI * 2.0f;
+			fMoon -= 4.0f;
+		}
+
+		fEarthSelfRotateTheta += 0.3;
+
+		if (fEarthSelfRotateTheta >= 360) {
+
+			fEarthSelfRotateTheta -= 360;
+
+		}
+
+		g_Earth->_vT.x = 10 * cosf(fEarthTheta);
+		g_Earth->_vT.z = 10 * sinf(fEarthTheta) + 41.0f;
+		g_Earth->setTRSMatrix(Translate(g_Earth->_vT) * RotateY(fEarthSelfRotateTheta) * Scale(g_Earth->_vS));
+
+
+		g_Moon->_vT.x = 5 * cosf(fMoonTheta);
+		g_Moon->_vT.z = 5 * sinf(fMoonTheta);
+		g_Moon->setTRSMatrix(Translate(g_Earth->_vT) * Translate(g_Moon->_vT) * Scale(g_Moon->_vS));
+
 	}
 
-	if (fMoonTheta >= (float)M_PI * 2.0f) {
-		fMoonTheta -= (float)M_PI * 2.0f;
-		fMoon -= 4.0f;
+	else {  //把燈關掉
+		Light_resulte_Room2[0].spotCutoff = 1.0f;
+		g_Sun->setKaKdKsShini(0.5f, 0.8f, 0.5f, 2);
 	}
 
-	fEarthSelfRotateTheta+=0.3;
+}
 
-	if (fEarthSelfRotateTheta>=360) {
+inline void Room1_Detect() {
 
-		fEarthSelfRotateTheta -= 360;
+
+	if ((Light_resulte_Room1[1].position.x < Light_resulte_Room1[2].position.x + 0.25f && Light_resulte_Room1[1].position.x > Light_resulte_Room1[2].position.x - 0.25f) && (Light_resulte_Room1[1].position.z < Light_resulte_Room1[2].position.z + 0.25f && Light_resulte_Room1[1].position.z > Light_resulte_Room1[2].position.z - 0.25f)) { //燈光於相同範圍則結束遊戲
+
+		bfinish_Room1 = true;
+		bPrintUI = false;
 
 	}
-	
-	g_Earth->_vT.x = 10 * cosf(fEarthTheta) ;
-	g_Earth->_vT.z = 10 * sinf(fEarthTheta) + 41.0f;
-	g_Earth->setTRSMatrix(Translate(g_Earth->_vT ) * RotateY(fEarthSelfRotateTheta) *  Scale(g_Earth->_vS));
 
-
-	g_Moon->_vT.x = 5 * cosf(fMoonTheta) ;
-	g_Moon->_vT.z = 5 * sinf(fMoonTheta) ;
-	g_Moon->setTRSMatrix(Translate(g_Earth->_vT) * Translate(g_Moon->_vT) * Scale(g_Moon->_vS));
 
 
 }
 
+
+inline void Room2_Detect() {
+
+
+	if (bInRoom[2]) { //在第二個房間
+		bTookGun = true; //給槍
+	}
+	
+}
+
+
+inline void Room3_Detect() {
+
+	for (int i = 0; i < 3; i++)
+	{
+		if (bShootTarget[i]) {
+
+			if (i == 0) {
+				Light_resulte_Target1[1].spotCutoff = 0.95f;
+				Light_resulte_Room3[1].spotCutoff = 0.95f;
+			}
+			else if (i == 1){
+				Light_resulte_Target2[1].spotCutoff = 0.95f;
+				Light_resulte_Room3[2].spotCutoff = 0.95f;
+			}
+				
+			else{
+				Light_resulte_Target3[1].spotCutoff = 0.95f;
+				Light_resulte_Room3[3].spotCutoff = 0.95f;
+			}
+				
+		}
+
+		else
+		{
+			if (i == 0){
+				Light_resulte_Target1[1].spotCutoff = 1.0f;
+				Light_resulte_Room3[1].spotCutoff = 1.0f;
+			}
+				
+			else if (i == 1){
+				Light_resulte_Target2[1].spotCutoff = 1.0f;
+				Light_resulte_Room3[2].spotCutoff = 1.0f;
+			}
+			
+			else {
+				Light_resulte_Target3[1].spotCutoff = 1.0f;
+				Light_resulte_Room3[3].spotCutoff = 1.0f;
+			}
+				
+		}
+
+	}
+	
+
+
+}
 
 float door_delta; //計算幾秒換一次門
 void onFrameMove(float delta)
@@ -1884,7 +2187,9 @@ void onFrameMove(float delta)
 
 	onLunchBullet(delta);
 	onPlanetRotate(delta);
-
+	Room1_Detect();
+	Room2_Detect();
+	Room3_Detect();
 
 	//計算0.2秒換一次門的貼圖
 	door_delta += delta;
@@ -1894,13 +2199,6 @@ void onFrameMove(float delta)
 		if (door_txCount == 28)
 			door_txCount = 7;
 			door_delta = 0.0f;
-	}
-
-
-	if ((Light_resulte_Room1[1].position.x < Light_resulte_Room1[2].position.x + 0.25f && Light_resulte_Room1[1].position.x > Light_resulte_Room1[2].position.x - 0.25f )&& (Light_resulte_Room1[1].position.z < Light_resulte_Room1[2].position.z + 0.25f && Light_resulte_Room1[1].position.z > Light_resulte_Room1[2].position.z - 0.25f)) { //燈光於相同範圍則結束遊戲
-
-		bfinish = true;
-
 	}
 
 
@@ -1936,7 +2234,8 @@ void onFrameMove(float delta)
 		fAngle = g_tank->billboardCylindricalBegin(g_tank->_vT.x, g_tank->_vT.y, g_tank->_vT.z, cameraPosition.x, cameraPosition.y, cameraPosition.z);
 		g_tank->setTRSMatrix(Translate(g_tank->_vT) * RotateY(fAngle) * Scale(g_tank->_vS));
 		
-		g_Target->setViewMatrix(mvx);
+		for (int i = 0; i < 3; i++)
+			g_Target[i]->setViewMatrix(mvx);
 		g_Sun->setViewMatrix(mvx);
 		g_Earth->setViewMatrix(mvx);
 		g_Moon->setViewMatrix(mvx);	
@@ -1961,7 +2260,7 @@ void onFrameMove(float delta)
 		CSFloor_Room1->setViewMatrix(mvx);
 		CQDoor1_Room1->setViewMatrix(mvx);
 		CQDoor2_Room1->setViewMatrix(mvx);
-		
+		CQTip->setViewMatrix(mvx);
 
 		CQRightWall_Room2->setViewMatrix(mvx);
 		CQLeftWall_Room2->setViewMatrix(mvx);
@@ -2027,6 +2326,12 @@ void onFrameMove(float delta)
 		bulletMark[i]->update(delta , Light_resulte_Room3);
 	}
 
+
+	for (int i = 0; i < 4; i++)
+	{
+		CQ_uiBtn[i]->update(delta, Light_resulte_Room1);
+	}
+	
 	g_bullet->update(delta, Light_resulte_Room4);
 	g_gun->update(delta, Light_resulte_Room6);
 	g_balcony->update(delta, Light_resulte_Room1);
@@ -2048,6 +2353,7 @@ void onFrameMove(float delta)
 	CQBackWall_Room1->update(delta, Light_resulte_Room1);
 	CQDoor1_Room1->update(delta, Light_resulte_Room1);
 	CQDoor2_Room1->update(delta, Light_resulte_Room1);
+	CQTip->update(delta, Light_resulte_Room1);
 
 
 	g_Sun->update(delta, Light_resulte_Room2);
@@ -2063,8 +2369,11 @@ void onFrameMove(float delta)
 	CQDoor1_Room2->update(delta, Light_resulte_Room2);
 	CQDoor2_Room2->update(delta, Light_resulte_Room2);
 
+	
+	g_Target[0]->update(delta, Light_resulte_Target1);
+	g_Target[1]->update(delta, Light_resulte_Target2);
+	g_Target[2]->update(delta, Light_resulte_Target3);
 
-	g_Target->update(delta, Light_resulte_Room3);
 	CQRightWall_Room3->update(delta, Light_resulte_Room3);
 	CQLeftWall_Room3->update(delta, Light_resulte_Room3);
 	CQFrontWall_Room3->update(delta, Light_resulte_Room3);
@@ -2171,28 +2480,28 @@ void Win_Keyboard( unsigned char key, int x, int y )
     //遙控器車
 	
 		case '8': //上
-			if (!bfinish) {
+			if (!bfinish_Room1) {
 				Light_resulte_Room1[1].position.z += 1.0f;
 				g_track->_vT.z += 1.0f;
 				g_track->setTRSMatrix(Translate(g_track->_vT));
 			}
 			break;
 		case '5': //下
-			if (!bfinish) {
+			if (!bfinish_Room1) {
 				Light_resulte_Room1[1].position.z -= 1.0f;
 				g_track->_vT.z -= 1.0f;
 				g_track->setTRSMatrix(Translate(g_track->_vT));
 			}
 			break;
 		case '4'://左
-			if (!bfinish) {
+			if (!bfinish_Room1) {
 				Light_resulte_Room1[1].position.x += 1.0f;
 				g_track->_vT.x += 1.0f;
 				g_track->setTRSMatrix(Translate(g_track->_vT));
 			}
 			break;
 		case '6'://右
-			if (!bfinish) {
+			if (!bfinish_Room1) {
 				Light_resulte_Room1[1].position.x -= 1.0f;
 				g_track->_vT.x -= 1.0f;
 				g_track->setTRSMatrix(Translate(g_track->_vT));
@@ -2207,7 +2516,8 @@ void Win_Keyboard( unsigned char key, int x, int y )
 			delete bulletMark[i];
 		}
 		delete CSSphere;
-		delete g_Target;
+		for (int i = 0; i < 3; i++)
+			delete g_Target[i];
 		delete g_tank;
 		
 		delete g_Sun;
@@ -2236,6 +2546,7 @@ void Win_Keyboard( unsigned char key, int x, int y )
 		delete CQBackWall_Room1;
 		delete CQDoor1_Room1;
 		delete CQDoor2_Room1;
+		delete CQTip;
 
 		
 		delete CSCeiling_Room2;
@@ -2303,9 +2614,15 @@ void Win_Mouse(int button, int state, int x, int y) {
 	switch (button)
 	{
 	case GLUT_LEFT_BUTTON:
-		if (state == GLUT_DOWN)
+		if (state == GLUT_DOWN && bTookGun ) //拿槍才可開槍
 		{
 			bFire = true;//發射子彈
+		}
+
+		if (state == GLUT_DOWN && bInRoom[0]) //在room1撿紙
+		{
+			bPrintUI = true; //UI介面出現
+			bPrintTip = false; //地板的紙不見
 		}
 
 		break;
@@ -2317,7 +2634,7 @@ void Win_Mouse(int button, int state, int x, int y) {
 //----------------------------------------------------------------------------
 
 
-bool bInRoom[13] = { false };  //哪間房間
+
 float Room1_x_big = 18.5f;
 float Room1_x_small = -18.5;
 float Room1_y_big = 18.5f;
